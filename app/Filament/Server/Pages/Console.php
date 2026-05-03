@@ -181,6 +181,8 @@ class Console extends Page
                     ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable())
                     ->requiresConfirmation(fn (Server $server) => $this->blockingServerFor($server) !== null)
                     ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
+                    ->modalIcon(TablerIcon::AlertTriangle)
+                    ->modalIconColor('danger')
                     ->modalDescription(function (Server $server) {
                         $other = $this->blockingServerFor($server);
 
@@ -189,6 +191,7 @@ class Console extends Page
                             : null;
                     })
                     ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
+                    ->modalSubmitAction(fn ($action) => $action->color('danger'))
                     ->action(function (Server $server) {
                         // serialise concurrent start clicks per owner so two
                         // tabs on different servers cannot both pass the

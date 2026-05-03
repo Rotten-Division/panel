@@ -13,7 +13,7 @@ return [
         'kill' => 'Kill',
         'kill_tooltip' => 'This can result in data corruption and/or data loss!',
         'start_swap_heading' => 'You already have a server running',
-        'start_swap_description' => 'Your plan allows one running server at a time. Stop ":name" and start this one?',
+        'start_swap_description' => 'Your plan allows one running server at a time. ":name" will be stopped immediately, any unsaved progress on it will be lost. Continue?',
         'start_swap_submit' => 'Stop the other and start this one',
     ],
     'labels' => [
