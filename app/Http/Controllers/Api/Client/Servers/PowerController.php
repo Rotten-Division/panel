@@ -48,13 +48,15 @@ class PowerController extends ClientApiController
             );
 
             if (!$decision->proceeded) {
+                $status = $decision->httpStatus();
+
                 return response()->json([
                     'errors' => [[
                         'code' => $decision->outcome,
-                        'status' => '423',
+                        'status' => (string) $status,
                         'detail' => $decision->message,
                     ]],
-                ], 423);
+                ], $status);
             }
         } else {
             $this->repository->setServer($server)->power($signal);
