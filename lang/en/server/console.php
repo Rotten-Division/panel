@@ -13,7 +13,7 @@ return [
         'kill' => 'Kill',
         'kill_tooltip' => 'This can result in data corruption and/or data loss!',
         'start_swap_heading' => 'Stop your other server first?',
-        'start_swap_description' => 'To keep things fair for everyone, you can have one server running at a time. Anyone playing on <code style="padding: 2px 6px; border-radius: 4px; background-color: rgba(255, 255, 255, 0.06); font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.875em;">:name</code> will be disconnected.',
+        'start_swap_description' => 'To keep things fair for everyone, you can have one server running at a time. Anyone playing on <code>:name</code> will be disconnected.',
         'start_swap_submit' => 'Stop and switch',
     ],
     'labels' => [
