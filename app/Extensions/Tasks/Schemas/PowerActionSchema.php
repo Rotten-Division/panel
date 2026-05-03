@@ -3,12 +3,12 @@
 namespace App\Extensions\Tasks\Schemas;
 
 use App\Contracts\Servers\ServerStartGate;
+use App\Exceptions\Servers\StartGateRefusedException;
 use App\Models\Task;
 use App\Repositories\Daemon\DaemonServerRepository;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Illuminate\Support\Str;
-use RuntimeException;
 
 final class PowerActionSchema extends TaskSchema
 {
@@ -28,7 +28,8 @@ final class PowerActionSchema extends TaskSchema
 
         // route scheduled starts through the panels start gate so the one
         // running server policy applies to schedules just like the ui. on a
-        // gate refusal the task throws so the schedules continue on failure
+        // gate refusal the task throws StartGateRefusedException, RunTaskJob
+        // recognises it as absorbable so the schedules continue on failure
         // flag governs whether subsequent tasks still run.
         if ($task->payload === 'start') {
             $decision = $this->startGate->gateStart(
@@ -38,7 +39,7 @@ final class PowerActionSchema extends TaskSchema
             );
 
             if (!$decision->proceeded) {
-                throw new RuntimeException("scheduled start blocked, {$decision->outcome}");
+                throw new StartGateRefusedException($decision);
             }
 
             return;
