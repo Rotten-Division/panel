@@ -68,4 +68,21 @@ final class StartGateDecision
             "Could not confirm \"{$blocker->name}\" stopped, the start was aborted to avoid two servers running at once.",
         );
     }
+
+    /**
+     * http status that best reflects the outcome for api responses, 204 on
+     * success, 423 for the transient lock conflict, 403 for the permission
+     * gate, 409 for a state management failure where wings did not confirm
+     * the stop.
+     */
+    public function httpStatus(): int
+    {
+        return match ($this->outcome) {
+            self::ALLOWED, self::SWAPPED => 204,
+            self::LOCK_TIMEOUT => 423,
+            self::PERMISSION_DENIED => 403,
+            self::STOP_FAILED => 409,
+            default => 500,
+        };
+    }
 }
