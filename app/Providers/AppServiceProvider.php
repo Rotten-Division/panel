@@ -22,8 +22,10 @@ use App\Models\Server;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\UserSSHKey;
+use App\Contracts\Servers\ServerStartGate;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
+use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -131,6 +133,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(LoginResponseContract::class, \App\Http\Responses\LoginResponse::class);
+
+        // default start gate is unrestricted, the user limits plugin rebinds
+        // this to a swap aware implementation when installed.
+        $this->app->bind(ServerStartGate::class, UnrestrictedServerStartGate::class);
 
         Scramble::ignoreDefaultRoutes();
 
