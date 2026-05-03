@@ -14,6 +14,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -379,14 +380,30 @@ class PluginService
         }
 
         $pluginName = str($file->getClientOriginalName())->before('.zip')->toString();
+        $pluginDir = plugin_path($pluginName);
 
-        if ($cleanDownload) {
-            File::deleteDirectory(plugin_path($pluginName));
+        // refuse to clobber a working tree symlink on dev machines, the
+        // local checkout is symlinked into plugins from the monorepo and
+        // installing the canary zip here would unlink it and replace with
+        // the published copy, hiding live code edits.
+        if ($cleanDownload && is_link($pluginDir)) {
+            $zip->close();
+            throw new Exception("Plugin directory $pluginName is a symlink, refusing to overwrite. Remove the symlink first if you really want to replace the linked checkout.");
         }
 
-        $extractPath = $zip->locateName($pluginName . '/plugin.json') !== false ? base_path('plugins') : plugin_path($pluginName);
+        // require the zip to carry the expected top level folder so a typo
+        // in the publishing workflow or a hand assembled zip with a
+        // mismatched folder cannot land in the wrong place silently.
+        if ($zip->locateName($pluginName . '/plugin.json') === false) {
+            $zip->close();
+            throw new Exception("Zip does not contain the expected $pluginName/plugin.json entry.");
+        }
 
-        if (!$zip->extractTo($extractPath)) {
+        if ($cleanDownload) {
+            File::deleteDirectory($pluginDir);
+        }
+
+        if (!$zip->extractTo(base_path('plugins'))) {
             $zip->close();
             throw new Exception('Could not extract zip file.');
         }
@@ -420,7 +437,20 @@ class PluginService
                 ->withHeaders(['Accept' => 'application/octet-stream']);
         }
 
-        $content = $http->throw()->get($url)->body();
+        try {
+            $content = $http->throw()->get($url)->body();
+        } catch (RequestException $exception) {
+            // never re-throw the request exception verbatim, its previous
+            // and response carry the Authorization header which would land
+            // in any logger that serializes the exception chain.
+            $status = $exception->response?->status();
+            Log::warning('plugin asset download failed', [
+                'plugin_id' => $pluginId,
+                'status' => $status,
+            ]);
+
+            throw new Exception("Plugin download failed with status {$status}.");
+        }
 
         // Validate file size to prevent zip bombs
         $maxSize = config('panel.plugin.max_import_size');
