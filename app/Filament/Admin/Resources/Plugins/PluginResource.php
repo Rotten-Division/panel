@@ -289,7 +289,10 @@ class PluginResource extends Resource
                     ->hiddenLabel()
                     ->tooltip('Refresh plugin update checks')
                     ->icon(TablerIcon::Refresh)
-                    ->authorize(fn () => user()?->can('update', Plugin::class))
+                    // gate on create like the neighbouring import buttons,
+                    // PluginPolicy::update requires a Model instance and
+                    // would type error if invoked at class scope.
+                    ->authorize(fn () => user()?->can('create', Plugin::class))
                     ->action(function ($livewire) {
                         // bust both channels per plugin so a panel that ever
                         // flips channels also sees fresh data on next load.
