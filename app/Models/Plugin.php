@@ -10,9 +10,11 @@ use App\Facades\Plugins;
 use Exception;
 use Filament\Schemas\Components\Component;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use JsonException;
 use Sushi\Sushi;
@@ -247,17 +249,21 @@ class Plugin extends Model implements HasPluginSettings
             return null;
         }
 
-        return cache()->remember("plugins.$this->id.update", now()->addMinutes(10), function () {
+        // accept raw is required regardless of auth so the github contents
+        // api streams the file body, otherwise it returns the metadata
+        // wrapper which channel parsing then silently rejects.
+        // cache key includes the channel so a future per channel manifest
+        // url cannot bleed entries across panels with different app versions.
+        $cacheKey = "plugins.$this->id.update.".$this->resolvedChannel();
+
+        return cache()->remember($cacheKey, now()->addMinutes(10), function () {
             try {
                 $http = Http::timeout(5)->connectTimeout(1)
-                    ->withUserAgent(config('services.github.plugin_user_agent', 'OspiteHosting-Panel'));
+                    ->withUserAgent(config('services.github.plugin_user_agent', 'OspiteHosting-Panel'))
+                    ->withHeaders(['Accept' => 'application/vnd.github.raw']);
 
                 if ($token = config('services.github.plugin_token')) {
-                    // accept raw makes the github contents api stream the
-                    // file body instead of the metadata wrapper, so we can
-                    // json decode the manifest directly.
-                    $http = $http->withToken($token)
-                        ->withHeaders(['Accept' => 'application/vnd.github.raw']);
+                    $http = $http->withToken($token);
                 }
 
                 $data = $http->get($this->update_url)->throw()->json();
@@ -269,11 +275,28 @@ class Plugin extends Model implements HasPluginSettings
 
                 return $data;
             } catch (Exception $exception) {
-                report($exception);
+                // never call report() on the http client exception, the
+                // request including the Authorization header is reachable
+                // through the exception chain and would otherwise land in
+                // the laravel log.
+                Log::warning('plugin update manifest fetch failed', [
+                    'plugin' => $this->id,
+                    'status' => $exception instanceof RequestException
+                        ? $exception->response?->status()
+                        : null,
+                    'message' => $exception->getMessage(),
+                ]);
             }
 
             return null;
         });
+    }
+
+    private function resolvedChannel(): string
+    {
+        return str_starts_with((string) (config('app.version') ?: 'canary'), 'canary')
+            ? 'canary'
+            : 'release';
     }
 
     /**
@@ -292,11 +315,7 @@ class Plugin extends Model implements HasPluginSettings
             return null;
         }
 
-        $key = str_starts_with((string) config('app.version', 'canary'), 'canary')
-            ? 'canary'
-            : 'release';
-
-        $entry = $updateData[$key] ?? null;
+        $entry = $updateData[$this->resolvedChannel()] ?? null;
         if (!is_array($entry) || !isset($entry['version'], $entry['download_url'])) {
             return null;
         }
@@ -314,7 +333,7 @@ class Plugin extends Model implements HasPluginSettings
         // canary versions like canary-abc1234 do not sort meaningfully under
         // version_compare, so a string inequality is the right check, any
         // different sha means a newer build is available.
-        if (str_starts_with((string) config('app.version', 'canary'), 'canary')) {
+        if ($this->resolvedChannel() === 'canary') {
             return $entry['version'] !== $this->version;
         }
 
