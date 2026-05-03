@@ -17,6 +17,7 @@ use App\Livewire\AlertBanner;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Traits\Filament\CanCustomizeHeaderActions;
+use Illuminate\Auth\Access\AuthorizationException;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -31,6 +32,8 @@ use Livewire\Attributes\On;
 
 class Console extends Page
 {
+    private const LIMIT_SERVICE = 'RottenDivision\\OspiteUserLimits\\Services\\LimitService';
+
     use CanCustomizeHeaderActions, HasHeaderActions {
         CanCustomizeHeaderActions::getHeaderActions insteadof HasHeaderActions;
     }
@@ -187,6 +190,14 @@ class Console extends Page
                         $other = $this->blockingServerFor($server);
 
                         if ($other !== null) {
+                            // re check ControlStop on the other server before
+                            // sending the kill, the gate only fires for owners
+                            // but a panel admin power tweak in the future could
+                            // lift that, the auth check is the safety net.
+                            if (!user()?->can(SubuserPermission::ControlStop, $other)) {
+                                throw new AuthorizationException;
+                            }
+
                             // browser side setServerState filters by current
                             // server uuid, so the other server stop has to go
                             // straight through the panels wings client.
@@ -249,22 +260,24 @@ class Console extends Page
      * resolve the running server gate when the ospite user limits plugin is
      * installed. without it the gate degrades to off and the start action
      * behaves like upstream pelican, so panels that drop the plugin keep
-     * working.
+     * working. the gate only fires when the acting user is the owner, so a
+     * subuser starting their hosts server cannot trigger a stop on another
+     * server they have no permission over.
      */
     private function blockingServerFor(Server $server): ?Server
     {
-        $service = '\\RottenDivision\\OspiteUserLimits\\Services\\LimitService';
+        $service = self::LIMIT_SERVICE;
 
         if (!class_exists($service)) {
             return null;
         }
 
-        $owner = $server->user;
+        $acting = user();
 
-        if ($owner === null) {
+        if ($acting === null || $acting->id !== $server->owner_id) {
             return null;
         }
 
-        return app($service)->blockingActiveServerFor($owner, $server);
+        return app($service)->blockingActiveServerFor($acting, $server);
     }
 }
