@@ -121,22 +121,6 @@ jobs:
           docker push localhost:5000/base-php:${{ matrix.arch }}
           rm base-php-${{ matrix.arch }}.tar
 
-      - name: Update version in config/app.php (tag)
-        if: "github.event_name == 'release' && github.event.action == 'published'"
-        run: |
-          # match whatever literal upstream ships, do not depend on the
-          # placeholder being canary because the fork ships a real version
-          # string and the old narrow sed silently no oped.
-          sed -i -E "s/'version' *=> *'[^']+'/'version' => '${{ steps.build_info.outputs.version_tag }}'/" config/app.php
-
-      - name: Update version in config/app.php (main)
-        if: "(github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'"
-        run: |
-          # canary prefix keeps the admin update prompt quiet, see
-          # SoftwareVersionService::isLatestPanel which short circuits any
-          # version starting with canary.
-          sed -i -E "s/'version' *=> *'[^']+'/'version' => 'canary-${{ steps.build_info.outputs.short_sha }}'/" config/app.php
-
       - name: Build and Push by digest (tag)
         uses: docker/build-push-action@v6
         id: build_tag
@@ -146,7 +130,7 @@ jobs:
           file: ./Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
-            VERSION=${{ steps.build_info.outputs.version_tag }}
+            APP_VERSION=${{ steps.build_info.outputs.version_tag }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=tagged-${{ matrix.arch }}
           cache-to: type=gha,scope=tagged-${{ matrix.arch }},mode=max
@@ -160,7 +144,7 @@ jobs:
           file: ./Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
-            VERSION=dev-${{ steps.build_info.outputs.short_sha }}
+            APP_VERSION=canary-${{ steps.build_info.outputs.short_sha }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=main-${{ matrix.arch }}
           cache-to: type=gha,scope=main-${{ matrix.arch }},mode=max
