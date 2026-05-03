@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 
 class PluginResource extends Resource
 {
@@ -283,6 +284,26 @@ class PluginResource extends Resource
                                 ->body($exception->getMessage())
                                 ->send();
                         }
+                    }),
+                Action::make('refresh_updates')
+                    ->hiddenLabel()
+                    ->tooltip('Refresh plugin update checks')
+                    ->icon(TablerIcon::Refresh)
+                    ->authorize(fn () => user()?->can('update', Plugin::class))
+                    ->action(function ($livewire) {
+                        // bust both channels per plugin so a panel that ever
+                        // flips channels also sees fresh data on next load.
+                        foreach (Plugin::all() as $plugin) {
+                            Cache::forget("plugins.{$plugin->id}.update.canary");
+                            Cache::forget("plugins.{$plugin->id}.update.release");
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title('Plugin update checks refreshed')
+                            ->send();
+
+                        redirect(ListPlugins::getUrl(['tab' => $livewire->activeTab]));
                     }),
                 Action::make('import_from_url')
                     ->hiddenLabel()
