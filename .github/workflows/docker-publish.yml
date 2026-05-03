@@ -11,7 +11,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # ghcr requires lowercase repository names so we cannot use github.repository
+  # directly which preserves the original casing of Rotten-Division.
+  IMAGE_NAME: rotten-division/panel
 
 jobs:
   build-php-base:
