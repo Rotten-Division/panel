@@ -6,7 +6,10 @@ return [
     'logo' => env('APP_LOGO'),
     'favicon' => env('APP_FAVICON', '/pelican.ico'),
 
-    'version' => '1.0.0-beta33',
+    // local checkouts default to canary which routes through the canary
+    // plugin update channel, prod images set APP_VERSION via the docker
+    // workflow to canary short sha on main builds or v tag on releases.
+    'version' => env('APP_VERSION', 'canary'),
 
     'timezone' => 'UTC',
 
