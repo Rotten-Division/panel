@@ -324,7 +324,7 @@ class PluginService
             throw new Exception('No download url found.');
         }
 
-        $this->downloadPluginFromUrl($downloadUrl, true);
+        $this->downloadPluginFromUrl($downloadUrl, true, $plugin->id);
 
         $this->installPlugin($plugin, false);
 
@@ -395,14 +395,17 @@ class PluginService
     }
 
     /** @throws Exception */
-    public function downloadPluginFromUrl(string $url, bool $cleanDownload = false): void
+    public function downloadPluginFromUrl(string $url, bool $cleanDownload = false, ?string $pluginId = null): void
     {
         $info = pathinfo($url);
-        // spaties temporary directory uses a dot in the path to decide file
-        // vs directory and creates the latter as a real directory, which
-        // breaks for github asset urls that look like .../assets/411195093.
-        // force a zip extension so the heuristic always lands on file.
-        $basename = str_contains($info['basename'], '.') ? $info['basename'] : $info['basename'] . '.zip';
+        // when the caller knows the plugin id we use it as the basename so
+        // downloadPluginFromFile resolves the right install folder via its
+        // getClientOriginalName plus before .zip heuristic. otherwise fall
+        // back to the urls basename, force a dot so spaties temporary
+        // directory does not mkdir an extensionless asset id like 411195093.
+        $basename = $pluginId !== null
+            ? $pluginId . '.zip'
+            : (str_contains($info['basename'], '.') ? $info['basename'] : $info['basename'] . '.zip');
         $tmpDir = TemporaryDirectory::make()->deleteWhenDestroyed();
         $tmpPath = $tmpDir->path($basename);
 
