@@ -253,6 +253,17 @@ class UserResource extends Resource
                             'md' => 1,
                             'lg' => 1,
                         ]),
+                    TextInput::make('server_limit')
+                        ->label('Server cap')
+                        ->helperText('Maximum number of servers this user can own. Leave blank to inherit the system default.')
+                        ->numeric()
+                        ->minValue(0)
+                        ->maxValue(1000)
+                        ->columnSpan([
+                            'default' => 1,
+                            'md' => 1,
+                            'lg' => 1,
+                        ]),
                     Section::make(trans('profile.tabs.customization'))
                         ->collapsible()
                         ->columnSpanFull()
