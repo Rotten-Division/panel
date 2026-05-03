@@ -29,6 +29,7 @@ class StartSwapModal
                     ? new HtmlString(trans('server/console.power_actions.start_swap_description', ['name' => e($other->name)]))
                     : null;
             })
+            ->modalCloseButton(false)
             ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'));
     }
 }
