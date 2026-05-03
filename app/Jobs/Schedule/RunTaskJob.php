@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Schedule;
 
+use App\Exceptions\Servers\StartGateRefusedException;
 use App\Extensions\Tasks\TaskService;
 use App\Jobs\Job;
 use App\Models\Task;
@@ -60,9 +61,14 @@ class RunTaskJob extends Job implements ShouldQueue
 
             $taskSchema->runTask($this->task);
         } catch (Exception $exception) {
-            // If this isn't a ConnectionException on a task that allows for failures
-            // throw the exception back up the chain so that the task is stopped.
-            if (!($this->task->continue_on_failure && $exception instanceof ConnectionException)) {
+            // continue_on_failure absorbs transient or policy driven failures
+            // so the rest of the schedule still runs. ConnectionException covers
+            // wings being unreachable, StartGateRefusedException covers a start
+            // that the panels start gate refused, anything else aborts the chain.
+            $absorbable = $exception instanceof ConnectionException
+                || $exception instanceof StartGateRefusedException;
+
+            if (!($this->task->continue_on_failure && $absorbable)) {
                 throw $exception;
             }
         }
