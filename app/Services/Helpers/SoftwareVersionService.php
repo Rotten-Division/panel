@@ -64,10 +64,7 @@ class SoftwareVersionService
 
     public function isLatestPanel(): bool
     {
-        // canary builds reuse the same regex Plugin uses for channel
-        // resolution and compatibility, the three call sites must agree
-        // or a hand stamped APP_VERSION can route inconsistently.
-        if (preg_match(Plugin::CANARY_VERSION_PATTERN, (string) config('app.version')) === 1) {
+        if (Plugin::isCanaryVersion((string) config('app.version'))) {
             return true;
         }
 
