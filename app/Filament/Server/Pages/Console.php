@@ -187,11 +187,13 @@ class Console extends Page
                         );
 
                         if (!$decision->proceeded) {
-                            Notification::make()
-                                ->title($decision->outcome === StartGateDecision::LOCK_TIMEOUT ? 'Try again in a moment' : 'Could not start server')
-                                ->body($decision->message)
-                                ->warning()
-                                ->send();
+                            $isTransient = $decision->outcome === StartGateDecision::LOCK_TIMEOUT;
+                            $notification = Notification::make()
+                                ->title($isTransient ? 'Try again in a moment' : 'Could not start server')
+                                ->body($decision->message);
+
+                            $isTransient ? $notification->warning() : $notification->danger();
+                            $notification->send();
                         }
                     })
                     ->size(Size::ExtraLarge),
