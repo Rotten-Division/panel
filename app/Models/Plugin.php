@@ -218,9 +218,17 @@ class Plugin extends Model implements HasPluginSettings
 
     public function isCompatible(): bool
     {
-        $currentPanelVersion = config('app.version', 'canary');
+        $currentPanelVersion = (string) (config('app.version') ?: 'canary');
 
-        return !$this->panel_version || $currentPanelVersion === 'canary' || version_compare($currentPanelVersion, str($this->panel_version)->trim('^'), $this->isPanelVersionStrict() ? '=' : '>=');
+        // any canary prefixed panel version is treated as compatible, the
+        // dev or main build is presumed to track upstream closely enough
+        // that the plugins panel_version constraint is moot. once a real
+        // tag is baked into APP_VERSION the version_compare path runs.
+        if (preg_match('/^canary(?:-[0-9a-f]{7,40})?$/', $currentPanelVersion) === 1) {
+            return true;
+        }
+
+        return !$this->panel_version || version_compare($currentPanelVersion, str($this->panel_version)->trim('^'), $this->isPanelVersionStrict() ? '=' : '>=');
     }
 
     public function isPanelVersionStrict(): bool
@@ -324,6 +332,14 @@ class Plugin extends Model implements HasPluginSettings
 
         $entry = $updateData[$this->resolvedChannel()] ?? null;
         if (!is_array($entry) || !isset($entry['version'], $entry['download_url'])) {
+            return null;
+        }
+
+        // empty download_url is the placeholder shape the publish workflow
+        // emits before its first run for that channel, treat it as no entry
+        // so a release channel panel reading a never published manifest
+        // never tries to fetch from a stub url.
+        if ($entry['download_url'] === '') {
             return null;
         }
 
