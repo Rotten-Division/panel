@@ -33,10 +33,10 @@ jobs:
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build the base PHP image
         uses: docker/build-push-action@v6
         with:
@@ -46,12 +46,12 @@ jobs:
           load: true
           platforms: ${{ matrix.platform }}
           tags: base-php:${{ matrix.arch }}
-          cache-from: type=gha,scope=base-php${{ matrix.arch }}
-          cache-to: type=gha,scope=base-php${{ matrix.arch }}
+          cache-from: type=gha,scope=base-php-${{ matrix.arch }}
+          cache-to: type=gha,scope=base-php-${{ matrix.arch }}
 
       - name: Export image to file
         run: docker save -o base-php-${{ matrix.arch }}.tar base-php:${{ matrix.arch }}
-      
+
       - name: Push the docker build to the artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -59,43 +59,36 @@ jobs:
           path: base-php-${{ matrix.arch }}.tar
           retention-days: 7
 
-
+  # build the final image once per native arch so we never run yarn or
+  # composer through qemu, then merge the per arch digests into a single
+  # multi arch manifest in the merge job below.
   build-and-push:
-    name: Build and Push ubuntu-24.04
-    runs-on: ubuntu-24.04
+    name: Build and Push (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
     needs: build-php-base
     permissions:
       contents: read
       packages: write
-    # Start a temp local registry because workflow can not pull from localy loaded images
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: amd64
+            platform: linux/amd64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            platform: linux/arm64
     services:
       registry:
         image: registry:2
         ports:
-          - 5000:5000 
-    # Always run against a tag, even if the commit into the tag has [docker skip] within the commit message.
+          - 5000:5000
     if: "github.ref != 'refs/heads/main' || (!contains(github.event.head_commit.message, 'skip docker') && !contains(github.event.head_commit.message, 'docker skip'))"
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
 
-      - name: Docker metadata
-        id: docker_meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=false
-          tags: |
-            type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == false }}
-            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == false }}
-            type=ref,event=tag
-            type=ref,event=branch
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
-      # We Need to start it in host mode else it can't acces the local registry on port 5000
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -114,57 +107,113 @@ jobs:
           echo "version_tag=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-        # Download the base PHP image AMD64
-      - uses: actions/download-artifact@v4
+      - name: Download the per arch base PHP image
+        uses: actions/download-artifact@v4
         with:
-          name: base-php-amd64.tar
-        
-        # Download the base PHP image ARM64
-      - uses: actions/download-artifact@v4
-        with:
-          name: base-php-arm64.tar
+          name: base-php-${{ matrix.arch }}.tar
 
-      - name: Load base images into local registry
+      - name: Load base image into the local registry
         run: |
-          docker load -i base-php-amd64.tar
-          docker load -i base-php-arm64.tar
-          docker tag base-php:amd64 localhost:5000/base-php:amd64
-          docker tag base-php:arm64 localhost:5000/base-php:arm64
-          docker push localhost:5000/base-php:amd64
-          docker push localhost:5000/base-php:arm64
-          rm base-php-arm64.tar base-php-amd64.tar
-          
+          docker load -i base-php-${{ matrix.arch }}.tar
+          docker tag base-php:${{ matrix.arch }} localhost:5000/base-php:${{ matrix.arch }}
+          docker push localhost:5000/base-php:${{ matrix.arch }}
+          rm base-php-${{ matrix.arch }}.tar
+
       - name: Update version in config/app.php (tag)
         if: "github.event_name == 'release' && github.event.action == 'published'"
         run: |
           sed -i "s/'version' => 'canary',/'version' => '${{ steps.build_info.outputs.version_tag }}',/" config/app.php
-              
-      - name: Build and Push (tag)
+
+      - name: Build and Push by digest (tag)
         uses: docker/build-push-action@v6
+        id: build_tag
         if: "github.event_name == 'release' && github.event.action == 'published'"
         with:
           context: .
           file: ./Dockerfile
-          push: true
-          platforms: 'linux/amd64,linux/arm64'
+          platforms: ${{ matrix.platform }}
           build-args: |
             VERSION=${{ steps.build_info.outputs.version_tag }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          cache-from: type=gha,scope=tagged${{ matrix.os }}
-          cache-to: type=gha,scope=tagged${{ matrix.os }},mode=max
-        
-      - name: Build and Push (main)
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=tagged-${{ matrix.arch }}
+          cache-to: type=gha,scope=tagged-${{ matrix.arch }},mode=max
+
+      - name: Build and Push by digest (main)
         uses: docker/build-push-action@v6
+        id: build_main
         if: "(github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'"
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          platforms: 'linux/amd64,linux/arm64'
+          platforms: ${{ matrix.platform }}
           build-args: |
             VERSION=dev-${{ steps.build_info.outputs.short_sha }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          cache-from: type=gha,scope=${{ matrix.os }}
-          cache-to: type=gha,scope=${{ matrix.os }},mode=max
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=main-${{ matrix.arch }}
+          cache-to: type=gha,scope=main-${{ matrix.arch }},mode=max
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build_tag.outputs.digest || steps.build_main.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: /tmp/digests/*
+          retention-days: 1
+          if-no-files-found: error
+
+  merge:
+    name: Merge per arch digests into the multi arch manifest
+    runs-on: ubuntu-24.04
+    needs: build-and-push
+    permissions:
+      contents: read
+      packages: write
+    if: "github.ref != 'refs/heads/main' || (!contains(github.event.head_commit.message, 'skip docker') && !contains(github.event.head_commit.message, 'docker skip'))"
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == false }}
+            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == false }}
+            type=ref,event=tag
+            type=ref,event=branch
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create the multi arch manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
+
+      - name: Inspect the published manifest
+        run: |
+          for tag in $(jq -cr '.tags | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
+            echo "tag: $tag"
+            docker buildx imagetools inspect "$tag"
+          done
