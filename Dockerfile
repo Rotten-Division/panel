@@ -60,6 +60,12 @@ RUN yarn run build
 # ================================
 FROM --platform=$TARGETOS/$TARGETARCH localhost:5000/base-php:$TARGETARCH AS final
 
+# the docker workflow passes APP_VERSION as a build arg per channel, canary
+# short sha on main builds, the v tag on releases. baked into the final
+# images env so config/app.php picks it up via env('APP_VERSION') at runtime.
+ARG APP_VERSION=canary
+ENV APP_VERSION=$APP_VERSION
+
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
