@@ -31,6 +31,7 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
 
 class ListServers extends ListRecords
@@ -328,17 +329,17 @@ class ListServers extends ListRecords
                 ->requiresConfirmation(fn (Server $server) => self::blockingServerFor($server) !== null)
                 ->modalHidden(fn (Server $server) => self::blockingServerFor($server) === null)
                 ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
-                ->modalIcon(TablerIcon::AlertTriangle)
-                ->modalIconColor('danger')
                 ->modalDescription(function (Server $server) {
                     $other = self::blockingServerFor($server);
 
+                    // wrap in HtmlString so the code tag in the trans
+                    // string renders as monospace, escape the server
+                    // name first because trans does not auto escape.
                     return $other
-                        ? trans('server/console.power_actions.start_swap_description', ['name' => $other->name])
+                        ? new HtmlString(trans('server/console.power_actions.start_swap_description', ['name' => e($other->name)]))
                         : null;
                 })
                 ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
-                ->modalSubmitAction(fn ($action) => $action->color('danger'))
                 ->dispatch('powerAction', fn (Server $server) => ['server' => $server, 'action' => 'start']),
             Action::make('restart')
                 ->label(trans('server/console.power_actions.restart'))
