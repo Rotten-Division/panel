@@ -29,6 +29,11 @@ abstract class PanelProvider extends BasePanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            // single brand theme shared across admin, app and server panels.
+            // the file is compiled by vite into the panels image baked
+            // bundle so theme changes survive container recreates without a
+            // separate plugin asset publish step.
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->spa(fn () => !request()->routeIs('filament.server.pages.console'))
             ->spaUrlExceptions([
                 '*/oauth/redirect/*',
