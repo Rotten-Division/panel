@@ -401,7 +401,18 @@ class PluginService
         $tmpDir = TemporaryDirectory::make()->deleteWhenDestroyed();
         $tmpPath = $tmpDir->path($info['basename']);
 
-        $content = Http::timeout(60)->connectTimeout(5)->throw()->get($url)->body();
+        $http = Http::timeout(60)->connectTimeout(5)
+            ->withUserAgent(config('services.github.plugin_user_agent', 'OspiteHosting-Panel'));
+
+        // github release asset urls require an authorization header plus the
+        // octet stream accept header to redirect to the signed asset url.
+        // unauthenticated public urls just see plain Http::get.
+        if (str_contains($url, 'api.github.com') && ($token = config('services.github.plugin_token'))) {
+            $http = $http->withToken($token)
+                ->withHeaders(['Accept' => 'application/octet-stream']);
+        }
+
+        $content = $http->throw()->get($url)->body();
 
         // Validate file size to prevent zip bombs
         $maxSize = config('panel.plugin.max_import_size');
