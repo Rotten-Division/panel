@@ -297,7 +297,11 @@ class Plugin extends Model implements HasPluginSettings
 
     private function resolvedChannel(): string
     {
-        return str_starts_with((string) (config('app.version') ?: 'canary'), 'canary')
+        // match only the literal canary or canary-<short or full sha>, the
+        // docker workflow only emits these two shapes, a release tag mistyped
+        // as canary-1.0.0 should still fall through to the release channel
+        // so the panel sees the correct prompt.
+        return preg_match('/^canary(?:-[0-9a-f]{7,40})?$/', (string) (config('app.version') ?: 'canary')) === 1
             ? 'canary'
             : 'release';
     }
