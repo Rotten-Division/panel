@@ -135,8 +135,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LoginResponseContract::class, \App\Http\Responses\LoginResponse::class);
 
         // default start gate is unrestricted, the user limits plugin rebinds
-        // this to a swap aware implementation when installed.
-        $this->app->bind(ServerStartGate::class, UnrestrictedServerStartGate::class);
+        // this to a swap aware implementation when installed. singleton
+        // because the gate is stateless and every start path resolves it.
+        $this->app->singleton(ServerStartGate::class, UnrestrictedServerStartGate::class);
 
         Scramble::ignoreDefaultRoutes();
 
