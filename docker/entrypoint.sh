@@ -64,6 +64,12 @@ fi
 echo "Optimizing Filament"
 php artisan filament:optimize
 
+# plugins are mounted from a host volume so their public assets do not
+# exist in the image, every container start needs to publish them or the
+# admin ui loads without theme css and falls back to filaments grey base.
+echo "Publishing Filament assets"
+php artisan filament:assets
+
 # default to caddy not starting
 export SUPERVISORD_CADDY=false
 export CADDY_APP_URL="${APP_URL}"
