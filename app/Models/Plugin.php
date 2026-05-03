@@ -249,7 +249,18 @@ class Plugin extends Model implements HasPluginSettings
 
         return cache()->remember("plugins.$this->id.update", now()->addMinutes(10), function () {
             try {
-                $data = Http::timeout(5)->connectTimeout(1)->get($this->update_url)->throw()->json();
+                $http = Http::timeout(5)->connectTimeout(1)
+                    ->withUserAgent(config('services.github.plugin_user_agent', 'OspiteHosting-Panel'));
+
+                if ($token = config('services.github.plugin_token')) {
+                    // accept raw makes the github contents api stream the
+                    // file body instead of the metadata wrapper, so we can
+                    // json decode the manifest directly.
+                    $http = $http->withToken($token)
+                        ->withHeaders(['Accept' => 'application/vnd.github.raw']);
+                }
+
+                $data = $http->get($this->update_url)->throw()->json();
 
                 // Support update jsons that cover multiple plugins
                 if (array_key_exists($this->id, $data)) {
@@ -265,48 +276,54 @@ class Plugin extends Model implements HasPluginSettings
         });
     }
 
+    /**
+     * pick the manifest entry that matches the panels release channel. canary
+     * panels look at the canary block, anything else looks at the release
+     * block. the upstream multi key fallback was dropped because it conflated
+     * channels and made it impossible to ship a canary build without also
+     * pinging release panels.
+     *
+     * @return array{version: string, download_url: string}|null
+     */
+    private function channelEntry(): ?array
+    {
+        $updateData = $this->getUpdateData();
+        if (!$updateData) {
+            return null;
+        }
+
+        $key = str_starts_with((string) config('app.version', 'canary'), 'canary')
+            ? 'canary'
+            : 'release';
+
+        $entry = $updateData[$key] ?? null;
+        if (!is_array($entry) || !isset($entry['version'], $entry['download_url'])) {
+            return null;
+        }
+
+        return $entry;
+    }
+
     public function isUpdateAvailable(): bool
     {
-        $panelVersion = config('app.version', 'canary');
-
-        if ($panelVersion === 'canary') {
+        $entry = $this->channelEntry();
+        if (!$entry) {
             return false;
         }
 
-        $updateData = $this->getUpdateData();
-        if ($updateData) {
-            if (array_key_exists($panelVersion, $updateData)) {
-                return version_compare($updateData[$panelVersion]['version'], $this->version, '>');
-            }
-
-            if (array_key_exists('*', $updateData)) {
-                return version_compare($updateData['*']['version'], $this->version, '>');
-            }
+        // canary versions like canary-abc1234 do not sort meaningfully under
+        // version_compare, so a string inequality is the right check, any
+        // different sha means a newer build is available.
+        if (str_starts_with((string) config('app.version', 'canary'), 'canary')) {
+            return $entry['version'] !== $this->version;
         }
 
-        return false;
+        return version_compare($entry['version'], $this->version, '>');
     }
 
     public function getDownloadUrlForUpdate(): ?string
     {
-        $panelVersion = config('app.version', 'canary');
-
-        if ($panelVersion === 'canary') {
-            return null;
-        }
-
-        $updateData = $this->getUpdateData();
-        if ($updateData) {
-            if (array_key_exists($panelVersion, $updateData)) {
-                return $updateData[$panelVersion]['download_url'];
-            }
-
-            if (array_key_exists('*', $updateData)) {
-                return $updateData['*']['download_url'];
-            }
-        }
-
-        return null;
+        return $this->channelEntry()['download_url'] ?? null;
     }
 
     public function hasSettings(): bool
