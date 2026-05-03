@@ -110,9 +110,13 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::before(fn (User $user, $ability) => $user->isRootAdmin() ? true : null);
 
+        $latestPanel = $versionService->latestPanelVersion();
         AboutCommand::add('Pelican', [
             'Panel Version' => $versionService->currentPanelVersion(),
-            'Latest Version' => $versionService->latestPanelVersion(),
+            // hide the literal error sentinel that latestPanelVersion emits
+            // when the releases endpoint 404s or fails, an unknown answer
+            // reads better as a dash than the word error.
+            'Latest Version' => $latestPanel === 'error' ? '-' : $latestPanel,
             'Up-to-Date' => $versionService->isLatestPanel() ? '<fg=green;options=bold>Yes</>' : '<fg=red;options=bold>No</>',
         ]);
 

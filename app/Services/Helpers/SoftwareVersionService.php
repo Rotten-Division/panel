@@ -2,6 +2,7 @@
 
 namespace App\Services\Helpers;
 
+use App\Models\Plugin;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
@@ -63,14 +64,24 @@ class SoftwareVersionService
 
     public function isLatestPanel(): bool
     {
-        // any canary prefixed version is treated as up to date so main branch
-        // builds stamped canary short sha do not nag the admin dashboard with
-        // a fake update prompt against the upstream pelican release tag.
-        if (str_starts_with((string) config('app.version'), 'canary')) {
+        // canary builds reuse the same regex Plugin uses for channel
+        // resolution and compatibility, the three call sites must agree
+        // or a hand stamped APP_VERSION can route inconsistently.
+        if (preg_match(Plugin::CANARY_VERSION_PATTERN, (string) config('app.version')) === 1) {
             return true;
         }
 
-        return version_compare(config('app.version'), $this->latestPanelVersion()) >= 0;
+        $latest = $this->latestPanelVersion();
+
+        // the upstream check returns the literal error sentinel when the
+        // releases endpoint 404s or fails, that happens before the fork
+        // ever cuts a release. treat it as unknown rather than rendering
+        // an update prompt that points at the string error.
+        if ($latest === 'error') {
+            return true;
+        }
+
+        return version_compare(config('app.version'), $latest) >= 0;
     }
 
     public function isLatestWings(string $version): bool
