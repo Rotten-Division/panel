@@ -16,6 +16,7 @@ use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -294,6 +295,12 @@ class PluginService
             $this->manageComposerPackages(json_decode($plugin->composer_packages, true, 512));
 
             $this->buildAssets($plugin->isTheme());
+
+            // republish filament registered plugin assets into public so
+            // a css change in the new plugin version actually reaches the
+            // browser, buildAssets only handles theme yarn builds and does
+            // not cover assets registered via FilamentAsset::register.
+            Artisan::call('filament:assets');
 
             $this->runPluginMigrations($plugin);
 
