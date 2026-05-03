@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Client\Servers;
 
+use App\Contracts\Servers\ServerStartGate;
 use App\Facades\Activity;
 use App\Http\Controllers\Api\Client\ClientApiController;
 use App\Http\Requests\Api\Client\Servers\SendPowerRequest;
@@ -9,6 +10,7 @@ use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 #[Group('Server', weight: 2)]
@@ -17,8 +19,10 @@ class PowerController extends ClientApiController
     /**
      * PowerController constructor.
      */
-    public function __construct(private DaemonServerRepository $repository)
-    {
+    public function __construct(
+        private DaemonServerRepository $repository,
+        private ServerStartGate $startGate,
+    ) {
         parent::__construct();
     }
 
@@ -29,13 +33,34 @@ class PowerController extends ClientApiController
      *
      * @throws ConnectionException
      */
-    public function index(SendPowerRequest $request, Server $server): Response
+    public function index(SendPowerRequest $request, Server $server): Response|JsonResponse
     {
-        $this->repository->setServer($server)->power(
-            $request->input('signal')
-        );
+        $signal = $request->input('signal');
 
-        Activity::event(strtolower("server:power.{$request->input('signal')}"))->log();
+        // route start through the panels start gate so the api respects the
+        // same one running server policy the ui surfaces enforce. other
+        // signals pass through unchanged, the gate is start specific.
+        if ($signal === 'start') {
+            $decision = $this->startGate->gateStart(
+                $server,
+                $request->user(),
+                fn () => $this->repository->setServer($server)->power('start'),
+            );
+
+            if (!$decision->proceeded) {
+                return response()->json([
+                    'errors' => [[
+                        'code' => $decision->outcome,
+                        'status' => '423',
+                        'detail' => $decision->message,
+                    ]],
+                ], 423);
+            }
+        } else {
+            $this->repository->setServer($server)->power($signal);
+        }
+
+        Activity::event(strtolower("server:power.{$signal}"))->log();
 
         return $this->returnNoContent();
     }
