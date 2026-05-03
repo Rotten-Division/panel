@@ -17,7 +17,10 @@ use App\Livewire\AlertBanner;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Traits\Filament\CanCustomizeHeaderActions;
+use Filament\Notifications\Notification;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -187,24 +190,49 @@ class Console extends Page
                     })
                     ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
                     ->action(function (Server $server) {
-                        $other = $this->blockingServerFor($server);
+                        // serialise concurrent start clicks per owner so two
+                        // tabs on different servers cannot both pass the
+                        // running gate inside the wings status cache window.
+                        // the lock is held only across the gate re check and
+                        // dispatch, wings does the rest of the work async.
+                        $lock = Cache::lock("ospite:server-start:{$server->owner_id}", 30);
 
-                        if ($other !== null) {
-                            // re check ControlStop on the other server before
-                            // sending the kill, the gate only fires for owners
-                            // but a panel admin power tweak in the future could
-                            // lift that, the auth check is the safety net.
-                            if (!user()?->can(SubuserPermission::ControlStop, $other)) {
-                                throw new AuthorizationException;
-                            }
+                        try {
+                            $lock->block(5);
+                        } catch (LockTimeoutException) {
+                            Notification::make()
+                                ->title('Try again in a moment')
+                                ->body('Another start is already in flight for your account.')
+                                ->warning()
+                                ->send();
 
-                            // browser side setServerState filters by current
-                            // server uuid, so the other server stop has to go
-                            // straight through the panels wings client.
-                            app(DaemonServerRepository::class)->setServer($other)->power('stop');
+                            return;
                         }
 
-                        $this->dispatch('setServerState', uuid: $server->uuid, state: 'start');
+                        try {
+                            $other = $this->blockingServerFor($server);
+
+                            if ($other !== null) {
+                                // re check ControlStop on the other server
+                                // before sending the kill, the gate only fires
+                                // for owners but a panel admin power tweak
+                                // could lift that in the future, the auth
+                                // check is the safety net.
+                                if (!user()?->can(SubuserPermission::ControlStop, $other)) {
+                                    throw new AuthorizationException;
+                                }
+
+                                // browser side setServerState filters by the
+                                // current server uuid, so the other server
+                                // stop has to go straight through the panels
+                                // wings client.
+                                app(DaemonServerRepository::class)->setServer($other)->power('stop');
+                            }
+
+                            $this->dispatch('setServerState', uuid: $server->uuid, state: 'start');
+                        } finally {
+                            $lock->release();
+                        }
                     })
                     ->size(Size::ExtraLarge),
                 Action::make('restart')
