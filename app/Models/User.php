@@ -134,6 +134,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'mfa_email_enabled',
         'oauth',
         'customization',
+        'server_limit',
     ];
 
     /**
@@ -188,6 +189,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             'mfa_app_recovery_codes' => 'encrypted:array',
             'oauth' => 'array',
             'customization' => 'array',
+            'server_limit' => 'integer',
         ];
     }
 
