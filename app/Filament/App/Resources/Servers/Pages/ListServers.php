@@ -329,7 +329,7 @@ class ListServers extends ListRecords
                     ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
                 fn (Server $server) => self::blockingServerFor($server),
             )
-                ->dispatch('powerAction', fn (Server $server) => ['server' => $server, 'action' => 'start']),
+                ->action(fn (Server $server, $livewire) => $livewire->powerAction($server, 'start')),
             Action::make('restart')
                 ->label(trans('server/console.power_actions.restart'))
                 ->color('gray')
