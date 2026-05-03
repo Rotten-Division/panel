@@ -72,8 +72,8 @@ final class StartGateDecision
     /**
      * http status that best reflects the outcome for api responses, 204 on
      * success, 423 for the transient lock conflict, 403 for the permission
-     * gate, 409 for a state management failure where wings did not confirm
-     * the stop.
+     * gate, 502 for a stop that wings either rejected or did not confirm
+     * since the panel is acting as a gateway to wings on this path.
      */
     public function httpStatus(): int
     {
@@ -81,7 +81,7 @@ final class StartGateDecision
             self::ALLOWED, self::SWAPPED => 204,
             self::LOCK_TIMEOUT => 423,
             self::PERMISSION_DENIED => 403,
-            self::STOP_FAILED => 409,
+            self::STOP_FAILED => 502,
             default => 500,
         };
     }
