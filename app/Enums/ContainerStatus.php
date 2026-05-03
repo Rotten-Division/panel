@@ -44,11 +44,16 @@ enum ContainerStatus: string implements HasColor, HasIcon, HasLabel
     public function getColor(bool $hex = false): string
     {
         if ($hex) {
+            // brand state colours per DESIGN_SYSTEM.md section 2.4, dark
+            // mode dot values. created and removing share the warm transit
+            // hearth tone with the other in flight states. running is moss
+            // green, terminal states are brick red, restarting matches the
+            // restart accent.
             return match ($this) {
-                self::Created, self::Restarting => '#2563EB',
-                self::Starting, self::Paused, self::Removing, self::Stopping => '#D97706',
-                self::Running => '#22C55E',
-                self::Exited, self::Missing, self::Dead, self::Offline => '#EF4444',
+                self::Restarting => '#EE600A',
+                self::Created, self::Starting, self::Paused, self::Removing, self::Stopping => '#EE600A',
+                self::Running => '#2DA76D',
+                self::Exited, self::Missing, self::Dead, self::Offline => '#B43C3C',
             };
         }
 
