@@ -43,13 +43,13 @@ class Plugin extends Model implements HasPluginSettings
 
     public const RESOURCE_NAME = 'plugin';
 
-    /**
-     * shared canary detector used by isCompatible, channel resolution and
-     * the panel update check in SoftwareVersionService, anything matching
-     * is treated as a dev or main branch build that should not be compared
-     * against tagged releases via version_compare.
-     */
+    // matches bare canary or canary plus a 7 to 40 char hex sha.
     public const CANARY_VERSION_PATTERN = '/^canary(?:-[0-9a-f]{7,40})?$/';
+
+    public static function isCanaryVersion(string $version): bool
+    {
+        return preg_match(self::CANARY_VERSION_PATTERN, $version) === 1;
+    }
 
     protected $primaryKey = 'id';
 
@@ -232,7 +232,7 @@ class Plugin extends Model implements HasPluginSettings
         // dev or main build is presumed to track upstream closely enough
         // that the plugins panel_version constraint is moot. once a real
         // tag is baked into APP_VERSION the version_compare path runs.
-        if (preg_match(self::CANARY_VERSION_PATTERN, $currentPanelVersion) === 1) {
+        if (self::isCanaryVersion($currentPanelVersion)) {
             return true;
         }
 
@@ -317,7 +317,7 @@ class Plugin extends Model implements HasPluginSettings
         // docker workflow only emits these two shapes, a release tag mistyped
         // as canary-1.0.0 should still fall through to the release channel
         // so the panel sees the correct prompt.
-        return preg_match(self::CANARY_VERSION_PATTERN, (string) (config('app.version') ?: 'canary')) === 1
+        return self::isCanaryVersion((string) (config('app.version') ?: 'canary'))
             ? 'canary'
             : 'release';
     }
