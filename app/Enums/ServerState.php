@@ -28,10 +28,13 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
     public function getColor(bool $hex = false): string
     {
         if ($hex) {
+            // brand state colours per DESIGN_SYSTEM.md, install and restore
+            // are in flight transit states so they reuse the hearth tone,
+            // suspended is honey amber, install failures are brick red.
             return match ($this) {
-                self::Installing, self::RestoringBackup => '#2563EB',
-                self::Suspended => '#D97706',
-                self::InstallFailed, self::ReinstallFailed => '#EF4444',
+                self::Installing, self::RestoringBackup => '#EE600A',
+                self::Suspended => '#D89020',
+                self::InstallFailed, self::ReinstallFailed => '#B43C3C',
             };
         }
 
