@@ -4,12 +4,23 @@ namespace App\Livewire;
 
 use App\Filament\Server\Pages\Console;
 use App\Models\Server;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class ServerEntry extends Component
+// the grid view of the dashboard renders ListServers::getPowerActionGroup
+// inside this component, so it has to be a Filament HasActions and HasSchemas
+// host or any click on a power action posts mountAction to a component that
+// does not implement it, the panel returns a 500 from livewire update.
+class ServerEntry extends Component implements HasActions, HasSchemas
 {
+    use InteractsWithActions;
+    use InteractsWithSchemas;
+
     public Server $server;
 
     public function render(): View
