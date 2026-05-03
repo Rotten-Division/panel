@@ -2,6 +2,7 @@
 
 namespace App\Providers\Extensions;
 
+use App\Contracts\Servers\ServerStartGate;
 use App\Extensions\Tasks\Schemas\CreateBackupSchema;
 use App\Extensions\Tasks\Schemas\DeleteFilesSchema;
 use App\Extensions\Tasks\Schemas\PowerActionSchema;
@@ -20,7 +21,10 @@ class TaskServiceProvider extends ServiceProvider
             $service = new TaskService();
 
             // Default Task providers
-            $service->register(new PowerActionSchema($app->make(DaemonServerRepository::class)));
+            $service->register(new PowerActionSchema(
+                $app->make(DaemonServerRepository::class),
+                $app->make(ServerStartGate::class),
+            ));
             $service->register(new SendCommandSchema());
             $service->register(new CreateBackupSchema($app->make(InitiateBackupService::class)));
             $service->register(new DeleteFilesSchema($app->make(DeleteFilesService::class)));
