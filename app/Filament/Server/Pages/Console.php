@@ -8,6 +8,7 @@ use App\Enums\SubuserPermission;
 use App\Enums\TablerIcon;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Extensions\Features\FeatureService;
+use App\Filament\Components\Actions\StartSwapModal;
 use App\Filament\Server\Widgets\ServerConsole;
 use App\Filament\Server\Widgets\ServerCpuChart;
 use App\Filament\Server\Widgets\ServerMemoryChart;
@@ -20,7 +21,6 @@ use App\Traits\Filament\CanCustomizeHeaderActions;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\HtmlString;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -173,26 +173,15 @@ class Console extends Page
     {
         return [
             ActionGroup::make([
-                Action::make('start')
-                    ->label(trans('server/console.power_actions.start'))
-                    ->color('primary')
-                    ->icon(TablerIcon::PlayerPlayFilled)
-                    ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
-                    ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable())
-                    ->requiresConfirmation(fn (Server $server) => $this->blockingServerFor($server) !== null)
-                    ->modalHidden(fn (Server $server) => $this->blockingServerFor($server) === null)
-                    ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
-                    ->modalDescription(function (Server $server) {
-                        $other = $this->blockingServerFor($server);
-
-                        // wrap in HtmlString so the code tag in the trans
-                        // string renders as monospace, escape the server
-                        // name first because trans does not auto escape.
-                        return $other
-                            ? new HtmlString(trans('server/console.power_actions.start_swap_description', ['name' => e($other->name)]))
-                            : null;
-                    })
-                    ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
+                StartSwapModal::configure(
+                    Action::make('start')
+                        ->label(trans('server/console.power_actions.start'))
+                        ->color('primary')
+                        ->icon(TablerIcon::PlayerPlayFilled)
+                        ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
+                        ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable()),
+                    fn (Server $server) => $this->blockingServerFor($server),
+                )
                     ->action(function (Server $server) {
                         // serialise concurrent start clicks per owner so two
                         // tabs on different servers cannot both pass the
