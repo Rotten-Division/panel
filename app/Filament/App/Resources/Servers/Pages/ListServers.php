@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Servers\Pages;
 
+use App\Contracts\Servers\ServerStartGate;
 use App\Enums\CustomizationKey;
 use App\Enums\ServerResourceType;
 use App\Enums\SubuserPermission;
@@ -13,6 +14,7 @@ use App\Filament\Components\Tables\Columns\ServerEntryColumn;
 use App\Filament\Server\Pages\Console;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\StartGateDecision;
 use App\Traits\Filament\CanCustomizeHeaderActions;
 use App\Traits\Filament\CanCustomizeHeaderWidgets;
 use Filament\Actions\Action;
@@ -28,16 +30,12 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\On;
 
 class ListServers extends ListRecords
 {
-    private const LIMIT_SERVICE = 'RottenDivision\\OspiteUserLimits\\Services\\LimitService';
-
     use CanCustomizeHeaderActions;
     use CanCustomizeHeaderWidgets;
 
@@ -225,7 +223,21 @@ class ListServers extends ListRecords
     {
         try {
             if ($action === 'start') {
-                $this->startWithSwapGate($server);
+                $decision = app(ServerStartGate::class)->gateStart(
+                    $server,
+                    user(),
+                    fn () => $this->daemonServerRepository->setServer($server)->power('start'),
+                );
+
+                if (!$decision->proceeded) {
+                    Notification::make()
+                        ->title($decision->outcome === StartGateDecision::LOCK_TIMEOUT ? 'Try again in a moment' : 'Could not start server')
+                        ->body($decision->message)
+                        ->warning()
+                        ->send();
+
+                    return;
+                }
             } else {
                 $this->daemonServerRepository->setServer($server)->power($action);
             }
@@ -247,76 +259,6 @@ class ListServers extends ListRecords
         }
     }
 
-    /**
-     * mirror the consoles swap gate from the dashboard power dropdown so the
-     * one running server policy is enforced from both ui surfaces. lock
-     * scoped per owner so two tabs cannot both pass the gate within the
-     * wings status cache window.
-     */
-    private function startWithSwapGate(Server $server): void
-    {
-        $lock = Cache::lock("ospite:server-start:{$server->owner_id}", 30);
-
-        try {
-            $lock->block(5);
-        } catch (LockTimeoutException) {
-            Notification::make()
-                ->title('Try again in a moment')
-                ->body('Another start is already in flight for your account.')
-                ->warning()
-                ->send();
-
-            return;
-        }
-
-        try {
-            $other = self::blockingServerFor($server);
-
-            if ($other !== null) {
-                if (!user()?->can(SubuserPermission::ControlStop, $other)) {
-                    Notification::make()
-                        ->title('Permission denied')
-                        ->body("You do not have permission to stop \"{$other->name}\".")
-                        ->danger()
-                        ->send();
-
-                    return;
-                }
-
-                $this->daemonServerRepository->setServer($other)->power('stop');
-                cache()->forget("servers.{$other->uuid}.status");
-            }
-
-            $this->daemonServerRepository->setServer($server)->power('start');
-        } finally {
-            $lock->release();
-        }
-    }
-
-    /**
-     * resolve the running server gate when the ospite user limits plugin is
-     * installed. without it the gate degrades to off and the dashboard
-     * dropdown behaves like upstream pelican. owner only, a subuser starting
-     * an owners server cannot trigger a stop on another owned server they
-     * have no permission over.
-     */
-    private static function blockingServerFor(Server $server): ?Server
-    {
-        $service = self::LIMIT_SERVICE;
-
-        if (!class_exists($service)) {
-            return null;
-        }
-
-        $acting = user();
-
-        if ($acting === null || $acting->id !== $server->owner_id) {
-            return null;
-        }
-
-        return app($service)->blockingActiveServerFor($acting, $server);
-    }
-
     public static function getPowerActionGroup(): ActionGroup
     {
         return ActionGroup::make([
@@ -327,7 +269,7 @@ class ListServers extends ListRecords
                     ->icon(TablerIcon::PlayerPlayFilled)
                     ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
                     ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
-                fn (Server $server) => self::blockingServerFor($server),
+                fn (Server $server) => app(ServerStartGate::class)->wouldBlock($server, user()),
             )
                 ->action(fn (Server $server, $livewire) => $livewire->powerAction($server, 'start')),
             Action::make('restart')
