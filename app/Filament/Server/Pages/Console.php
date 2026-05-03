@@ -179,6 +179,7 @@ class Console extends Page
                     ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
                     ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable())
                     ->requiresConfirmation(fn (Server $server) => $this->blockingServerFor($server) !== null)
+                    ->modalHidden(fn (Server $server) => $this->blockingServerFor($server) === null)
                     ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
                     ->modalIcon(TablerIcon::AlertTriangle)
                     ->modalIconColor('danger')
