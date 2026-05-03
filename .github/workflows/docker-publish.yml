@@ -74,7 +74,7 @@ jobs:
         ports:
           - 5000:5000 
     # Always run against a tag, even if the commit into the tag has [docker skip] within the commit message.
-    if: "!contains(github.ref, 'main') || (!contains(github.event.head_commit.message, 'skip docker') && !contains(github.event.head_commit.message, 'docker skip'))"
+    if: "github.ref != 'refs/heads/main' || (!contains(github.event.head_commit.message, 'skip docker') && !contains(github.event.head_commit.message, 'docker skip'))"
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
@@ -156,7 +156,7 @@ jobs:
         
       - name: Build and Push (main)
         uses: docker/build-push-action@v6
-        if: "(github.event_name == 'push' && contains(github.ref, 'main')) || github.event_name == 'workflow_dispatch'"
+        if: "(github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'"
         with:
           context: .
           file: ./Dockerfile
