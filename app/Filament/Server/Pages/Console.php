@@ -18,7 +18,6 @@ use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Traits\Filament\CanCustomizeHeaderActions;
 use Filament\Notifications\Notification;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use BackedEnum;
@@ -222,7 +221,13 @@ class Console extends Page
                                 // could lift that in the future, the auth
                                 // check is the safety net.
                                 if (!user()?->can(SubuserPermission::ControlStop, $other)) {
-                                    throw new AuthorizationException;
+                                    Notification::make()
+                                        ->title('Permission denied')
+                                        ->body("You do not have permission to stop \"{$other->name}\".")
+                                        ->danger()
+                                        ->send();
+
+                                    return;
                                 }
 
                                 // browser side setServerState filters by the
@@ -231,6 +236,17 @@ class Console extends Page
                                 // wings client.
                                 app(DaemonServerRepository::class)->setServer($other)->power('stop');
                             }
+
+                            // pre seed the live status cache so a second tab
+                            // hitting the gate before wings reports back sees
+                            // this server as starting and triggers the swap
+                            // path. wings overwrites it via the normal 15s
+                            // refresh on the next status fetch.
+                            Cache::put(
+                                "servers.{$server->uuid}.status",
+                                ContainerStatus::Starting,
+                                now()->addSeconds(20),
+                            );
 
                             $this->dispatch('setServerState', uuid: $server->uuid, state: 'start');
                         } finally {
