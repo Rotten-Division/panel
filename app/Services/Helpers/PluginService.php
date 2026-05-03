@@ -299,8 +299,18 @@ class PluginService
             // republish filament registered plugin assets into public so
             // a css change in the new plugin version actually reaches the
             // browser, buildAssets only handles theme yarn builds and does
-            // not cover assets registered via FilamentAsset::register.
-            Artisan::call('filament:assets');
+            // not cover assets registered via FilamentAsset register.
+            // Artisan call returns the exit code rather than throwing so
+            // a failed publish would otherwise pass silently and the install
+            // would report success while shipping an unstyled plugin ui.
+            $assetsExit = Artisan::call('filament:assets');
+            if ($assetsExit !== 0) {
+                Log::warning('filament:assets publish returned non zero during plugin install, the new plugin css may not be served', [
+                    'plugin' => $plugin->id,
+                    'exit_code' => $assetsExit,
+                    'output' => Artisan::output(),
+                ]);
+            }
 
             $this->runPluginMigrations($plugin);
 
