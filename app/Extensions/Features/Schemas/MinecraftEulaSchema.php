@@ -5,7 +5,6 @@ namespace App\Extensions\Features\Schemas;
 use App\Extensions\Features\FeatureSchemaInterface;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonFileRepository;
-use App\Repositories\Daemon\DaemonServerRepository;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -35,18 +34,20 @@ class MinecraftEulaSchema implements FeatureSchemaInterface
             ->modalHeading('Minecraft EULA')
             ->modalDescription(new HtmlString(Blade::render('By pressing "I Accept" below you are indicating your agreement to the <x-filament::link href="https://minecraft.net/eula" target="_blank">Minecraft EULA </x-filament::link>.')))
             ->modalSubmitActionLabel('I Accept')
-            ->action(function (DaemonFileRepository $fileRepository, DaemonServerRepository $serverRepository) {
+            ->action(function (DaemonFileRepository $fileRepository) {
                 try {
                     /** @var Server $server */
                     $server = Filament::getTenant();
 
                     $fileRepository->setServer($server)->putContent('eula.txt', 'eula=true');
 
-                    $serverRepository->setServer($server)->power('restart');
-
+                    // do not send a restart here, the server has already
+                    // crashed on the eula failure and wings auto restart can
+                    // race with this command, leaving the start phase wedged.
+                    // let the user start it themselves once the file lands.
                     Notification::make()
                         ->title('Minecraft EULA accepted')
-                        ->body('Server will restart now.')
+                        ->body('Hit start to bring the server online.')
                         ->success()
                         ->send();
                 } catch (Exception $exception) {
