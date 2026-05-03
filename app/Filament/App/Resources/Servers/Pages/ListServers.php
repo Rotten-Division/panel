@@ -7,6 +7,7 @@ use App\Enums\ServerResourceType;
 use App\Enums\SubuserPermission;
 use App\Enums\TablerIcon;
 use App\Filament\App\Resources\Servers\ServerResource;
+use App\Filament\Components\Actions\StartSwapModal;
 use App\Filament\Components\Tables\Columns\ProgressBarColumn;
 use App\Filament\Components\Tables\Columns\ServerEntryColumn;
 use App\Filament\Server\Pages\Console;
@@ -31,7 +32,6 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\HtmlString;
 use Livewire\Attributes\On;
 
 class ListServers extends ListRecords
@@ -320,26 +320,15 @@ class ListServers extends ListRecords
     public static function getPowerActionGroup(): ActionGroup
     {
         return ActionGroup::make([
-            Action::make('start')
-                ->label(trans('server/console.power_actions.start'))
-                ->color('primary')
-                ->icon(TablerIcon::PlayerPlayFilled)
-                ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
-                ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable())
-                ->requiresConfirmation(fn (Server $server) => self::blockingServerFor($server) !== null)
-                ->modalHidden(fn (Server $server) => self::blockingServerFor($server) === null)
-                ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
-                ->modalDescription(function (Server $server) {
-                    $other = self::blockingServerFor($server);
-
-                    // wrap in HtmlString so the code tag in the trans
-                    // string renders as monospace, escape the server
-                    // name first because trans does not auto escape.
-                    return $other
-                        ? new HtmlString(trans('server/console.power_actions.start_swap_description', ['name' => e($other->name)]))
-                        : null;
-                })
-                ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
+            StartSwapModal::configure(
+                Action::make('start')
+                    ->label(trans('server/console.power_actions.start'))
+                    ->color('primary')
+                    ->icon(TablerIcon::PlayerPlayFilled)
+                    ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
+                    ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
+                fn (Server $server) => self::blockingServerFor($server),
+            )
                 ->dispatch('powerAction', fn (Server $server) => ['server' => $server, 'action' => 'start']),
             Action::make('restart')
                 ->label(trans('server/console.power_actions.restart'))
