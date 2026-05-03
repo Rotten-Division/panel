@@ -43,6 +43,14 @@ class Plugin extends Model implements HasPluginSettings
 
     public const RESOURCE_NAME = 'plugin';
 
+    /**
+     * shared canary detector used by isCompatible, channel resolution and
+     * the panel update check in SoftwareVersionService, anything matching
+     * is treated as a dev or main branch build that should not be compared
+     * against tagged releases via version_compare.
+     */
+    public const CANARY_VERSION_PATTERN = '/^canary(?:-[0-9a-f]{7,40})?$/';
+
     protected $primaryKey = 'id';
 
     protected $keyType = 'string';
@@ -224,7 +232,7 @@ class Plugin extends Model implements HasPluginSettings
         // dev or main build is presumed to track upstream closely enough
         // that the plugins panel_version constraint is moot. once a real
         // tag is baked into APP_VERSION the version_compare path runs.
-        if (preg_match('/^canary(?:-[0-9a-f]{7,40})?$/', $currentPanelVersion) === 1) {
+        if (preg_match(self::CANARY_VERSION_PATTERN, $currentPanelVersion) === 1) {
             return true;
         }
 
@@ -309,7 +317,7 @@ class Plugin extends Model implements HasPluginSettings
         // docker workflow only emits these two shapes, a release tag mistyped
         // as canary-1.0.0 should still fall through to the release channel
         // so the panel sees the correct prompt.
-        return preg_match('/^canary(?:-[0-9a-f]{7,40})?$/', (string) (config('app.version') ?: 'canary')) === 1
+        return preg_match(self::CANARY_VERSION_PATTERN, (string) (config('app.version') ?: 'canary')) === 1
             ? 'canary'
             : 'release';
     }
@@ -338,8 +346,14 @@ class Plugin extends Model implements HasPluginSettings
         // empty download_url is the placeholder shape the publish workflow
         // emits before its first run for that channel, treat it as no entry
         // so a release channel panel reading a never published manifest
-        // never tries to fetch from a stub url.
+        // never tries to fetch from a stub url. log so an admin debugging
+        // a missing update prompt can find a paper trail.
         if ($entry['download_url'] === '') {
+            Log::info('plugin update entry has empty download url, treating as no entry', [
+                'plugin' => $this->id,
+                'channel' => $this->resolvedChannel(),
+            ]);
+
             return null;
         }
 
