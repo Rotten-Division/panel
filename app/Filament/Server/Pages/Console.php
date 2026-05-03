@@ -20,6 +20,7 @@ use App\Traits\Filament\CanCustomizeHeaderActions;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -181,17 +182,17 @@ class Console extends Page
                     ->requiresConfirmation(fn (Server $server) => $this->blockingServerFor($server) !== null)
                     ->modalHidden(fn (Server $server) => $this->blockingServerFor($server) === null)
                     ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
-                    ->modalIcon(TablerIcon::AlertTriangle)
-                    ->modalIconColor('danger')
                     ->modalDescription(function (Server $server) {
                         $other = $this->blockingServerFor($server);
 
+                        // wrap in HtmlString so the code tag in the trans
+                        // string renders as monospace, escape the server
+                        // name first because trans does not auto escape.
                         return $other
-                            ? trans('server/console.power_actions.start_swap_description', ['name' => $other->name])
+                            ? new HtmlString(trans('server/console.power_actions.start_swap_description', ['name' => e($other->name)]))
                             : null;
                     })
                     ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
-                    ->modalSubmitAction(fn ($action) => $action->color('danger'))
                     ->action(function (Server $server) {
                         // serialise concurrent start clicks per owner so two
                         // tabs on different servers cannot both pass the
