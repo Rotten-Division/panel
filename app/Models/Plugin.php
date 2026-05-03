@@ -279,12 +279,15 @@ class Plugin extends Model implements HasPluginSettings
                 // request including the Authorization header is reachable
                 // through the exception chain and would otherwise land in
                 // the laravel log.
+                // do not log getMessage, the request exception body can
+                // contain echoed credentials when the request url ever
+                // carries userinfo, status alone is enough for the admin to
+                // diagnose token vs network vs misconfigured manifest url.
                 Log::warning('plugin update manifest fetch failed', [
                     'plugin' => $this->id,
                     'status' => $exception instanceof RequestException
                         ? $exception->response?->status()
                         : null,
-                    'message' => $exception->getMessage(),
                 ]);
             }
 
