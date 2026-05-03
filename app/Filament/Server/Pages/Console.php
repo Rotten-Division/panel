@@ -15,6 +15,7 @@ use App\Filament\Server\Widgets\ServerNetworkChart;
 use App\Filament\Server\Widgets\ServerOverview;
 use App\Livewire\AlertBanner;
 use App\Models\Server;
+use App\Repositories\Daemon\DaemonServerRepository;
 use App\Traits\Filament\CanCustomizeHeaderActions;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -172,7 +173,28 @@ class Console extends Page
                     ->icon(TablerIcon::PlayerPlayFilled)
                     ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
                     ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable())
-                    ->action(fn (Server $server) => $this->dispatch('setServerState', uuid: $server->uuid, state: 'start'))
+                    ->requiresConfirmation(fn (Server $server) => $this->blockingServerFor($server) !== null)
+                    ->modalHeading(trans('server/console.power_actions.start_swap_heading'))
+                    ->modalDescription(function (Server $server) {
+                        $other = $this->blockingServerFor($server);
+
+                        return $other
+                            ? trans('server/console.power_actions.start_swap_description', ['name' => $other->name])
+                            : null;
+                    })
+                    ->modalSubmitActionLabel(trans('server/console.power_actions.start_swap_submit'))
+                    ->action(function (Server $server) {
+                        $other = $this->blockingServerFor($server);
+
+                        if ($other !== null) {
+                            // browser side setServerState filters by current
+                            // server uuid, so the other server stop has to go
+                            // straight through the panels wings client.
+                            app(DaemonServerRepository::class)->setServer($other)->power('stop');
+                        }
+
+                        $this->dispatch('setServerState', uuid: $server->uuid, state: 'start');
+                    })
                     ->size(Size::ExtraLarge),
                 Action::make('restart')
                     ->label(trans('server/console.power_actions.restart'))
@@ -221,5 +243,28 @@ class Console extends Page
     public function getTitle(): string
     {
         return trans('server/console.title');
+    }
+
+    /**
+     * resolve the running server gate when the ospite user limits plugin is
+     * installed. without it the gate degrades to off and the start action
+     * behaves like upstream pelican, so panels that drop the plugin keep
+     * working.
+     */
+    private function blockingServerFor(Server $server): ?Server
+    {
+        $service = '\\RottenDivision\\OspiteUserLimits\\Services\\LimitService';
+
+        if (!class_exists($service)) {
+            return null;
+        }
+
+        $owner = $server->user;
+
+        if ($owner === null) {
+            return null;
+        }
+
+        return app($service)->blockingActiveServerFor($owner, $server);
     }
 }
