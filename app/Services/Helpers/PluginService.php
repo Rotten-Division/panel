@@ -398,8 +398,13 @@ class PluginService
     public function downloadPluginFromUrl(string $url, bool $cleanDownload = false): void
     {
         $info = pathinfo($url);
+        // spaties temporary directory uses a dot in the path to decide file
+        // vs directory and creates the latter as a real directory, which
+        // breaks for github asset urls that look like .../assets/411195093.
+        // force a zip extension so the heuristic always lands on file.
+        $basename = str_contains($info['basename'], '.') ? $info['basename'] : $info['basename'] . '.zip';
         $tmpDir = TemporaryDirectory::make()->deleteWhenDestroyed();
-        $tmpPath = $tmpDir->path($info['basename']);
+        $tmpPath = $tmpDir->path($basename);
 
         $http = Http::timeout(60)->connectTimeout(5)
             ->withUserAgent(config('services.github.plugin_user_agent', 'OspiteHosting-Panel'));
@@ -424,7 +429,7 @@ class PluginService
             throw new InvalidFileUploadException('Could not write temporary file.');
         }
 
-        $this->downloadPluginFromFile(new UploadedFile($tmpPath, $info['basename'], 'application/zip'), $cleanDownload);
+        $this->downloadPluginFromFile(new UploadedFile($tmpPath, $basename, 'application/zip'), $cleanDownload);
     }
 
     public function deletePlugin(Plugin $plugin): void
