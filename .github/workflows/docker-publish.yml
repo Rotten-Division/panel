@@ -132,7 +132,10 @@ jobs:
       - name: Update version in config/app.php (main)
         if: "(github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'"
         run: |
-          sed -i -E "s/'version' *=> *'[^']+'/'version' => 'dev-${{ steps.build_info.outputs.short_sha }}'/" config/app.php
+          # canary prefix keeps the admin update prompt quiet, see
+          # SoftwareVersionService::isLatestPanel which short circuits any
+          # version starting with canary.
+          sed -i -E "s/'version' *=> *'[^']+'/'version' => 'canary-${{ steps.build_info.outputs.short_sha }}'/" config/app.php
 
       - name: Build and Push by digest (tag)
         uses: docker/build-push-action@v6

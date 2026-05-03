@@ -63,7 +63,10 @@ class SoftwareVersionService
 
     public function isLatestPanel(): bool
     {
-        if (config('app.version') === 'canary') {
+        // any canary prefixed version is treated as up to date so main branch
+        // builds stamped canary short sha do not nag the admin dashboard with
+        // a fake update prompt against the upstream pelican release tag.
+        if (str_starts_with((string) config('app.version'), 'canary')) {
             return true;
         }
 
