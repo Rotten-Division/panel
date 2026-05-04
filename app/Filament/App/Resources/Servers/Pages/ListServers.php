@@ -218,31 +218,14 @@ class ListServers extends ListRecords
         return null;
     }
 
+    // dispatched powerAction handler for restart stop and kill, the start
+    // action runs inline through the swap gate in getPowerActionGroup so
+    // it does not route through this listener.
     #[On('powerAction')]
     public function powerAction(Server $server, string $action): void
     {
         try {
-            if ($action === 'start') {
-                $decision = app(ServerStartGate::class)->gateStart(
-                    $server,
-                    user(),
-                    fn () => $this->daemonServerRepository->setServer($server)->power('start'),
-                );
-
-                if (!$decision->proceeded) {
-                    $isTransient = $decision->outcome === StartGateDecision::LOCK_TIMEOUT;
-                    $notification = Notification::make()
-                        ->title($isTransient ? 'Try again in a moment' : 'Could not start server')
-                        ->body($decision->message);
-
-                    $isTransient ? $notification->warning() : $notification->danger();
-                    $notification->send();
-
-                    return;
-                }
-            } else {
-                $this->daemonServerRepository->setServer($server)->power($action);
-            }
+            $this->daemonServerRepository->setServer($server)->power($action);
 
             Notification::make()
                 ->title(trans('server/dashboard.power_actions'))
@@ -282,12 +265,6 @@ class ListServers extends ListRecords
                 // the modal submitted and lets each surface dispatch its own
                 // post success refresh, which is what console already does.
                 ->action(function (Server $server, $livewire) {
-                    \Illuminate\Support\Facades\Log::info('dashboard start action invoked', [
-                        'server_uuid' => $server->uuid,
-                        'livewire_class' => $livewire ? $livewire::class : 'null',
-                        'user_id' => user()?->id,
-                    ]);
-
                     try {
                         $decision = app(ServerStartGate::class)->gateStart(
                             $server,
