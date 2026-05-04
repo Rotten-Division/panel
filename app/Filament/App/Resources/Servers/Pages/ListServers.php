@@ -273,11 +273,51 @@ class ListServers extends ListRecords
                     ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
                 fn (Server $server) => app(ServerStartGate::class)->wouldBlock($server, user()),
             )
-                // dispatch instead of calling powerAction directly because the
-                // grid view evaluates this closure inside the ServerEntry
-                // livewire component which has no powerAction method, the
-                // dispatch broadcasts and ListServers picks it up via On.
-                ->action(fn (Server $server, $livewire) => $livewire->dispatch('powerAction', server: $server, action: 'start')),
+                // self contained closure that runs the gate inline, the grid
+                // view evaluates this on ServerEntry which has no powerAction
+                // method and a cross component dispatch round trip silently
+                // dropped the redirect inside the modal lifecycle so the
+                // user saw nothing happen after confirming the swap. running
+                // the gate here keeps the work in the same livewire request
+                // the modal submitted and lets each surface dispatch its own
+                // post success refresh, which is what console already does.
+                ->action(function (Server $server, $livewire) {
+                    try {
+                        $decision = app(ServerStartGate::class)->gateStart(
+                            $server,
+                            user(),
+                            fn () => app(\App\Repositories\Daemon\DaemonServerRepository::class)
+                                ->setServer($server)
+                                ->power('start'),
+                        );
+
+                        if (!$decision->proceeded) {
+                            $isTransient = $decision->outcome === StartGateDecision::LOCK_TIMEOUT;
+                            $notification = Notification::make()
+                                ->title($isTransient ? 'Try again in a moment' : 'Could not start server')
+                                ->body($decision->message);
+
+                            $isTransient ? $notification->warning() : $notification->danger();
+                            $notification->send();
+
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title(trans('server/dashboard.power_actions'))
+                            ->body(trans('server/dashboard.power_action_sent', ['action' => 'start', 'name' => $server->name]))
+                            ->success()
+                            ->send();
+
+                        cache()->forget("servers.{$server->uuid}.status");
+                        $livewire->redirect(self::getUrl());
+                    } catch (ConnectionException) {
+                        Notification::make()
+                            ->title(trans('exceptions.node.error_connecting', ['node' => $server->node->name]))
+                            ->danger()
+                            ->send();
+                    }
+                }),
             Action::make('restart')
                 ->label(trans('server/console.power_actions.restart'))
                 ->color('gray')
