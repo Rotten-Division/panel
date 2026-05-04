@@ -282,6 +282,12 @@ class ListServers extends ListRecords
                 // the modal submitted and lets each surface dispatch its own
                 // post success refresh, which is what console already does.
                 ->action(function (Server $server, $livewire) {
+                    \Illuminate\Support\Facades\Log::info('dashboard start action invoked', [
+                        'server_uuid' => $server->uuid,
+                        'livewire_class' => $livewire ? $livewire::class : 'null',
+                        'user_id' => user()?->id,
+                    ]);
+
                     try {
                         $decision = app(ServerStartGate::class)->gateStart(
                             $server,
