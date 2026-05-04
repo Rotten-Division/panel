@@ -55,7 +55,7 @@ final class StartGateDecision
             false,
             self::PERMISSION_DENIED,
             null,
-            "You do not have permission to stop \"{$blocker->name}\".",
+            "Cannot start, \"{$blocker->name}\" is already running and you do not have permission to stop it. Ask the owner to stop it first.",
         );
     }
 
