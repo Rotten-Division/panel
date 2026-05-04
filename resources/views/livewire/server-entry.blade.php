@@ -139,4 +139,9 @@
             </div>
         </div>
     </div>
+
+    {{-- mounts the wire:partial action-modals slot, without it filament
+         renders modal html into the response but livewire has no dom target
+         to swap it into and the swap confirmation never appears on click. --}}
+    <x-filament-actions::modals />
 </div>
