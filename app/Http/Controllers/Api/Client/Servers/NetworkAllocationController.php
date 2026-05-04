@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Client\Servers;
 
+use App\Events\Server\AllocationsReleased;
 use App\Exceptions\DisplayException;
 use App\Exceptions\Model\DataValidationException;
 use App\Facades\Activity;
@@ -145,6 +146,8 @@ class NetworkAllocationController extends ClientApiController
             'notes' => null,
             'server_id' => null,
         ]);
+
+        event(new AllocationsReleased($server, [$allocation->id]));
 
         Activity::event('server:allocation.delete')
             ->subject($allocation)

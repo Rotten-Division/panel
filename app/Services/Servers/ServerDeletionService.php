@@ -2,6 +2,7 @@
 
 namespace App\Services\Servers;
 
+use App\Events\Server\AllocationsReleased;
 use App\Exceptions\DisplayException;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
@@ -78,10 +79,16 @@ class ServerDeletionService
                 }
             }
 
+            $releasedIds = $server->allocations()->pluck('id')->all();
+
             $server->allocations()->update([
                 'server_id' => null,
                 'notes' => null,
             ]);
+
+            if ($releasedIds !== []) {
+                event(new AllocationsReleased($server, $releasedIds));
+            }
 
             $server->delete();
         });

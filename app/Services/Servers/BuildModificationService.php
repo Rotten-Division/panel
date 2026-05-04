@@ -2,6 +2,8 @@
 
 namespace App\Services\Servers;
 
+use App\Events\Server\AllocationsAssigned;
+use App\Events\Server\AllocationsReleased;
 use App\Exceptions\DisplayException;
 use App\Models\Allocation;
 use App\Models\Server;
@@ -94,6 +96,7 @@ class BuildModificationService
             return;
         }
 
+        $addedIds = [];
         // Handle the addition of allocations to this server. Only assign allocations that are not currently
         // assigned to a different server, and only allocations on the same node as the server.
         if (!empty($data['add_allocations'])) {
@@ -102,9 +105,11 @@ class BuildModificationService
                 ->whereIn('id', $data['add_allocations'])
                 ->whereNull('server_id');
 
+            $addedIds = (clone $query)->pluck('id')->all();
             $query->update(['server_id' => $server->id]);
         }
 
+        $removedIds = [];
         if (!empty($data['remove_allocations'])) {
             $allocations = Allocation::query()
                 ->where('server_id', $server->id)
@@ -118,6 +123,7 @@ class BuildModificationService
                 $data['allocation_id'] = $nonPrimaryAllocations->first()->id ?? ($data['add_allocations'][0] ?? null);
             }
 
+            $removedIds = (clone $allocations)->pluck('id')->all();
             // Remove any of the allocations we got that are currently assigned to this server on
             // this node. Also set the notes to null, otherwise when re-allocated to a new server those
             // notes will be carried over.
@@ -126,6 +132,13 @@ class BuildModificationService
                     'notes' => null,
                     'server_id' => null,
                 ]);
+        }
+
+        if ($addedIds !== []) {
+            event(new AllocationsAssigned($server, $addedIds));
+        }
+        if ($removedIds !== []) {
+            event(new AllocationsReleased($server, $removedIds));
         }
     }
 }

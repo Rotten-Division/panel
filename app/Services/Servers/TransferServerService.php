@@ -2,6 +2,7 @@
 
 namespace App\Services\Servers;
 
+use App\Events\Server\AllocationsAssigned;
 use App\Models\Allocation;
 use App\Models\Backup;
 use App\Models\Node;
@@ -135,6 +136,7 @@ class TransferServerService
 
         if (!empty($updateIds)) {
             Allocation::whereIn('id', $updateIds)->update(['server_id' => $server->id]);
+            event(new AllocationsAssigned($server, $updateIds));
         }
     }
 }

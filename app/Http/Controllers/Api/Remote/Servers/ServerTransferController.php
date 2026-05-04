@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Remote\Servers;
 
+use App\Events\Server\AllocationsReleased;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Remote\ServerRequest;
 use App\Models\Allocation;
@@ -36,14 +37,20 @@ class ServerTransferController extends Controller
             throw new ConflictHttpException('Server is not being transferred.');
         }
 
-        $this->connection->transaction(function () use ($transfer) {
+        $releasedOnFailure = [];
+        $this->connection->transaction(function () use ($transfer, &$releasedOnFailure) {
             $transfer->forceFill(['successful' => false])->saveOrFail();
 
             if ($transfer->new_allocation || $transfer->new_additional_allocations) {
                 $allocations = array_merge([$transfer->new_allocation], $transfer->new_additional_allocations);
                 Allocation::query()->whereIn('id', $allocations)->update(['server_id' => null]);
+                $releasedOnFailure = $allocations;
             }
         });
+
+        if ($releasedOnFailure !== []) {
+            event(new AllocationsReleased($server, $releasedOnFailure));
+        }
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
@@ -60,8 +67,10 @@ class ServerTransferController extends Controller
             throw new ConflictHttpException('Server is not being transferred.');
         }
 
+        $releasedOldAllocations = [];
+
         /** @var Server $server */
-        $server = $this->connection->transaction(function () use ($server, $transfer) {
+        $server = $this->connection->transaction(function () use ($server, $transfer, &$releasedOldAllocations) {
             $data = [];
 
             if ($transfer->old_allocation || $transfer->old_additional_allocations) {
@@ -69,6 +78,7 @@ class ServerTransferController extends Controller
                 // Remove the old allocations for the server and re-assign the server to the new
                 // primary allocation and node.
                 Allocation::query()->whereIn('id', $allocations)->update(['server_id' => null]);
+                $releasedOldAllocations = $allocations;
                 $data['allocation_id'] = $transfer->new_allocation;
             }
 
@@ -80,6 +90,10 @@ class ServerTransferController extends Controller
 
             return $server;
         });
+
+        if ($releasedOldAllocations !== []) {
+            event(new AllocationsReleased($server, $releasedOldAllocations));
+        }
 
         // Delete the server from the old node making sure to point it to the old node so
         // that we do not delete it from the new node the server was transferred to.
