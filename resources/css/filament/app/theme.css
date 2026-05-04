@@ -401,3 +401,38 @@ a.fi-btn.fi-color-danger {
     background-color: rgb(var(--state-info) / 0.18);
     outline-color: rgb(var(--state-info) / 0.4);
 }
+
+
+/* dashboard server list toolbar layout, scoped to the user facing panel
+   list records page. swaps the filament default that crowds search and
+   filter to the right edge for filter on the left, search centered, the
+   actions slot on the right ready for any future bulk action. all items
+   pinned to row 1 because css grid auto placement otherwise stacks the
+   items into separate rows when only the column is explicit. */
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto;
+    align-items: center;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-toolbar > div:not(.fi-ta-actions) {
+    display: contents;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-toolbar .fi-ta-filters-dropdown {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-toolbar .fi-ta-search-field {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-toolbar .fi-ta-actions {
+    grid-row: 1;
+    grid-column: 3;
+    justify-self: end;
+}
