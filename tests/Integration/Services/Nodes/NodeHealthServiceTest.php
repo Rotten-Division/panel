@@ -6,6 +6,7 @@ use App\Models\Node;
 use App\Services\Nodes\NodeHealthService;
 use App\Tests\Integration\IntegrationTestCase;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
 
 class NodeHealthServiceTest extends IntegrationTestCase
 {
@@ -18,9 +19,18 @@ class NodeHealthServiceTest extends IntegrationTestCase
         $this->service = new NodeHealthService();
     }
 
-    public function test_threshold_defaults_to_node_constant(): void
+    public function test_threshold_defaults_to_the_panel_config_value(): void
     {
-        $this->assertSame(Node::HEALTH_THRESHOLD_SECONDS, $this->service->getThreshold());
+        Config::set('panel.nodes.health_threshold_seconds', 90);
+
+        $this->assertSame(90, (new NodeHealthService())->getThreshold());
+    }
+
+    public function test_threshold_falls_back_to_120_seconds_when_config_is_unset(): void
+    {
+        Config::set('panel.nodes.health_threshold_seconds', null);
+
+        $this->assertSame(120, (new NodeHealthService())->getThreshold());
     }
 
     public function test_threshold_can_be_overridden_via_constructor(): void

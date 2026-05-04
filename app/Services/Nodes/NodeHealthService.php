@@ -7,20 +7,22 @@ use Illuminate\Database\Eloquent\Collection;
 
 class NodeHealthService
 {
-    public function __construct(private int $thresholdSeconds = Node::HEALTH_THRESHOLD_SECONDS) {}
+    public function __construct(private ?int $thresholdSeconds = null) {}
 
-    /**
-     * Returns the freshness window every consumer agrees on. Centralised so
-     * callers do not drift apart on what "healthy" means.
-     */
     public function getThreshold(): int
     {
-        return $this->thresholdSeconds;
+        if ($this->thresholdSeconds !== null) {
+            return $this->thresholdSeconds;
+        }
+
+        $configured = config('panel.nodes.health_threshold_seconds');
+
+        return is_numeric($configured) && (int) $configured > 0 ? (int) $configured : 120;
     }
 
     public function isHealthy(Node $node): bool
     {
-        return $node->isHealthy($this->thresholdSeconds);
+        return $node->isHealthy($this->getThreshold());
     }
 
     /**
@@ -28,7 +30,7 @@ class NodeHealthService
      */
     public function getHealthy(): Collection
     {
-        return Node::query()->healthy($this->thresholdSeconds)->get();
+        return Node::query()->healthy($this->getThreshold())->get();
     }
 
     /**
@@ -36,11 +38,11 @@ class NodeHealthService
      */
     public function getUnhealthy(): Collection
     {
-        return Node::query()->unhealthy($this->thresholdSeconds)->get();
+        return Node::query()->unhealthy($this->getThreshold())->get();
     }
 
     public function hasHealthyNode(): bool
     {
-        return Node::query()->healthy($this->thresholdSeconds)->exists();
+        return Node::query()->healthy($this->getThreshold())->exists();
     }
 }

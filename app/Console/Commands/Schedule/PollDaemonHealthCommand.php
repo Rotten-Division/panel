@@ -19,7 +19,8 @@ class PollDaemonHealthCommand extends Command
 
     public function handle(): int
     {
-        $threshold = Node::HEALTH_THRESHOLD_SECONDS;
+        $configured = config('panel.nodes.health_threshold_seconds');
+        $threshold = is_numeric($configured) && (int) $configured > 0 ? (int) $configured : 120;
 
         $nodes = Node::query()
             ->where('maintenance_mode', false)

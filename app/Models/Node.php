@@ -154,17 +154,18 @@ class Node extends Model implements Validatable
         ];
     }
 
-    /**
-     * Default freshness window in seconds for considering a node healthy.
-     * Matches the poller cadence with headroom for one missed tick.
-     */
-    public const HEALTH_THRESHOLD_SECONDS = 120;
-
     public int $servers_sum_memory = 0;
 
     public int $servers_sum_disk = 0;
 
     public int $servers_sum_cpu = 0;
+
+    protected static function healthThresholdSeconds(): int
+    {
+        $configured = config('panel.nodes.health_threshold_seconds');
+
+        return is_numeric($configured) && (int) $configured > 0 ? (int) $configured : 120;
+    }
 
     protected static function booted(): void
     {
@@ -257,18 +258,15 @@ class Node extends Model implements Validatable
         return $this->maintenance_mode;
     }
 
-    /**
-     * Whether the node has reported a successful health check within the freshness
-     * window. Independent of maintenance state, callers should compose with
-     * isUnderMaintenance() if they want a policy view.
-     */
-    public function isHealthy(int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): bool
+    public function isHealthy(?int $thresholdSeconds = null): bool
     {
         if ($this->last_seen === null) {
             return false;
         }
 
-        return $this->last_seen->greaterThanOrEqualTo(Carbon::now()->subSeconds($thresholdSeconds));
+        return $this->last_seen->greaterThanOrEqualTo(
+            Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds())
+        );
     }
 
     public function lastSeenAt(): ?Carbon
@@ -276,23 +274,22 @@ class Node extends Model implements Validatable
         return $this->last_seen;
     }
 
-    /**
-     * Limit the query to nodes whose last_seen falls inside the freshness window.
-     */
-    public function scopeHealthy(Builder $builder, int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): Builder
+    public function scopeHealthy(Builder $builder, ?int $thresholdSeconds = null): Builder
     {
-        return $builder->where('last_seen', '>=', Carbon::now()->subSeconds($thresholdSeconds));
+        return $builder->where(
+            'last_seen',
+            '>=',
+            Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds())
+        );
     }
 
-    /**
-     * Limit the query to nodes that have never been seen or whose last_seen has aged
-     * past the freshness window.
-     */
-    public function scopeUnhealthy(Builder $builder, int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): Builder
+    public function scopeUnhealthy(Builder $builder, ?int $thresholdSeconds = null): Builder
     {
-        return $builder->where(function (Builder $query) use ($thresholdSeconds) {
+        $cutoff = Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds());
+
+        return $builder->where(function (Builder $query) use ($cutoff) {
             $query->whereNull('last_seen')
-                ->orWhere('last_seen', '<', Carbon::now()->subSeconds($thresholdSeconds));
+                ->orWhere('last_seen', '<', $cutoff);
         });
     }
 

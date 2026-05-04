@@ -43,6 +43,10 @@ return [
         'max_edit_size' => env('PANEL_FILES_MAX_EDIT_SIZE', 1024 * 1024 * 4),
     ],
 
+    'nodes' => [
+        'health_threshold_seconds' => env('PANEL_NODE_HEALTH_THRESHOLD_SECONDS', 120),
+    ],
+
     'email' => [
         // Should an email be sent to a server owner once their server has completed it's first install process?
         'send_install_notification' => env('PANEL_SEND_INSTALL_NOTIFICATION', true),
