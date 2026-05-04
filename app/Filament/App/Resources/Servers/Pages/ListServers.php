@@ -273,7 +273,11 @@ class ListServers extends ListRecords
                     ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
                 fn (Server $server) => app(ServerStartGate::class)->wouldBlock($server, user()),
             )
-                ->action(fn (Server $server, $livewire) => $livewire->powerAction($server, 'start')),
+                // dispatch instead of calling powerAction directly because the
+                // grid view evaluates this closure inside the ServerEntry
+                // livewire component which has no powerAction method, the
+                // dispatch broadcasts and ListServers picks it up via On.
+                ->action(fn (Server $server, $livewire) => $livewire->dispatch('powerAction', server: $server, action: 'start')),
             Action::make('restart')
                 ->label(trans('server/console.power_actions.restart'))
                 ->color('gray')
