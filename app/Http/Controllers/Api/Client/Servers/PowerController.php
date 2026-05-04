@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Client\ClientApiController;
 use App\Http\Requests\Api\Client\Servers\SendPowerRequest;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\StartGateDecision;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +37,7 @@ class PowerController extends ClientApiController
     public function index(SendPowerRequest $request, Server $server): Response|JsonResponse
     {
         $signal = $request->input('signal');
+        $swapped = null;
 
         // route start through the panels start gate so the api respects the
         // same one running server policy the ui surfaces enforce. other
@@ -58,12 +60,26 @@ class PowerController extends ClientApiController
                     ]],
                 ], $status);
             }
+
+            if ($decision->outcome === StartGateDecision::SWAPPED && $decision->stopped !== null) {
+                $swapped = $decision->stopped;
+            }
         } else {
             $this->repository->setServer($server)->power($signal);
         }
 
         Activity::event(strtolower("server:power.{$signal}"))->log();
 
-        return $this->returnNoContent();
+        $response = $this->returnNoContent();
+
+        // surface the swap on a response header so api consumers can detect
+        // when a sibling server was stopped to honour the start, the body
+        // stays empty so the 204 contract holds for clients that do not
+        // care about the gate.
+        if ($swapped !== null) {
+            $response->headers->set('X-Ospite-Swap-Stopped-Server', (string) $swapped->uuid);
+        }
+
+        return $response;
     }
 }
