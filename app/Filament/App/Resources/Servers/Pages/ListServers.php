@@ -286,14 +286,27 @@ class ListServers extends ListRecords
                             return;
                         }
 
-                        Notification::make()
-                            ->title(trans('server/dashboard.power_actions'))
-                            ->body(trans('server/dashboard.power_action_sent', ['action' => 'start', 'name' => $server->name]))
-                            ->success()
-                            ->send();
+                        if ($decision->outcome === StartGateDecision::SWAPPED && $decision->stopped !== null) {
+                            Notification::make()
+                                ->title('Switched servers')
+                                ->body("Stopped \"{$decision->stopped->name}\" to start \"{$server->name}\".")
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title(trans('server/dashboard.power_actions'))
+                                ->body(trans('server/dashboard.power_action_sent', ['action' => 'start', 'name' => $server->name]))
+                                ->success()
+                                ->send();
+                        }
 
                         cache()->forget("servers.{$server->uuid}.status");
-                        $livewire->redirect(self::getUrl());
+                        // preserve the active tab across the redirect, the
+                        // grid view evaluates this closure on ServerEntry so
+                        // we cannot read activeTab off $livewire and have to
+                        // pull it from the current request url.
+                        $tab = request()->query('tab');
+                        $livewire->redirect(self::getUrl(is_string($tab) && $tab !== '' ? ['tab' => $tab] : []));
                     } catch (ConnectionException) {
                         Notification::make()
                             ->title(trans('exceptions.node.error_connecting', ['node' => $server->node->name]))
