@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Filament\App\Resources\Servers\Pages\ListServers;
 use App\Filament\Server\Pages\Console;
 use App\Models\Server;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -22,6 +24,19 @@ class ServerEntry extends Component implements HasActions, HasSchemas
     use InteractsWithSchemas;
 
     public Server $server;
+
+    /**
+     * expose the power action group as a method on the component so
+     * Filaments action resolver can find each child action by name when
+     * mountAction fires. without this the blade was building the group
+     * inline and Filament could not look up start restart stop or kill
+     * by name from the calling component, mountAction returned null and
+     * the action was discarded on click without invoking the closure.
+     */
+    public function powerActions(): ActionGroup
+    {
+        return ListServers::getPowerActionGroup()->record($this->server);
+    }
 
     public function render(): View
     {

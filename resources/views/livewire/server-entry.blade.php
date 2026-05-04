@@ -1,5 +1,8 @@
 @php
-    $actiongroup = \App\Filament\App\Resources\Servers\Pages\ListServers::getPowerActionGroup()->record($server);
+    // resolve via the component method so filament caches the action group
+    // on this component, the inline static call would build an unregistered
+    // group whose actions could not be looked up by name from mountAction.
+    $actiongroup = $component->powerActions();
     $backgroundImage = $server->icon ?? $server->egg->image;
 
     $serverEntryColumn = $column ?? \App\Filament\Components\Tables\Columns\ServerEntryColumn::make('server_entry');
