@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Exceptions\Service\Allocation\ServerUsingAllocationException;
+use App\Observers\AllocationObserver;
 use App\Traits\HasValidation;
 use Carbon\Carbon;
 use Database\Factories\AllocationFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|Allocation whereServerId($value)
  * @method static Builder|Allocation whereUpdatedAt($value)
  */
+#[ObservedBy([AllocationObserver::class])]
 class Allocation extends Model
 {
     use HasFactory;
