@@ -194,6 +194,20 @@ class Console extends Page
 
                             $isTransient ? $notification->warning() : $notification->danger();
                             $notification->send();
+
+                            return;
+                        }
+
+                        // surface the swap explicitly, the live state widget
+                        // covers the new servers transition but the user has
+                        // no other signal that another of their servers was
+                        // stopped to make room.
+                        if ($decision->outcome === StartGateDecision::SWAPPED && $decision->stopped !== null) {
+                            Notification::make()
+                                ->title('Switched servers')
+                                ->body("Stopped \"{$decision->stopped->name}\" to start this one.")
+                                ->success()
+                                ->send();
                         }
                     })
                     ->size(Size::ExtraLarge),
