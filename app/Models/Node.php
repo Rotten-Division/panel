@@ -8,6 +8,7 @@ use App\Repositories\Daemon\DaemonSystemRepository;
 use App\Traits\HasValidation;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property string|null $daemon_sftp_alias
  * @property string $daemon_base
  * @property string[] $tags
+ * @property Carbon|null $last_seen
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Mount[]|Collection $mounts
@@ -148,8 +150,15 @@ class Node extends Model implements Validatable
             'public' => 'boolean',
             'maintenance_mode' => 'boolean',
             'tags' => 'array',
+            'last_seen' => 'datetime',
         ];
     }
+
+    /**
+     * Default freshness window in seconds for considering a node healthy.
+     * Matches the poller cadence with headroom for one missed tick.
+     */
+    public const HEALTH_THRESHOLD_SECONDS = 120;
 
     public int $servers_sum_memory = 0;
 
@@ -246,6 +255,45 @@ class Node extends Model implements Validatable
     public function isUnderMaintenance(): bool
     {
         return $this->maintenance_mode;
+    }
+
+    /**
+     * Whether the node has reported a successful health check within the freshness
+     * window. Independent of maintenance state, callers should compose with
+     * isUnderMaintenance() if they want a policy view.
+     */
+    public function isHealthy(int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): bool
+    {
+        if ($this->last_seen === null) {
+            return false;
+        }
+
+        return $this->last_seen->greaterThanOrEqualTo(Carbon::now()->subSeconds($thresholdSeconds));
+    }
+
+    public function lastSeenAt(): ?Carbon
+    {
+        return $this->last_seen;
+    }
+
+    /**
+     * Limit the query to nodes whose last_seen falls inside the freshness window.
+     */
+    public function scopeHealthy(Builder $builder, int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): Builder
+    {
+        return $builder->where('last_seen', '>=', Carbon::now()->subSeconds($thresholdSeconds));
+    }
+
+    /**
+     * Limit the query to nodes that have never been seen or whose last_seen has aged
+     * past the freshness window.
+     */
+    public function scopeUnhealthy(Builder $builder, int $thresholdSeconds = self::HEALTH_THRESHOLD_SECONDS): Builder
+    {
+        return $builder->where(function (Builder $query) use ($thresholdSeconds) {
+            $query->whereNull('last_seen')
+                ->orWhere('last_seen', '<', Carbon::now()->subSeconds($thresholdSeconds));
+        });
     }
 
     public function mounts(): MorphToMany
