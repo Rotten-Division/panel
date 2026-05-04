@@ -7,6 +7,7 @@ use App\Console\Commands\Egg\UpdateEggIndexCommand;
 use App\Console\Commands\Maintenance\CleanServiceBackupFilesCommand;
 use App\Console\Commands\Maintenance\PruneImagesCommand;
 use App\Console\Commands\Maintenance\PruneOrphanedBackupsCommand;
+use App\Console\Commands\Schedule\PollDaemonHealthCommand;
 use App\Console\Commands\Schedule\ProcessRunnableCommand;
 use App\Models\ActivityLog;
 use App\Models\Webhook;
@@ -39,6 +40,9 @@ class Kernel extends ConsoleKernel
 
         // Execute scheduled commands for servers every minute, as if there was a normal cron running.
         $schedule->command(ProcessRunnableCommand::class)->everyMinute()->withoutOverlapping();
+
+        // Poll every non-maintenance node for liveness and dispatch health events.
+        $schedule->command(PollDaemonHealthCommand::class)->everyThirtySeconds()->withoutOverlapping();
 
         $schedule->command(CleanServiceBackupFilesCommand::class)->daily();
         $schedule->command(PruneImagesCommand::class)->daily();
