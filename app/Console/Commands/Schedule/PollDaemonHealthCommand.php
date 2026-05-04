@@ -63,7 +63,9 @@ class PollDaemonHealthCommand extends Command
         cache()->put("nodes.$node->id.system_information", $payload, now()->addSeconds(360));
 
         if ($reachable) {
-            $node->forceFill(['last_seen' => Carbon::now()])->save();
+            $now = Carbon::now();
+            Node::query()->whereKey($node->id)->update(['last_seen' => $now]);
+            $node->last_seen = $now;
         }
 
         event(new NodeHealthChecked($node, $reachable));
