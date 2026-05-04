@@ -25,17 +25,35 @@ class ServerEntry extends Component implements HasActions, HasSchemas
 
     public Server $server;
 
-    /**
-     * expose the power action group as a method on the component so
-     * Filaments action resolver can find each child action by name when
-     * mountAction fires. without this the blade was building the group
-     * inline and Filament could not look up start restart stop or kill
-     * by name from the calling component, mountAction returned null and
-     * the action was discarded on click without invoking the closure.
-     */
+    private ?ActionGroup $powerActionsGroup = null;
+
+    public function boot(): void
+    {
+        // cache every action in the power group on this component so
+        // filaments resolveAction can find start restart stop and kill by
+        // name on mountAction. without this the inline blade render only
+        // built the group for display and the actions were never associated
+        // with the calling component, mountAction returned null and the
+        // action was discarded on click without invoking the closure.
+        // boot fires on every request before any method call, so the cache
+        // is ready before mountAction runs.
+        foreach ($this->resolvePowerActions()->getFlatActions() as $action) {
+            $this->cacheAction($action);
+        }
+    }
+
     public function powerActions(): ActionGroup
     {
-        return ListServers::getPowerActionGroup()->record($this->server);
+        return $this->resolvePowerActions();
+    }
+
+    private function resolvePowerActions(): ActionGroup
+    {
+        if ($this->powerActionsGroup === null) {
+            $this->powerActionsGroup = ListServers::getPowerActionGroup()->record($this->server);
+        }
+
+        return $this->powerActionsGroup;
     }
 
     public function render(): View
