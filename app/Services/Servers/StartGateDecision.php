@@ -49,13 +49,13 @@ final class StartGateDecision
         );
     }
 
-    public static function permissionDenied(Server $blocker): self
+    public static function permissionDenied(): self
     {
         return new self(
             false,
             self::PERMISSION_DENIED,
             null,
-            "Cannot start, \"{$blocker->name}\" is already running and you do not have permission to stop it. Ask the owner to stop it first.",
+            'Another server is already running for this account. Only one server can run at a time, ask the owner to stop the other one before starting this one.',
         );
     }
 
