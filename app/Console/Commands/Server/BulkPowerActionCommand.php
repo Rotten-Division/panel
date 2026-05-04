@@ -5,6 +5,7 @@ namespace App\Console\Commands\Server;
 use App\Contracts\Servers\ServerStartGate;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\StartGateDecision;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,9 +56,14 @@ class BulkPowerActionCommand extends Command
 
         $bar = $this->output->createProgressBar($count);
 
-        $this->getQueryBuilder($servers, $nodes)->get()->each(function ($server, int $index) use ($action, $serverRepository, $startGate, $bypassPolicy, &$bar): mixed {
-            $bar->clear();
+        // collect outcomes during the loop and print one summary at the end,
+        // mid loop warnings interrupt the progress bar and scroll out of view
+        // on a long batch.
+        $skipped = [];
+        $swapped = [];
+        $failed = [];
 
+        $this->getQueryBuilder($servers, $nodes)->get()->each(function ($server, int $index) use ($action, $serverRepository, $startGate, $bypassPolicy, &$bar, &$skipped, &$swapped, &$failed): mixed {
             if (!$server instanceof Server) {
                 return null;
             }
@@ -75,28 +81,63 @@ class BulkPowerActionCommand extends Command
                     );
 
                     if (!$decision->proceeded) {
-                        $this->output->writeln('');
-                        $this->output->warning("server {$server->name} ({$server->id}) skipped, gate {$decision->outcome}, {$decision->message}");
+                        $skipped[] = [
+                            'id' => (string) $server->id,
+                            'name' => $server->name,
+                            'reason' => $decision->outcome,
+                            'detail' => (string) $decision->message,
+                        ];
+                    } elseif ($decision->outcome === StartGateDecision::SWAPPED && $decision->stopped !== null) {
+                        $swapped[] = [
+                            'id' => (string) $server->id,
+                            'name' => $server->name,
+                            'stopped' => $decision->stopped->name,
+                        ];
                     }
                 } else {
                     $serverRepository->setServer($server)->power($action);
                 }
             } catch (Exception $exception) {
-                $this->output->error(trans('command/messages.server.power.action_failed', [
+                $failed[] = [
+                    'id' => (string) $server->id,
                     'name' => $server->name,
-                    'id' => $server->id,
                     'node' => $server->node->name,
                     'message' => $exception->getMessage(),
-                ]));
+                ];
             }
 
             $bar->advance();
-            $bar->display();
 
             return null;
         });
 
+        $bar->finish();
         $this->line('');
+        $this->newLine();
+
+        if ($swapped !== []) {
+            $this->info(count($swapped) . ' swap(s) happened to honour the one running server policy.');
+            $this->table(
+                ['ID', 'Started', 'Stopped'],
+                array_map(fn (array $row) => [$row['id'], $row['name'], $row['stopped']], $swapped),
+            );
+        }
+
+        if ($skipped !== []) {
+            $this->warn(count($skipped) . ' server(s) skipped by the start gate.');
+            $this->table(
+                ['ID', 'Name', 'Reason', 'Detail'],
+                array_map(fn (array $row) => [$row['id'], $row['name'], $row['reason'], $row['detail']], $skipped),
+            );
+        }
+
+        if ($failed !== []) {
+            $this->error(count($failed) . ' server(s) failed.');
+            $this->table(
+                ['ID', 'Name', 'Node', 'Error'],
+                array_map(fn (array $row) => [$row['id'], $row['name'], $row['node'], $row['message']], $failed),
+            );
+        }
     }
 
     /**
