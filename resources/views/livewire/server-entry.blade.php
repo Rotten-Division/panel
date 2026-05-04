@@ -140,12 +140,7 @@
         </div>
     </div>
 
-    {{-- mounts the wire:partial action-modals slot, without it filament
-         renders modal html into the response but livewire has no dom target
-         to swap it into and the swap confirmation never appears on click.
-         the click stop wrapper prevents a click on the modal submit button
-         from bubbling up to the cards x-on:click handler which would fire
-         a livewire navigate to the server console mid action. --}}
+    {{-- click stop so the modal submit does not bubble to the card. --}}
     <div x-on:click.stop>
         <x-filament-actions::modals />
     </div>
