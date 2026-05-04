@@ -72,7 +72,10 @@ RUN apk add --no-cache \
     # packages for running the panel
     caddy ca-certificates supervisor supercronic fcgi \
     # required for installing plugins. Pulled from https://github.com/pelican-dev/panel/pull/2034
-    zip unzip 7zip bzip2-dev yarn git
+    zip unzip 7zip bzip2-dev yarn git \
+    # ssh client used by the ospite-allocation-router plugin's PushRouteJob
+    # to drive the route-apply forced command receiver on the public relay
+    openssh-client
 
 # Copy composer binary for runtime plugin dependency management
 COPY --from=composer /usr/local/bin/composer /usr/local/bin/composer
