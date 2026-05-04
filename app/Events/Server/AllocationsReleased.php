@@ -4,9 +4,10 @@ namespace App\Events\Server;
 
 use App\Events\Event;
 use App\Models\Server;
+use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Queue\SerializesModels;
 
-class AllocationsReleased extends Event
+class AllocationsReleased extends Event implements ShouldDispatchAfterCommit
 {
     use SerializesModels;
 

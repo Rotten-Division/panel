@@ -4,6 +4,7 @@ namespace App\Filament\Server\Resources\Allocations;
 
 use App\Enums\SubuserPermission;
 use App\Enums\TablerIcon;
+use App\Events\Server\AllocationsReleased;
 use App\Facades\Activity;
 use App\Filament\Server\Resources\Allocations\Pages\ListAllocations;
 use App\Models\Allocation;
@@ -84,12 +85,14 @@ class AllocationResource extends Resource
                     ->visible(fn (Allocation $allocation) => !$allocation->is_locked || user()?->can('update', $allocation->node))
                     ->authorize(fn () => user()?->can(SubuserPermission::AllocationDelete, $server))
                     ->label(trans('server/network.delete'))
-                    ->action(function (Allocation $allocation) {
+                    ->action(function (Allocation $allocation) use ($server) {
                         Allocation::where('id', $allocation->id)->update([
                             'notes' => null,
                             'is_locked' => false,
                             'server_id' => null,
                         ]);
+
+                        event(new AllocationsReleased($server, [$allocation->id]));
 
                         Activity::event('server:allocation.delete')
                             ->subject($allocation)
