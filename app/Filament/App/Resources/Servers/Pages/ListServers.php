@@ -130,6 +130,7 @@ class ListServers extends ListRecords
             ->recordUrl(!$usingGrid ? (fn (Server $server) => Console::getUrl(panel: 'server', tenant: $server)) : null)
             ->recordActions(!$usingGrid ? static::getPowerActionGroup() : [])
             ->recordActionsAlignment(Alignment::Center->value)
+            ->headerActions($this->getCustomTableHeaderActions())
             ->contentGrid($usingGrid ? ['default' => 1, 'md' => 2] : null)
             ->emptyStateIcon(TablerIcon::BrandDocker)
             ->emptyStateDescription('')
