@@ -57,65 +57,67 @@ class AssignmentService
             throw new DisplayException("Could not parse provided allocation IP address ({$data['allocation_ip']}): {$exception->getMessage()}", $exception);
         }
 
-        $this->connection->beginTransaction();
-
-        $ids = [];
-        foreach ($parsed as $ip) {
-            foreach ($data['allocation_ports'] as $port) {
-                if (!is_digit($port) && !preg_match(self::PORT_RANGE_REGEX, $port)) {
-                    throw new InvalidPortMappingException($port);
-                }
-
-                $newAllocations = [];
-                if (preg_match(self::PORT_RANGE_REGEX, $port, $matches)) {
-                    $block = range($matches[1], $matches[2]);
-
-                    if (count($block) > self::PORT_RANGE_LIMIT) {
-                        throw new TooManyPortsInRangeException();
+        // wrap in connection->transaction so any throw rolls back. the
+        // earlier beginTransaction plus commit pair leaked an open
+        // transaction onto the connection on every validation throw,
+        // which surfaced as confusing state on long-lived workers.
+        return $this->connection->transaction(function () use ($parsed, $data, $node, $server) {
+            $ids = [];
+            foreach ($parsed as $ip) {
+                foreach ($data['allocation_ports'] as $port) {
+                    if (!is_digit($port) && !preg_match(self::PORT_RANGE_REGEX, $port)) {
+                        throw new InvalidPortMappingException($port);
                     }
 
-                    if ((int) $matches[1] < self::PORT_FLOOR || (int) $matches[2] > self::PORT_CEIL) {
-                        throw new PortOutOfRangeException();
-                    }
+                    $newAllocations = [];
+                    if (preg_match(self::PORT_RANGE_REGEX, $port, $matches)) {
+                        $block = range($matches[1], $matches[2]);
 
-                    foreach ($block as $unit) {
+                        if (count($block) > self::PORT_RANGE_LIMIT) {
+                            throw new TooManyPortsInRangeException();
+                        }
+
+                        if ((int) $matches[1] < self::PORT_FLOOR || (int) $matches[2] > self::PORT_CEIL) {
+                            throw new PortOutOfRangeException();
+                        }
+
+                        foreach ($block as $unit) {
+                            $newAllocations[] = [
+                                'node_id' => $node->id,
+                                'ip' => $ip->__toString(),
+                                'port' => (int) $unit,
+                                'ip_alias' => array_get($data, 'allocation_alias'),
+                                'server_id' => $server->id ?? null,
+                                'is_locked' => array_get($data, 'is_locked', false),
+                            ];
+                        }
+                    } else {
+                        if ((int) $port < self::PORT_FLOOR || (int) $port > self::PORT_CEIL) {
+                            throw new PortOutOfRangeException();
+                        }
+
                         $newAllocations[] = [
                             'node_id' => $node->id,
                             'ip' => $ip->__toString(),
-                            'port' => (int) $unit,
+                            'port' => (int) $port,
                             'ip_alias' => array_get($data, 'allocation_alias'),
                             'server_id' => $server->id ?? null,
                             'is_locked' => array_get($data, 'is_locked', false),
                         ];
                     }
-                } else {
-                    if ((int) $port < self::PORT_FLOOR || (int) $port > self::PORT_CEIL) {
-                        throw new PortOutOfRangeException();
+
+                    foreach ($newAllocations as $newAllocation) {
+                        $allocation = Allocation::query()->create($newAllocation);
+                        $ids[] = $allocation->id;
                     }
-
-                    $newAllocations[] = [
-                        'node_id' => $node->id,
-                        'ip' => $ip->__toString(),
-                        'port' => (int) $port,
-                        'ip_alias' => array_get($data, 'allocation_alias'),
-                        'server_id' => $server->id ?? null,
-                        'is_locked' => array_get($data, 'is_locked', false),
-                    ];
-                }
-
-                foreach ($newAllocations as $newAllocation) {
-                    $allocation = Allocation::query()->create($newAllocation);
-                    $ids[] = $allocation->id;
                 }
             }
-        }
 
-        if ($server && !$server->allocation_id) {
-            $server->update(['allocation_id' => $ids[0]]);
-        }
+            if ($server && !$server->allocation_id) {
+                $server->update(['allocation_id' => $ids[0]]);
+            }
 
-        $this->connection->commit();
-
-        return $ids;
+            return $ids;
+        });
     }
 }
