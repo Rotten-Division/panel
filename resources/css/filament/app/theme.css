@@ -463,7 +463,7 @@ body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header
 @media (max-width: 768px) {
     body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn {
         grid-template-columns: auto minmax(0, 1fr) auto;
-        gap: 0.625rem;
+        gap: 1.125rem;
         padding: 0.75rem 1rem;
     }
 
