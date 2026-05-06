@@ -25,9 +25,9 @@
     /* filament emits a later inline style block at equal :root specificity
        so !important is required. rgb wrap is required because the var
        feeds background-color directly. */
-    --primary-400: rgb(198 73 22) !important;
-    --primary-500: rgb(198 73 22) !important;
-    --primary-600: rgb(160 58 15) !important;
+    --primary-400: rgb(251 226 204) !important;
+    --primary-500: rgb(251 226 204) !important;
+    --primary-600: rgb(245 210 174) !important;
 
     --danger-400: rgb(140 45 45) !important;
     --danger-500: rgb(140 45 45) !important;
@@ -49,8 +49,9 @@
     --ospite-text-tertiary: 92 104 120;
     --ospite-accent: 238 96 10;
 
-    --primary-500: rgb(238 96 10) !important;
-    --primary-600: rgb(198 73 22) !important;
+    --primary-400: rgb(251 226 204) !important;
+    --primary-500: rgb(251 226 204) !important;
+    --primary-600: rgb(245 210 174) !important;
 
     --danger-500: rgb(180 60 60) !important;
     --danger-600: rgb(140 45 45) !important;
@@ -227,10 +228,18 @@
 /* design system 6.4 wants linen on solid ember and brick. scoped to
    button and a so togglebutton labels keep their default text. */
 button.fi-btn.fi-color-primary,
-a.fi-btn.fi-color-primary,
+a.fi-btn.fi-color-primary {
+    color: rgb(42 31 20);
+}
+
 button.fi-btn.fi-color-danger,
 a.fi-btn.fi-color-danger {
     color: rgb(250 247 242);
+}
+
+.dark button.fi-btn.fi-color-primary,
+.dark a.fi-btn.fi-color-primary {
+    color: rgb(42 31 20);
 }
 
 .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
