@@ -475,14 +475,11 @@ body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header
         width: 100%;
     }
 
-    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header .fi-btn .fi-btn-label,
-    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar .fi-btn .fi-btn-label {
-        display: none;
-    }
-
     body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header .fi-btn,
     body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar .fi-btn {
-        padding-left: 0.625rem;
-        padding-right: 0.625rem;
+        font-size: 0;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        gap: 0;
     }
 }
