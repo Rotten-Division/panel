@@ -229,7 +229,7 @@
    button and a so togglebutton labels keep their default text. */
 button.fi-btn.fi-color-primary,
 a.fi-btn.fi-color-primary {
-    color: rgb(42 31 20);
+    color: rgb(198 73 22);
 }
 
 button.fi-btn.fi-color-danger,
@@ -239,7 +239,7 @@ a.fi-btn.fi-color-danger {
 
 .dark button.fi-btn.fi-color-primary,
 .dark a.fi-btn.fi-color-primary {
-    color: rgb(42 31 20);
+    color: rgb(198 73 22);
 }
 
 .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
