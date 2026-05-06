@@ -228,7 +228,9 @@
 /* design system 6.4 wants linen on solid ember and brick. scoped to
    button and a so togglebutton labels keep their default text. */
 button.fi-btn.fi-color-primary,
-a.fi-btn.fi-color-primary {
+a.fi-btn.fi-color-primary,
+button.fi-btn.fi-color-primary svg,
+a.fi-btn.fi-color-primary svg {
     color: rgb(198 73 22);
 }
 
@@ -238,7 +240,9 @@ a.fi-btn.fi-color-danger {
 }
 
 .dark button.fi-btn.fi-color-primary,
-.dark a.fi-btn.fi-color-primary {
+.dark a.fi-btn.fi-color-primary,
+.dark button.fi-btn.fi-color-primary svg,
+.dark a.fi-btn.fi-color-primary svg {
     color: rgb(198 73 22);
 }
 
