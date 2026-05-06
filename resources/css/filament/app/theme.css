@@ -459,3 +459,29 @@ body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header
     grid-column: 3;
     justify-self: end;
 }
+
+@media (max-width: 768px) {
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn {
+        grid-template-columns: 1fr auto;
+        gap: 0.75rem;
+        row-gap: 0.75rem;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-search-field {
+        grid-row: 2;
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-filters-dropdown {
+        grid-row: 1;
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header > .fi-ta-actions,
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar > .fi-ta-actions {
+        grid-row: 1;
+        grid-column: 2;
+    }
+}
