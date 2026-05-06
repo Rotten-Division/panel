@@ -49,9 +49,9 @@
     --ospite-text-tertiary: 92 104 120;
     --ospite-accent: 238 96 10;
 
-    --primary-400: rgb(251 226 204) !important;
-    --primary-500: rgb(251 226 204) !important;
-    --primary-600: rgb(245 210 174) !important;
+    --primary-400: rgb(238 96 10) !important;
+    --primary-500: rgb(238 96 10) !important;
+    --primary-600: rgb(198 73 22) !important;
 
     --danger-500: rgb(180 60 60) !important;
     --danger-600: rgb(140 45 45) !important;
@@ -240,10 +240,13 @@ a.fi-btn.fi-color-danger {
 }
 
 .dark button.fi-btn.fi-color-primary,
-.dark a.fi-btn.fi-color-primary,
+.dark a.fi-btn.fi-color-primary {
+    color: rgb(250 247 242);
+}
+
 .dark button.fi-btn.fi-color-primary svg,
 .dark a.fi-btn.fi-color-primary svg {
-    color: rgb(198 73 22);
+    color: rgb(250 247 242);
 }
 
 .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
