@@ -30,13 +30,17 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make(fn () => trans('admin/dashboard.server'))
+                    ->icon(TablerIcon::Server)
                     ->collapsible(false),
                 NavigationGroup::make(fn () => trans('admin/dashboard.user'))
+                    ->icon(TablerIcon::Users)
                     ->collapsible(false),
-                NavigationGroup::make(fn () => trans('admin/dashboard.server_versions')),
+                NavigationGroup::make(fn () => trans('admin/dashboard.server_versions'))
+                    ->icon(TablerIcon::Code),
                 NavigationGroup::make('Network & Security')
                     ->icon(TablerIcon::Shield),
-                NavigationGroup::make(fn () => trans('admin/dashboard.advanced')),
+                NavigationGroup::make(fn () => trans('admin/dashboard.advanced'))
+                    ->icon(TablerIcon::Settings),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
