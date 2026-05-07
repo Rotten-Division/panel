@@ -196,6 +196,11 @@ class FilamentServiceProvider extends ServiceProvider
                     'restart',
                     'kill',
                     'fileUpload',
+                    // form footer actions, no icon set so iconButton renders blank.
+                    'save',
+                    'cancel',
+                    'create',
+                    'create_another',
                 ];
 
                 foreach ($excludedPrefixes as $prefix) {
