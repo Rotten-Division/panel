@@ -489,3 +489,15 @@ body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header
         gap: 0;
     }
 }
+
+/* sticky form footer pulls a stock filament gray, swap to surface card so
+   it sits flush with the panel chrome in both light and dark mode. */
+.fi-sc-actions.fi-sticky .fi-ac {
+    background-color: rgb(var(--ospite-surface-card)) !important;
+    border: 1px solid rgb(var(--ospite-surface-border));
+}
+
+.fi-sc-actions.fi-sticky .fi-ac:where(.dark, .dark *) {
+    background-color: rgb(var(--ospite-surface-card)) !important;
+    border-color: rgb(var(--ospite-surface-border));
+}
