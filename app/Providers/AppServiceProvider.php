@@ -22,7 +22,9 @@ use App\Models\Server;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\UserSSHKey;
+use App\Contracts\Auth\SelfServiceRegistrationPolicy;
 use App\Contracts\Servers\ServerStartGate;
+use App\Services\Auth\AlwaysAllowRegistrationPolicy;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
 use App\Services\Servers\UnrestrictedServerStartGate;
@@ -138,6 +140,12 @@ class AppServiceProvider extends ServiceProvider
         // this to a swap aware implementation when installed. singleton
         // because the gate is stateless and every start path resolves it.
         $this->app->singleton(ServerStartGate::class, UnrestrictedServerStartGate::class);
+
+        // default registration policy allows every self service path. the
+        // onboarding plugin rebinds this to a settings backed implementation
+        // that can pause new account creation across the register page and
+        // the OAuth first time sign in flow.
+        $this->app->singleton(SelfServiceRegistrationPolicy::class, AlwaysAllowRegistrationPolicy::class);
 
         Scramble::ignoreDefaultRoutes();
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Contracts\Auth\SelfServiceRegistrationPolicy;
 use App\Extensions\OAuth\OAuthSchemaInterface;
 use App\Extensions\OAuth\OAuthService;
 use App\Filament\Pages\Auth\EditProfile;
@@ -21,6 +22,7 @@ class OAuthController extends Controller
     public function __construct(
         private readonly UserCreationService $userCreation,
         private readonly OAuthService $oauthService,
+        private readonly SelfServiceRegistrationPolicy $registrationPolicy,
     ) {}
 
     /**
@@ -87,6 +89,10 @@ class OAuthController extends Controller
         } else {
             if (!$driver->shouldCreateMissingUser($oauthUser)) {
                 return $this->errorRedirect();
+            }
+
+            if ($denial = $this->registrationPolicy->denialReason()) {
+                return $this->errorRedirect($denial);
             }
 
             try {
