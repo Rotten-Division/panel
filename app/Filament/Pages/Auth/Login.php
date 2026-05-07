@@ -8,11 +8,13 @@ use BladeUI\Icons\Exceptions\SvgNotFound;
 use BladeUI\Icons\Factory as IconFactory;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Login as BaseLogin;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
@@ -32,6 +34,18 @@ class Login extends BaseLogin
 
     public function form(Schema $schema): Schema
     {
+        if ($this->loginGateClosed()) {
+            return $schema->components([
+                Placeholder::make('disabled')
+                    ->hiddenLabel()
+                    ->content(new HtmlString(
+                        '<div style="font-size:0.875rem;line-height:1.5;color:rgb(var(--ospite-text-secondary, 156 163 175));">'.
+                        e($this->loginGateMessage()).
+                        '</div>'
+                    )),
+            ]);
+        }
+
         $components = [
             $this->getLoginFormComponent(),
             $this->getPasswordFormComponent(),
@@ -46,6 +60,43 @@ class Login extends BaseLogin
 
         return $schema
             ->components($components);
+    }
+
+    /* defense in depth, the form gate hides the inputs but a direct POST
+       could bypass the visual gate. checked again on credential submit. */
+    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
+    {
+        if ($this->loginGateClosed()) {
+            throw ValidationException::withMessages([
+                'data.login' => $this->loginGateMessage(),
+            ]);
+        }
+
+        return parent::authenticate();
+    }
+
+    /* the onboarding plugin owns the gate. without the plugin installed
+       the class is missing and login operates normally. */
+    private function loginGateClosed(): bool
+    {
+        $service = 'RottenDivision\\OspiteOnboarding\\Services\\OnboardingGateService';
+
+        if (!class_exists($service)) {
+            return false;
+        }
+
+        return app($service)->loginDisabled();
+    }
+
+    private function loginGateMessage(): string
+    {
+        $service = 'RottenDivision\\OspiteOnboarding\\Services\\OnboardingGateService';
+
+        if (!class_exists($service)) {
+            return '';
+        }
+
+        return app($service)->loginDisabledMessage();
     }
 
     private function getCaptchaComponent(): ?Component
