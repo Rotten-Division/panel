@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn () => trans('admin/dashboard.user'))
                     ->collapsible(false),
                 NavigationGroup::make(fn () => trans('admin/dashboard.server_versions')),
+                NavigationGroup::make('Network & Security'),
                 NavigationGroup::make(fn () => trans('admin/dashboard.advanced')),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
