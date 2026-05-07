@@ -62,8 +62,10 @@ class Login extends BaseLogin
             ->components($components);
     }
 
-    /* defense in depth, the form gate hides the inputs but a direct POST
-       could bypass the visual gate. checked again on credential submit. */
+    /* the form gate hides the inputs based on the master switch only, the
+       per role gate cannot fire pre auth without knowing who is logging in.
+       the master switch and the role gate both checked on submit, root
+       admin always passes the role gate per the service. */
     public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
     {
         if ($this->loginGateClosed()) {
@@ -72,7 +74,17 @@ class Login extends BaseLogin
             ]);
         }
 
-        return parent::authenticate();
+        $response = parent::authenticate();
+
+        $user = \Filament\Facades\Filament::auth()->user();
+        if ($user instanceof \App\Models\User && $this->loginGateClosesForUser($user)) {
+            \Filament\Facades\Filament::auth()->logout();
+            throw ValidationException::withMessages([
+                'data.login' => $this->loginGateMessage(),
+            ]);
+        }
+
+        return $response;
     }
 
     /* the onboarding plugin owns the gate. without the plugin installed
@@ -86,6 +98,17 @@ class Login extends BaseLogin
         }
 
         return app($service)->loginDisabled();
+    }
+
+    private function loginGateClosesForUser(\App\Models\User $user): bool
+    {
+        $service = 'RottenDivision\\OspiteOnboarding\\Services\\OnboardingGateService';
+
+        if (!class_exists($service)) {
+            return false;
+        }
+
+        return app($service)->loginDisabledForUser($user);
     }
 
     private function loginGateMessage(): string
