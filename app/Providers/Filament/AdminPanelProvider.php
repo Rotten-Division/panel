@@ -32,6 +32,8 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn () => trans('admin/dashboard.server'))
                     ->icon(TablerIcon::Server)
                     ->collapsible(false),
+                NavigationGroup::make('Gameserver Creation')
+                    ->icon(TablerIcon::DeviceGamepad),
                 NavigationGroup::make(fn () => trans('admin/dashboard.user'))
                     ->icon(TablerIcon::Users)
                     ->collapsible(false),
