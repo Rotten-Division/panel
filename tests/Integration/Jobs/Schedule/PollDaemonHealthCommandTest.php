@@ -48,7 +48,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
     {
         Event::fake([NodeHealthChecked::class, NodeReconnected::class, NodeWentDown::class]);
 
-        $node = Node::factory()->create(['last_seen' => null, 'maintenance_mode' => false]);
+        $node = Node::factory()->create(['last_seen_at' => null, 'maintenance_mode' => false]);
         $ok = $this->fakeWingsOk($node);
 
         Http::fake(fn (Request $request) => str_contains($request->url(), $node->fqdn)
@@ -58,8 +58,8 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         $this->artisan(PollDaemonHealthCommand::class)->assertSuccessful();
 
         $node->refresh();
-        $this->assertNotNull($node->last_seen);
-        $this->assertTrue(Carbon::now()->diffInSeconds($node->last_seen) <= 5);
+        $this->assertNotNull($node->last_seen_at);
+        $this->assertTrue(Carbon::now()->diffInSeconds($node->last_seen_at) <= 5);
 
         Event::assertDispatched(
             NodeHealthChecked::class,
@@ -72,7 +72,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         Event::fake([NodeHealthChecked::class, NodeReconnected::class, NodeWentDown::class]);
 
         $node = Node::factory()->create([
-            'last_seen' => Carbon::now()->subSeconds(600),
+            'last_seen_at' => Carbon::now()->subSeconds(600),
             'maintenance_mode' => false,
         ]);
         $ok = $this->fakeWingsOk($node);
@@ -97,7 +97,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         Event::fake([NodeHealthChecked::class, NodeReconnected::class, NodeWentDown::class]);
 
         $node = Node::factory()->create([
-            'last_seen' => Carbon::now()->subSeconds(30),
+            'last_seen_at' => Carbon::now()->subSeconds(30),
             'maintenance_mode' => false,
         ]);
         $ok = $this->fakeWingsOk($node);
@@ -119,7 +119,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
 
         $previous = Carbon::now()->subSeconds(30);
         $node = Node::factory()->create([
-            'last_seen' => $previous,
+            'last_seen_at' => $previous,
             'maintenance_mode' => false,
         ]);
 
@@ -128,7 +128,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         $this->artisan(PollDaemonHealthCommand::class)->assertSuccessful();
 
         $node->refresh();
-        $this->assertSame($previous->getTimestamp(), $node->last_seen->getTimestamp());
+        $this->assertSame($previous->getTimestamp(), $node->last_seen_at->getTimestamp());
 
         Event::assertDispatched(
             NodeWentDown::class,
@@ -146,7 +146,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         Event::fake([NodeHealthChecked::class, NodeReconnected::class, NodeWentDown::class]);
 
         Node::factory()->create([
-            'last_seen' => Carbon::now()->subSeconds(600),
+            'last_seen_at' => Carbon::now()->subSeconds(600),
             'maintenance_mode' => false,
         ]);
 
@@ -164,7 +164,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
         Event::fake([NodeHealthChecked::class]);
 
         Node::factory()->create([
-            'last_seen' => null,
+            'last_seen_at' => null,
             'maintenance_mode' => true,
         ]);
 
@@ -177,7 +177,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
 
     public function test_successful_poll_warms_the_system_information_cache(): void
     {
-        $node = Node::factory()->create(['last_seen' => null, 'maintenance_mode' => false]);
+        $node = Node::factory()->create(['last_seen_at' => null, 'maintenance_mode' => false]);
         $ok = $this->fakeWingsOk($node);
 
         Http::fake([
@@ -193,7 +193,7 @@ class PollDaemonHealthCommandTest extends IntegrationTestCase
 
     public function test_failed_poll_writes_exception_payload_to_cache(): void
     {
-        $node = Node::factory()->create(['last_seen' => null, 'maintenance_mode' => false]);
+        $node = Node::factory()->create(['last_seen_at' => null, 'maintenance_mode' => false]);
 
         Http::fake(['*' => Http::response('', 500)]);
 

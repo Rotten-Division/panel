@@ -46,7 +46,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property string|null $daemon_sftp_alias
  * @property string $daemon_base
  * @property string[] $tags
- * @property Carbon|null $last_seen
+ * @property Carbon|null $last_seen_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Mount[]|Collection $mounts
@@ -150,7 +150,7 @@ class Node extends Model implements Validatable
             'public' => 'boolean',
             'maintenance_mode' => 'boolean',
             'tags' => 'array',
-            'last_seen' => 'datetime',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -260,24 +260,24 @@ class Node extends Model implements Validatable
 
     public function isHealthy(?int $thresholdSeconds = null): bool
     {
-        if ($this->last_seen === null) {
+        if ($this->last_seen_at === null) {
             return false;
         }
 
-        return $this->last_seen->greaterThanOrEqualTo(
+        return $this->last_seen_at->greaterThanOrEqualTo(
             Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds())
         );
     }
 
     public function lastSeenAt(): ?Carbon
     {
-        return $this->last_seen;
+        return $this->last_seen_at;
     }
 
     public function scopeHealthy(Builder $builder, ?int $thresholdSeconds = null): Builder
     {
         return $builder->where(
-            'last_seen',
+            'last_seen_at',
             '>=',
             Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds())
         );
@@ -288,8 +288,8 @@ class Node extends Model implements Validatable
         $cutoff = Carbon::now()->subSeconds($thresholdSeconds ?? static::healthThresholdSeconds());
 
         return $builder->where(function (Builder $query) use ($cutoff) {
-            $query->whereNull('last_seen')
-                ->orWhere('last_seen', '<', $cutoff);
+            $query->whereNull('last_seen_at')
+                ->orWhere('last_seen_at', '<', $cutoff);
         });
     }
 

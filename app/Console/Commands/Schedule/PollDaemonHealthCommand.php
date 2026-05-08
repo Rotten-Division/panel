@@ -15,7 +15,7 @@ class PollDaemonHealthCommand extends Command
 {
     protected $signature = 'p:node:poll-health';
 
-    protected $description = 'Poll every non-maintenance node for liveness, update last_seen and dispatch health events.';
+    protected $description = 'Poll every non-maintenance node for liveness, update last_seen_at and dispatch health events.';
 
     public function handle(): int
     {
@@ -45,7 +45,7 @@ class PollDaemonHealthCommand extends Command
      */
     protected function pollNode(Node $node, int $threshold): void
     {
-        $previousLastSeen = $node->last_seen;
+        $previousLastSeen = $node->last_seen_at;
         $wasHealthy = $node->isHealthy($threshold);
 
         $reachable = false;
@@ -64,8 +64,8 @@ class PollDaemonHealthCommand extends Command
 
         if ($reachable) {
             $now = Carbon::now();
-            Node::query()->whereKey($node->id)->update(['last_seen' => $now]);
-            $node->last_seen = $now;
+            Node::query()->whereKey($node->id)->update(['last_seen_at' => $now]);
+            $node->last_seen_at = $now;
         }
 
         event(new NodeHealthChecked($node, $reachable));
