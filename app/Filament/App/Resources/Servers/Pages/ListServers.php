@@ -32,6 +32,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
 class ListServers extends ListRecords
@@ -256,7 +257,7 @@ class ListServers extends ListRecords
                     ->icon(TablerIcon::PlayerPlayFilled)
                     ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
                     ->visible(fn (Server $server) => $server->retrieveStatus()->isStartable()),
-                fn (Server $server) => app(ServerStartGate::class)->wouldBlock($server, user()),
+                fn (Server $server) => App::make(ServerStartGate::class)->wouldBlock($server, user()),
             )
                 // self contained closure that runs the gate inline, the grid
                 // view evaluates this on ServerEntry which has no powerAction
@@ -268,10 +269,10 @@ class ListServers extends ListRecords
                 // post success refresh, which is what console already does.
                 ->action(function (Server $server, $livewire) {
                     try {
-                        $decision = app(ServerStartGate::class)->gateStart(
+                        $decision = App::make(ServerStartGate::class)->gateStart(
                             $server,
                             user(),
-                            fn () => app(\App\Repositories\Daemon\DaemonServerRepository::class)
+                            fn () => App::make(DaemonServerRepository::class)
                                 ->setServer($server)
                                 ->power('start'),
                         );
