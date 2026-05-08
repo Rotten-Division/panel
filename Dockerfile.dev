@@ -87,7 +87,9 @@ RUN mkdir -p /pelican-data/storage /pelican-data/plugins /var/run/supervisord \
 # Symlinks for env, database, storage, and plugins
     && ln -s  /pelican-data/.env /var/www/html/.env \
     && ln -s  /pelican-data/database/database.sqlite ./database/database.sqlite \
+    && rm -rf /var/www/html/public/storage \
     && ln -s  /pelican-data/storage /var/www/html/public/storage \
+    && rm -rf /var/www/html/storage/app/public \
     && ln -s  /pelican-data/storage /var/www/html/storage/app/public \
     && ln -s  /pelican-data/plugins /var/www/html \
 # Allow www-data write permissions where necessary
