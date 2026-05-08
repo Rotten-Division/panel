@@ -73,7 +73,7 @@ class ListServers extends ListRecords
             ImageColumn::make('icon')
                 ->label('')
                 ->imageSize(46)
-                ->state(fn (Server $server) => $server->icon ?: $server->egg->image),
+                ->state(fn (Server $server) => $server->icon ?: $server->egg->icon),
             TextColumn::make('condition')
                 ->label(trans('server/dashboard.status'))
                 ->badge()
@@ -84,7 +84,8 @@ class ListServers extends ListRecords
                 ->label(trans('server/dashboard.title'))
                 ->description(fn (Server $server) => $server->description)
                 ->grow()
-                ->searchable(),
+                ->searchable()
+                ->sortable(),
             TextColumn::make('allocation.address')
                 ->label('')
                 ->badge()

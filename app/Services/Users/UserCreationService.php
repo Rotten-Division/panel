@@ -71,7 +71,9 @@ class UserCreationService
 
         $this->connection->commit();
 
-        $user->notify(new AccountCreated($token ?? null));
+        if (config('panel.email.send_account_created_notification', true)) {
+            $user->notify(new AccountCreated($token ?? null));
+        }
 
         return $user;
     }

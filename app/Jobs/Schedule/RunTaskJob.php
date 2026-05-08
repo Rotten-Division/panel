@@ -8,6 +8,7 @@ use App\Jobs\Job;
 use App\Models\Task;
 use Carbon\CarbonImmutable;
 use Exception;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,9 +16,10 @@ use Illuminate\Queue\SerializesModels;
 use InvalidArgumentException;
 use Throwable;
 
-class RunTaskJob extends Job implements ShouldQueue
+class RunTaskJob implements ShouldQueue
 {
     use InteractsWithQueue;
+    use Queueable;
     use SerializesModels;
 
     /**
