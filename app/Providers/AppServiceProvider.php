@@ -12,6 +12,7 @@ use App\Checks\ScheduleCheck;
 use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
 use App\Contracts\Servers\ServerStartGate;
+use App\Http\Responses\LoginResponse;
 use App\Models\Allocation;
 use App\Models\ApiKey;
 use App\Models\Backup;
@@ -134,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(LoginResponseContract::class, \App\Http\Responses\LoginResponse::class);
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
 
         // default start gate is unrestricted, the user limits plugin rebinds
         // this to a swap aware implementation when installed. singleton
