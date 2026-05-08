@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Exceptions\Service\Allocation\ServerUsingAllocationException;
 use App\Observers\AllocationObserver;
 use App\Traits\HasValidation;
-use Database\Factories\AllocationFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
