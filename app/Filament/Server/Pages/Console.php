@@ -19,17 +19,18 @@ use App\Livewire\AlertBanner;
 use App\Models\Server;
 use App\Services\Servers\StartGateDecision;
 use App\Traits\Filament\CanCustomizeHeaderActions;
-use Filament\Notifications\Notification;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Concerns\HasHeaderActions;
 use Filament\Support\Enums\Size;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
+use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
 class Console extends Page
@@ -177,10 +178,10 @@ class Console extends Page
                         ->icon(TablerIcon::PlayerPlayFilled)
                         ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
                         ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable()),
-                    fn (Server $server) => app(ServerStartGate::class)->wouldBlock($server, user()),
+                    fn (Server $server) => App::make(ServerStartGate::class)->wouldBlock($server, user()),
                 )
                     ->action(function (Server $server) {
-                        $decision = app(ServerStartGate::class)->gateStart(
+                        $decision = App::make(ServerStartGate::class)->gateStart(
                             $server,
                             user(),
                             fn () => $this->dispatch('setServerState', uuid: $server->uuid, state: 'start'),

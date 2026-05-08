@@ -4,12 +4,16 @@ namespace App\Tests\Integration\Events\Server;
 
 use App\Events\Server\AllocationsAssigned;
 use App\Events\Server\AllocationsReleased;
+use App\Http\Controllers\Api\Client\Servers\NetworkAllocationController;
+use App\Http\Requests\Api\Client\Servers\Network\DeleteAllocationRequest;
 use App\Models\Allocation;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Services\Databases\DatabaseManagementService;
 use App\Services\Servers\BuildModificationService;
 use App\Services\Servers\ServerDeletionService;
 use App\Tests\Integration\IntegrationTestCase;
+use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\Event;
 use Mockery\MockInterface;
 
@@ -116,7 +120,7 @@ class AllocationLifecycleEventsTest extends IntegrationTestCase
         $databases = $this->mock(DatabaseManagementService::class);
 
         $service = new ServerDeletionService(
-            $this->app->make(\Illuminate\Database\ConnectionInterface::class),
+            $this->app->make(ConnectionInterface::class),
             $daemon,
             $databases,
         );
@@ -182,11 +186,11 @@ class AllocationLifecycleEventsTest extends IntegrationTestCase
     public function test_events_implement_should_dispatch_after_commit(): void
     {
         $this->assertContains(
-            \Illuminate\Contracts\Events\ShouldDispatchAfterCommit::class,
+            ShouldDispatchAfterCommit::class,
             class_implements(AllocationsAssigned::class),
         );
         $this->assertContains(
-            \Illuminate\Contracts\Events\ShouldDispatchAfterCommit::class,
+            ShouldDispatchAfterCommit::class,
             class_implements(AllocationsReleased::class),
         );
     }
@@ -202,8 +206,8 @@ class AllocationLifecycleEventsTest extends IntegrationTestCase
 
         Event::fake([AllocationsAssigned::class, AllocationsReleased::class]);
 
-        $request = \Mockery::mock(\App\Http\Requests\Api\Client\Servers\Network\DeleteAllocationRequest::class);
-        $controller = $this->app->make(\App\Http\Controllers\Api\Client\Servers\NetworkAllocationController::class);
+        $request = \Mockery::mock(DeleteAllocationRequest::class);
+        $controller = $this->app->make(NetworkAllocationController::class);
         $controller->delete($request, $server, $allocation);
 
         Event::assertDispatched(

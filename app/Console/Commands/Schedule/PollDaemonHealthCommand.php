@@ -7,8 +7,8 @@ use App\Events\Node\NodeReconnected;
 use App\Events\Node\NodeWentDown;
 use App\Models\Node;
 use App\Repositories\Daemon\DaemonSystemRepository;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Throwable;
 
 class PollDaemonHealthCommand extends Command

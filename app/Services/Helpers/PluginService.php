@@ -459,7 +459,7 @@ class PluginService
             // never re-throw the request exception verbatim, its previous
             // and response carry the Authorization header which would land
             // in any logger that serializes the exception chain.
-            $status = $exception->response?->status();
+            $status = $exception->response->status();
             Log::warning('plugin asset download failed', [
                 'plugin_id' => $pluginId,
                 'status' => $status,

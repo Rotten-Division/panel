@@ -320,7 +320,7 @@ class Plugin extends Model implements HasPluginSettings
                 Log::warning('plugin update manifest fetch failed', [
                     'plugin' => $this->id,
                     'status' => $exception instanceof RequestException
-                        ? $exception->response?->status()
+                        ? $exception->response->status()
                         : null,
                 ]);
             }
