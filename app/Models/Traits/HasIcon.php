@@ -20,6 +20,7 @@ trait HasIcon
         'png' => 'image/png',
         'jpg' => 'image/jpeg',
         'webp' => 'image/webp',
+        'svg' => 'image/svg+xml',
     ];
 
     public static function getIconStoragePath(): string
@@ -45,6 +46,7 @@ trait HasIcon
             'jpeg', 'jpg' => 'jpg',
             'png' => 'png',
             'webp' => 'webp',
+            'svg+xml', 'svg' => 'svg',
             default => null,
         };
 
