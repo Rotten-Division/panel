@@ -11,6 +11,7 @@ use App\Checks\PanelVersionCheck;
 use App\Checks\ScheduleCheck;
 use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
+use App\Contracts\Servers\NestMembershipGate;
 use App\Contracts\Servers\NodeSelector;
 use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
@@ -31,6 +32,7 @@ use App\Services\Auth\AlwaysAllowRegistrationPolicy;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
 use App\Services\Servers\FirstAvailableNodeSelector;
+use App\Services\Servers\NoNestMembershipGate;
 use App\Services\Servers\NoPortHoldsGate;
 use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
@@ -161,6 +163,11 @@ class AppServiceProvider extends ServiceProvider
         // manager rebinds this to a least loaded scorer that ranks every
         // candidate by free resource fraction across memory, disk, and cpu.
         $this->app->singleton(NodeSelector::class, FirstAvailableNodeSelector::class);
+
+        // default nest membership gate never blocks. nest manager rebinds to
+        // an enforcer that walks the user's non-nest servers and returns the
+        // one that needs to roost before another can come out of the nest.
+        $this->app->singleton(NestMembershipGate::class, NoNestMembershipGate::class);
 
         Scramble::ignoreDefaultRoutes();
 
