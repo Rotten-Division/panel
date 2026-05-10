@@ -165,7 +165,7 @@ class Server extends Model implements HasAvatar, Validatable
         'external_id' => ['sometimes', 'nullable', 'string', 'between:1,255', 'unique:servers'],
         'owner_id' => ['required', 'integer', 'exists:users,id'],
         'name' => ['required', 'string', 'min:1', 'max:255'],
-        'node_id' => ['required', 'exists:nodes,id'],
+        'node_id' => ['sometimes', 'nullable', 'exists:nodes,id'],
         'description' => ['string'],
         'status' => ['nullable', 'string'],
         'memory' => ['required', 'numeric', 'min:0'],
