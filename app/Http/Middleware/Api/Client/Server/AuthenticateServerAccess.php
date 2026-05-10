@@ -51,10 +51,27 @@ class AuthenticateServerAccess
 
         // nest evicted servers have no node and refuse every client api path
         // including the server.view introspection one. there is nothing for
-        // wings to answer with while the volume is roosting on s3, callers
-        // get a 409 with the roosting message.
-        if ($server->status === ServerState::Nest || $server->status === ServerState::Hydrating) {
+        // wings to answer with while the volume is roosting on s3.
+        if ($server->status === ServerState::Nest) {
             throw new ServerStateConflictException($server);
+        }
+
+        // hydrating means wings is mid restore, the server is taking shape
+        // again on a node. let the dashboard poll server.view and
+        // server.resources so the front end can watch progress, refuse
+        // every other path because power and file access have nothing to
+        // act on yet. short circuit past validateCurrentState below since
+        // hydrating is a conflict state but we want these two routes to
+        // flow through anyway.
+        if ($server->status === ServerState::Hydrating) {
+            if (!$request->routeIs('api:client:server.view')
+                && !$request->routeIs('api:client:server.resources')) {
+                throw new ServerStateConflictException($server);
+            }
+
+            $request->attributes->set('server', $server);
+
+            return $next($request);
         }
 
         try {
