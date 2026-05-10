@@ -19,6 +19,11 @@ Route::prefix('/servers/{server:uuid}')->group(function () {
     Route::post('/transfer/success', [Remote\Servers\ServerTransferController::class, 'success']);
 
     Route::post('/container/status', [Remote\Servers\ServerContainersController::class, 'status']);
+
+    Route::post('/nest/captured', [Remote\Servers\NestRemoteController::class, 'captured'])
+        ->name('api.remote.servers.nest.captured');
+    Route::post('/nest/restored', [Remote\Servers\NestRemoteController::class, 'restored'])
+        ->name('api.remote.servers.nest.restored');
 });
 
 Route::prefix('/backups')->group(function () {
