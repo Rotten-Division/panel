@@ -36,10 +36,16 @@ class ServerPolicy
         }
 
         // nest evicted servers carry node_id=null, the canTarget gate below
-        // requires a Node instance. fall through to the default policies so a
-        // root admin can still inspect the server but a non admin non owner
-        // gets denied by the framework default.
-        if ($server->node !== null && !$user->canTarget($server->node)) {
+        // requires a Node instance. owners and subusers already short
+        // circuited above, so a caller reaching this branch on a nest
+        // server is an admin. without a node to anchor on, only root
+        // admins are permitted, otherwise a region restricted admin would
+        // gain access to every nest server in the system.
+        if ($server->node === null) {
+            return $user->isRootAdmin() ? null : false;
+        }
+
+        if (!$user->canTarget($server->node)) {
             return false;
         }
 
