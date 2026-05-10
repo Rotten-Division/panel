@@ -11,6 +11,7 @@ use App\Checks\PanelVersionCheck;
 use App\Checks\ScheduleCheck;
 use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
+use App\Contracts\Servers\NodeSelector;
 use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
 use App\Http\Responses\LoginResponse;
@@ -29,6 +30,7 @@ use App\Models\UserSSHKey;
 use App\Services\Auth\AlwaysAllowRegistrationPolicy;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
+use App\Services\Servers\FirstAvailableNodeSelector;
 use App\Services\Servers\NoPortHoldsGate;
 use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
@@ -154,6 +156,11 @@ class AppServiceProvider extends ServiceProvider
         // this to a reader against osnm_port_holds so the wizard's allocation
         // resolver skips ports reserved for nest restores.
         $this->app->singleton(PortHoldGate::class, NoPortHoldsGate::class);
+
+        // default node selector returns the first viable node by id. nest
+        // manager rebinds this to a least loaded scorer that ranks every
+        // candidate by free resource fraction across memory, disk, and cpu.
+        $this->app->singleton(NodeSelector::class, FirstAvailableNodeSelector::class);
 
         Scramble::ignoreDefaultRoutes();
 
