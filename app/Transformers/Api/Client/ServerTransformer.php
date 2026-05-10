@@ -41,9 +41,9 @@ class ServerTransformer extends BaseClientTransformer
             'internal_id' => $server->id,
             'uuid' => $server->uuid,
             'name' => $server->name,
-            'node' => $server->node->name,
-            'is_node_under_maintenance' => $server->node->isUnderMaintenance(),
-            'sftp_details' => [
+            'node' => $server->node?->name,
+            'is_node_under_maintenance' => $server->node?->isUnderMaintenance() ?? false,
+            'sftp_details' => $server->node === null ? null : [
                 'ip' => $server->node->fqdn,
                 'alias' => $server->node->daemon_sftp_alias,
                 'port' => $server->node->daemon_sftp,
