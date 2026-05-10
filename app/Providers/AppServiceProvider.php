@@ -11,6 +11,7 @@ use App\Checks\PanelVersionCheck;
 use App\Checks\ScheduleCheck;
 use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
+use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
 use App\Http\Responses\LoginResponse;
 use App\Models\Allocation;
@@ -28,6 +29,7 @@ use App\Models\UserSSHKey;
 use App\Services\Auth\AlwaysAllowRegistrationPolicy;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
+use App\Services\Servers\NoPortHoldsGate;
 use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -147,6 +149,11 @@ class AppServiceProvider extends ServiceProvider
         // that can pause new account creation across the register page and
         // the OAuth first time sign in flow.
         $this->app->singleton(SelfServiceRegistrationPolicy::class, AlwaysAllowRegistrationPolicy::class);
+
+        // default port hold gate is empty, the nest manager plugin rebinds
+        // this to a reader against osnm_port_holds so the wizard's allocation
+        // resolver skips ports reserved for nest restores.
+        $this->app->singleton(PortHoldGate::class, NoPortHoldsGate::class);
 
         Scramble::ignoreDefaultRoutes();
 
