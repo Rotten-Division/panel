@@ -463,6 +463,12 @@ class Server extends Model implements HasAvatar, Validatable
 
     public function retrieveStatus(): ContainerStatus
     {
+        // nest evicted servers have no node to ask. the daemon repository's
+        // setNode is type strict so the call below would TypeError otherwise.
+        if ($this->node_id === null) {
+            return ContainerStatus::Missing;
+        }
+
         return cache()->remember("servers.$this->uuid.status", now()->addSeconds(15), function () {
             // @phpstan-ignore myCustomRules.forbiddenGlobalFunctions
             $details = app(DaemonServerRepository::class)->setServer($this)->getDetails();
@@ -476,6 +482,10 @@ class Server extends Model implements HasAvatar, Validatable
      */
     public function retrieveResources(): array
     {
+        if ($this->node_id === null) {
+            return [];
+        }
+
         return cache()->remember("servers.$this->uuid.resources", now()->addSeconds(15), function () {
             // @phpstan-ignore myCustomRules.forbiddenGlobalFunctions
             $details = app(DaemonServerRepository::class)->setServer($this)->getDetails();
