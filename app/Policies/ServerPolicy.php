@@ -35,8 +35,11 @@ class ServerPolicy
             }
         }
 
-        // Make sure user can target node of the server
-        if (!$user->canTarget($server->node)) {
+        // nest evicted servers carry node_id=null, the canTarget gate below
+        // requires a Node instance. fall through to the default policies so a
+        // root admin can still inspect the server but a non admin non owner
+        // gets denied by the framework default.
+        if ($server->node !== null && !$user->canTarget($server->node)) {
             return false;
         }
 
