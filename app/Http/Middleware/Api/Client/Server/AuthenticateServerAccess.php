@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\Api\Client\Server;
 
+use App\Enums\ServerState;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Models\Server;
 use App\Models\User;
@@ -48,13 +49,21 @@ class AuthenticateServerAccess
             }
         }
 
+        // nest evicted servers have no node and refuse every client api path
+        // including the server.view introspection one. there is nothing for
+        // wings to answer with while the volume is roosting on s3, callers
+        // get a 409 with the roosting message.
+        if ($server->status === ServerState::Nest || $server->status === ServerState::Hydrating) {
+            throw new ServerStateConflictException($server);
+        }
+
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
             // Still allow users to get information about their server if it is installing or
             // being transferred.
             if (!$request->routeIs('api:client:server.view')) {
-                if (($server->isSuspended() || $server->node->isUnderMaintenance()) && !$request->routeIs('api:client:server.resources')) {
+                if (($server->isSuspended() || $server->node?->isUnderMaintenance()) && !$request->routeIs('api:client:server.resources')) {
                     throw $exception;
                 }
                 if ($user->cannot('update server', $server) || !$request->routeIs($this->except)) {
