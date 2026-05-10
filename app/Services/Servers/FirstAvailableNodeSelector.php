@@ -11,6 +11,7 @@ class FirstAvailableNodeSelector implements NodeSelector
     public function selectFor(Server $server, ?array $eligibleNodeIds = null): ?Node
     {
         $query = Node::query()
+            ->where('maintenance_mode', false)
             ->withSum('servers', 'memory')
             ->withSum('servers', 'disk')
             ->withSum('servers', 'cpu')
@@ -31,6 +32,10 @@ class FirstAvailableNodeSelector implements NodeSelector
 
     public function score(Node $node, Server $server): ?float
     {
+        if ($node->maintenance_mode) {
+            return null;
+        }
+
         if (!$node->isViable($server->memory, $server->disk, $server->cpu)) {
             return null;
         }

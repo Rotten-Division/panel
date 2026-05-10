@@ -57,4 +57,31 @@ class NodeSelectorTest extends IntegrationTestCase
     {
         $this->assertInstanceOf(NodeSelector::class, new FirstAvailableNodeSelector());
     }
+
+    public function test_maintenance_nodes_are_skipped(): void
+    {
+        $down = Node::factory()->create(['memory' => 8192, 'disk' => 100000, 'cpu' => 100, 'maintenance_mode' => true]);
+        $up = Node::factory()->create(['memory' => 8192, 'disk' => 100000, 'cpu' => 100]);
+        $server = Server::factory()->make(['memory' => 1024, 'disk' => 10000, 'cpu' => 50]);
+
+        $selector = new FirstAvailableNodeSelector();
+        $picked = $selector->selectFor($server, [$down->id, $up->id]);
+
+        $this->assertNotNull($picked);
+        $this->assertSame($up->id, $picked->id);
+    }
+
+    public function test_score_returns_null_for_maintenance_node(): void
+    {
+        $down = Node::factory()->create(['memory' => 8192, 'disk' => 100000, 'cpu' => 100, 'maintenance_mode' => true]);
+        $server = Server::factory()->make(['memory' => 1024, 'disk' => 10000, 'cpu' => 50]);
+
+        $selector = new FirstAvailableNodeSelector();
+
+        $down->loadSum('servers', 'memory');
+        $down->loadSum('servers', 'disk');
+        $down->loadSum('servers', 'cpu');
+
+        $this->assertNull($selector->score($down, $server));
+    }
 }
