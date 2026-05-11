@@ -17,3 +17,10 @@ test('exception message for hydrating state mentions waking', function () {
 
     expect($exception->getMessage())->toContain('waking');
 });
+
+test('exception message for capturing state mentions moving to cold storage', function () {
+    $server = Server::factory()->make(['status' => ServerState::Capturing]);
+    $exception = new ServerStateConflictException($server);
+
+    expect($exception->getMessage())->toContain('moved to cold storage');
+});

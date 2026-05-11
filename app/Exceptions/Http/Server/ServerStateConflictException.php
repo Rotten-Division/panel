@@ -20,6 +20,8 @@ class ServerStateConflictException extends ConflictHttpException
             $message = 'This server is roosting in cold storage. Hit wake to bring it back.';
         } elseif ($server->status === ServerState::Hydrating) {
             $message = 'This server is waking from cold storage. Hold tight, this takes about a minute.';
+        } elseif ($server->status === ServerState::Capturing) {
+            $message = 'This server is being moved to cold storage. Hold tight, this takes about a minute.';
         } elseif ($server->isSuspended()) {
             $message = 'This server is currently suspended and the functionality requested is unavailable.';
         } elseif ($server->node?->isUnderMaintenance()) {
