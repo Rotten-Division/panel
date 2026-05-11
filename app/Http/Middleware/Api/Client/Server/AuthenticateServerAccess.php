@@ -57,13 +57,14 @@ class AuthenticateServerAccess
         }
 
         // hydrating means wings is mid restore, the server is taking shape
-        // again on a node. let the dashboard poll server.view and
+        // again on a node. capturing means wings is mid eviction, the
+        // volume is being read out and the container/volume teardown is
+        // imminent. for both, let the dashboard poll server.view and
         // server.resources so the front end can watch progress, refuse
-        // every other path because power and file access have nothing to
-        // act on yet. short circuit past validateCurrentState below since
-        // hydrating is a conflict state but we want these two routes to
-        // flow through anyway.
-        if ($server->status === ServerState::Hydrating) {
+        // every other path because power and file access would race the
+        // in flight transfer. short circuit past validateCurrentState
+        // below for these two routes.
+        if ($server->status === ServerState::Hydrating || $server->status === ServerState::Capturing) {
             if (!$request->routeIs('api:client:server.view')
                 && !$request->routeIs('api:client:server.resources')) {
                 throw new ServerStateConflictException($server);
