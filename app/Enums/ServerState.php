@@ -16,6 +16,7 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
     case RestoringBackup = 'restoring_backup';
     case Nest = 'nest';
     case Hydrating = 'hydrating';
+    case Capturing = 'capturing';
 
     public function getIcon(): BackedEnum
     {
@@ -26,6 +27,7 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
             self::RestoringBackup => TablerIcon::HeartUp,
             self::Nest => TablerIcon::Snowflake,
             self::Hydrating => TablerIcon::HeartBolt,
+            self::Capturing => TablerIcon::PackageExport,
         };
     }
 
@@ -39,6 +41,7 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
             self::RestoringBackup => 'primary',
             self::Nest => 'info',
             self::Hydrating => 'primary',
+            self::Capturing => 'primary',
         };
     }
 

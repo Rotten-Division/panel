@@ -11,6 +11,15 @@ test('hydrating case exists', function () {
     expect(ServerState::Hydrating->value)->toBe('hydrating');
 });
 
+test('capturing case exists for the eviction in flight window', function () {
+    expect(ServerState::Capturing->value)->toBe('capturing');
+});
+
+test('capturing has package-export icon and primary colour', function () {
+    expect(ServerState::Capturing->getIcon())->toBe(TablerIcon::PackageExport);
+    expect(ServerState::Capturing->getColor())->toBe('primary');
+});
+
 test('nest has snowflake icon', function () {
     expect(ServerState::Nest->getIcon())->toBe(TablerIcon::Snowflake);
 });
