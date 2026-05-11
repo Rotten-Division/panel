@@ -410,6 +410,7 @@ class Server extends Model implements HasAvatar, Validatable
         return $this->isSuspended()
             || $this->status === ServerState::Nest
             || $this->status === ServerState::Hydrating
+            || $this->status === ServerState::Capturing
             || $this->node?->isUnderMaintenance()
             || !$this->isInstalled()
             || $this->status === ServerState::RestoringBackup

@@ -20,6 +20,14 @@ test('hydrating server is in conflict state', function () {
     expect($server->isInConflictState())->toBeTrue();
 });
 
+test('capturing server is in conflict state so user actions cannot race the in flight eviction', function () {
+    $server = Server::factory()->create([
+        'status' => ServerState::Capturing,
+    ]);
+
+    expect($server->isInConflictState())->toBeTrue();
+});
+
 test('isInConflictState does not throw on null node', function () {
     $server = Server::factory()->create([
         'status' => ServerState::Nest,
