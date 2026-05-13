@@ -5,6 +5,7 @@ namespace App\Filament\Server\Pages;
 use App\Contracts\Servers\ServerStartGate;
 use App\Enums\ConsoleWidgetPosition;
 use App\Enums\ContainerStatus;
+use App\Enums\ServerState;
 use App\Enums\SubuserPermission;
 use App\Enums\TablerIcon;
 use App\Exceptions\Http\Server\ServerStateConflictException;
@@ -116,6 +117,17 @@ class Console extends Page
      */
     public function getWidgets(): array
     {
+        // nest evicted servers have node_id=null so the console + chart widgets
+        // would crash on $server->node->getConnectionAddress(). hide every
+        // widget while the volume is roosting, the conflict banner from
+        // mount() is enough until the nest manager plugin's NestNotice
+        // component lands in phase f.
+        /** @var Server $server */
+        $server = Filament::getTenant();
+        if ($server->status === ServerState::Nest) {
+            return [];
+        }
+
         $allWidgets = [];
 
         $allWidgets = array_merge($allWidgets, static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? []);
