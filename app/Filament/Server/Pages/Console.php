@@ -59,10 +59,12 @@ class Console extends Page
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
-            // skip the session banner for nest conflicts, the nest manager
-            // plugin renders an inline NestNotice widget at the top of the
-            // page with brand-voice copy and the wake button.
-            if ($server->status === ServerState::Nest) {
+            // skip the session banner for any nest-related state. the nest
+            // manager plugin renders an inline NestNotice widget at the top
+            // of the page that carries the appropriate brand-voice copy and
+            // the wake button. AlertBanner stays the path for the other
+            // conflict reasons (installing, transferring, suspended).
+            if (in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)) {
                 return;
             }
 
@@ -126,13 +128,17 @@ class Console extends Page
     {
         // nest evicted servers have node_id=null so the panel-core widgets
         // (ServerOverview, ServerConsole, *Chart) crash on $server->node->X.
-        // return only the Top-slot plugin widgets, which is where the nest
-        // manager plugin registers NestNotice. AboveConsole / BelowConsole /
-        // Bottom plugin widgets are also skipped because they typically
-        // depend on a live wings node.
+        // Hydrating and Capturing servers do have a node but wings has
+        // nothing to serve through the websocket while the volume transfer
+        // is in flight, the console widget surfaces a websocket connect
+        // failure that obscures the NestNotice's progress card. for all
+        // three nest-related states, return only the Top-slot plugin
+        // widgets, which is where the nest manager plugin registers
+        // NestNotice. AboveConsole / BelowConsole / Bottom plugin widgets
+        // are skipped because they typically depend on a live wings node.
         /** @var Server $server */
         $server = Filament::getTenant();
-        if ($server->status === ServerState::Nest) {
+        if (in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)) {
             return static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? [];
         }
 
