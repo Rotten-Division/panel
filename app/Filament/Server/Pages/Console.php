@@ -49,8 +49,6 @@ class Console extends Page
 
     public ContainerStatus $status = ContainerStatus::Offline;
 
-    public ?string $nestNotice = null;
-
     protected FeatureService $featureService;
 
     public function mount(): void
@@ -61,12 +59,10 @@ class Console extends Page
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
-            // nest conflicts render inline so the warning stays on this page
-            // and does not leak to the dashboard via the session banner
-            // queue. all other conflicts still use the global AlertBanner.
+            // skip the session banner for nest conflicts, the nest manager
+            // plugin renders an inline NestNotice widget at the top of the
+            // page with brand-voice copy and the wake button.
             if ($server->status === ServerState::Nest) {
-                $this->nestNotice = $exception->getMessage();
-
                 return;
             }
 
@@ -128,18 +124,16 @@ class Console extends Page
      */
     public function getWidgets(): array
     {
-        // nest evicted servers have node_id=null so the console + chart widgets
-        // would crash on $server->node->getConnectionAddress(). hide every
-        // widget while the volume is roosting, the conflict banner from
-        // mount() is enough until the nest manager plugin's NestNotice
-        // component lands in phase f. plugin widgets registered via
-        // registerCustomWidgets (top/aboveConsole/belowConsole/bottom slots)
-        // are also skipped, including any telemetry or accounting hooks that
-        // expect to run on every console render.
+        // nest evicted servers have node_id=null so the panel-core widgets
+        // (ServerOverview, ServerConsole, *Chart) crash on $server->node->X.
+        // return only the Top-slot plugin widgets, which is where the nest
+        // manager plugin registers NestNotice. AboveConsole / BelowConsole /
+        // Bottom plugin widgets are also skipped because they typically
+        // depend on a live wings node.
         /** @var Server $server */
         $server = Filament::getTenant();
         if ($server->status === ServerState::Nest) {
-            return [];
+            return static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? [];
         }
 
         $allWidgets = [];
