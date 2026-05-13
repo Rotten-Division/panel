@@ -52,7 +52,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, gd, mbstring, mysql, openssl, pdo, tokenizer, xml, zip
-          tools: composer:v2
+          tools: composer:v2.8
           coverage: none
 
       - name: Install dependencies
@@ -117,7 +117,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, gd, mbstring, mysql, openssl, pdo, tokenizer, xml, zip
-          tools: composer:v2
+          tools: composer:v2.8
           coverage: none
 
       - name: Install dependencies
@@ -185,7 +185,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, gd, mbstring, mysql, openssl, pdo, tokenizer, xml, zip
-          tools: composer:v2
+          tools: composer:v2.8
           coverage: none
 
       - name: Install dependencies
@@ -260,7 +260,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, gd, mbstring, mysql, openssl, pdo, tokenizer, xml, zip
-          tools: composer:v2
+          tools: composer:v2.8
           coverage: none
 
       - name: Install dependencies
