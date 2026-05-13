@@ -136,9 +136,19 @@ class Console extends Page
         // widgets, which is where the nest manager plugin registers
         // NestNotice. AboveConsole / BelowConsole / Bottom plugin widgets
         // are skipped because they typically depend on a live wings node.
+        //
+        // a server with no node assignment also gets the short-circuit
+        // regardless of status. that state is invalid in normal flow but
+        // can be hit transiently if a force-evict failed mid-rollback or
+        // an admin nulls the column manually. without this guard the
+        // strings plugin's overridden console blade would 500 on
+        // $server->node->getConnectionAddress().
         /** @var Server $server */
         $server = Filament::getTenant();
-        if (in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)) {
+        if (
+            $server->node_id === null
+            || in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)
+        ) {
             return static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? [];
         }
 
