@@ -49,6 +49,8 @@ class Console extends Page
 
     public ContainerStatus $status = ContainerStatus::Offline;
 
+    public ?string $nestNotice = null;
+
     protected FeatureService $featureService;
 
     public function mount(): void
@@ -59,6 +61,15 @@ class Console extends Page
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
+            // nest conflicts render inline so the warning stays on this page
+            // and does not leak to the dashboard via the session banner
+            // queue. all other conflicts still use the global AlertBanner.
+            if ($server->status === ServerState::Nest) {
+                $this->nestNotice = $exception->getMessage();
+
+                return;
+            }
+
             AlertBanner::make('server_conflict')
                 ->title('Warning')
                 ->body($exception->getMessage())
