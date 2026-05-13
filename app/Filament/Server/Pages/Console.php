@@ -132,7 +132,10 @@ class Console extends Page
         // would crash on $server->node->getConnectionAddress(). hide every
         // widget while the volume is roosting, the conflict banner from
         // mount() is enough until the nest manager plugin's NestNotice
-        // component lands in phase f.
+        // component lands in phase f. plugin widgets registered via
+        // registerCustomWidgets (top/aboveConsole/belowConsole/bottom slots)
+        // are also skipped, including any telemetry or accounting hooks that
+        // expect to run on every console render.
         /** @var Server $server */
         $server = Filament::getTenant();
         if ($server->status === ServerState::Nest) {
