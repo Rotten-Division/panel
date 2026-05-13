@@ -108,7 +108,7 @@ class ServerResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        $accessibleNodeIds = user()?->accessibleNodes()->pluck('id');
+        $accessibleNodeIds = user()?->accessibleNodes()->pluck('id') ?? collect();
 
         // nest evicted servers have node_id=null while the volume sits on s3.
         // include them unconditionally so admins can see the full inventory,
