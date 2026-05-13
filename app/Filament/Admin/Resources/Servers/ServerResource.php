@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Servers;
 
 use App\Enums\CustomizationKey;
+use App\Enums\ServerState;
 use App\Enums\TablerIcon;
 use App\Filament\Admin\Resources\Servers\Pages\CreateServer;
 use App\Filament\Admin\Resources\Servers\Pages\EditServer;
@@ -107,6 +108,13 @@ class ServerResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        return $query->whereIn('node_id', user()?->accessibleNodes()->pluck('id'));
+        $accessibleNodeIds = user()?->accessibleNodes()->pluck('id');
+
+        // nest evicted servers have node_id=null while the volume sits on s3.
+        // include them unconditionally so admins can see the full inventory,
+        // they belong to no single node so accessibility cannot gate them.
+        return $query->where(fn (Builder $q) => $q
+            ->whereIn('node_id', $accessibleNodeIds)
+            ->orWhere('status', ServerState::Nest));
     }
 }
