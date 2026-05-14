@@ -286,6 +286,13 @@ class Overview extends Page
         $this->diskUsedBytes = $this->latestStatsValue($server, 'disk_bytes');
         $this->uptimeMs = $this->latestStatsValue($server, 'uptime');
 
+        // wings keeps the pre-stop uptime in cache for a tick after stop,
+        // forcing zero here so the grid doesn't show stale 'running for 3h'
+        // copy on a server the user just stopped.
+        if (in_array($this->status, [ContainerStatus::Offline, ContainerStatus::Stopping], true)) {
+            $this->uptimeMs = 0;
+        }
+
         // player count contract returns null by default; live stats plugin
         // would rebind to return real values.
         $payload = App::make(PlayerCountProvider::class)->resolve($server);
@@ -312,6 +319,37 @@ class Overview extends Page
         return CarbonInterval::milliseconds($this->uptimeMs)
             ->cascade()
             ->forHumans(['short' => true, 'parts' => 2]);
+    }
+
+    /**
+     * tone for the disk utilisation bar across every state partial. 60%
+     * switches to warning, 85% to danger.
+     */
+    public function diskBarTone(): string
+    {
+        $pct = $this->diskUsedPercent();
+
+        return match (true) {
+            $pct >= 85 => 'danger',
+            $pct >= 60 => 'warning',
+            default => 'success',
+        };
+    }
+
+    /**
+     * disk used percentage clamped to 0..100. partials use this for the
+     * bar width and the tone helper above.
+     */
+    public function diskUsedPercent(): float
+    {
+        /** @var Server $server */
+        $server = Filament::getTenant();
+        $limit = (int) ($server?->disk ?? 0) * 1024 * 1024;
+        if ($limit <= 0) {
+            return 0.0;
+        }
+
+        return min(100.0, ($this->diskUsedBytes / $limit) * 100);
     }
 
     /** @return array<Action|ActionGroup> */

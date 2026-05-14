@@ -3,8 +3,7 @@
     $uptime = $this->uptimeLabel();
     $diskUsed = $this->diskUsedBytes;
     $diskLimit = (int) ($server->disk ?? 0) * 1024 * 1024;
-    $diskPct = $diskLimit > 0 ? min(100, ($diskUsed / $diskLimit) * 100) : 0;
-    $diskBarTone = $diskPct >= 85 ? 'danger' : ($diskPct >= 60 ? 'warning' : 'success');
+    $diskPct = $this->diskUsedPercent();
 @endphp
 
 <x-overview.state-banner
@@ -14,7 +13,7 @@
     icon="tabler-player-pause-filled"
 />
 
-<div wire:poll.1s="refreshLiveData" class="overview-stat-grid overview-stat-grid--3 grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
     <div class="overview-stat-card overview-stat-card--muted">
         <p class="overview-stat-card__label">Players</p>
         <p class="overview-stat-card__value">
@@ -37,7 +36,7 @@
         <p class="overview-stat-card__label">Disk</p>
         <p class="overview-stat-card__value">{{ number_format($diskUsed / 1024 / 1024 / 1024, 2) }} GiB</p>
         <p class="overview-stat-card__sub">of {{ number_format($diskLimit / 1024 / 1024 / 1024, 0) }} GiB</p>
-        <div class="overview-bar overview-bar--{{ $diskBarTone }}">
+        <div class="overview-bar overview-bar--{{ $this->diskBarTone() }}">
             <div class="overview-bar__fill" style="width: {{ number_format($diskPct, 1, '.', '') }}%"></div>
         </div>
     </div>
