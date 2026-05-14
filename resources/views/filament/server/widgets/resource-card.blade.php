@@ -12,10 +12,19 @@
         }
         $segments = [];
         foreach ($samples as $i => [$x, $y]) {
-            $segments[] = ($i === 0 ? 'M' : 'L') . number_format($x, 2, '.', '') . ',' . number_format($y, 2, '.', '');
+            $segments[] = ($i === 0 ? 'M' : 'L').number_format($x, 2, '.', '').','.number_format($y, 2, '.', '');
         }
+
         return implode(' ', $segments);
     };
+    // y-axis tick positions as a 0..100 percentage of the chart height.
+    // labels are rendered as positioned HTML outside the SVG so they don't
+    // inherit the SVG's non-uniform horizontal stretch.
+    $tickPositions = [
+        ['percent' => 0, 'label' => $card['ticks'][0] ?? ''],
+        ['percent' => 50, 'label' => $card['ticks'][1] ?? ''],
+        ['percent' => 100, 'label' => $card['ticks'][2] ?? ''],
+    ];
 @endphp
 
 <div @if ($poll) wire:poll.1s="refreshSeries" @endif class="overview-resource-card">
@@ -51,27 +60,23 @@
     </div>
 
     <div class="overview-resource-card__chart">
-        <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg">
-            {{-- y-axis ticks at top / mid / bot --}}
-            @foreach ($card['ticks'] as $position => $label)
-                @php
-                    $y = match ($position) {
-                        0 => $chartTop,
-                        1 => $chartTop + $chartHeight / 2,
-                        2 => $chartBottom,
-                    };
-                @endphp
-                <line x1="0" x2="{{ $width }}" y1="{{ $y }}" y2="{{ $y }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
-                <text x="{{ $width - 2 }}" y="{{ $y - 2 }}" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--stone)">{{ $label }}</text>
+        <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
+            @foreach ($tickPositions as $tick)
+                @php($yLine = $chartTop + ($chartHeight * $tick['percent'] / 100))
+                <line x1="0" x2="{{ $width }}" y1="{{ $yLine }}" y2="{{ $yLine }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
             @endforeach
 
-            {{-- inbound / primary series --}}
             <path d="{{ $pathFor($card['series']) }}" fill="none" stroke="var(--hearth)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
 
-            {{-- network outbound (dashed) --}}
             @if (! empty($card['series2']))
                 <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="#6FA8E0" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
             @endif
         </svg>
+
+        <div class="overview-resource-card__ticks" aria-hidden="true">
+            @foreach ($tickPositions as $tick)
+                <span class="overview-resource-card__tick" style="top: calc({{ $chartTop }}px + ({{ $chartHeight }}px * {{ $tick['percent'] }} / 100));">{{ $tick['label'] }}</span>
+            @endforeach
+        </div>
     </div>
 </div>
