@@ -55,6 +55,8 @@ class Overview extends Page
     // replaces the default Filament page header (breadcrumb + title) with
     // a game / flavour / version eyebrow row and a slot the Phase 4
     // components mount into. Filament's page template calls getHeader().
+    // Passes the existing header actions through so the power buttons
+    // stay live until Phase 4 lands the dedicated PowerButtons component.
     public function getHeader(): ?ViewContract
     {
         /** @var Server $server */
@@ -70,6 +72,7 @@ class Overview extends Page
             'state' => $server->status,
             'containerStatus' => $this->status,
             'transferActive' => $server->transfer !== null && $server->transfer->successful === null,
+            'headerActions' => $this->getCachedHeaderActions(),
         ]);
     }
 

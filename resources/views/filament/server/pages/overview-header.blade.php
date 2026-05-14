@@ -4,6 +4,7 @@
     'state',
     'containerStatus',
     'transferActive',
+    'headerActions' => [],
 ])
 
 {{-- Server panel overview-page topbar. left rail carries the game ·
@@ -31,7 +32,12 @@
     </div>
 
     <div class="fi-overview-topbar-actions flex items-center gap-3">
-        {{-- Phase 4 supplies <x-overview.state-pill /> + <x-overview.power-buttons />. --}}
+        {{-- Phase 4 supplies <x-overview.state-pill /> + <x-overview.power-buttons />.
+             Until then the existing Filament header actions (start, restart,
+             stop, kill) render here so the page stays functional. --}}
         <span class="text-xs text-gray-400" data-placeholder="state-pill">{{ $state?->value }}</span>
+        @if (filled($headerActions))
+            <x-filament::actions :actions="$headerActions" />
+        @endif
     </div>
 </div>
