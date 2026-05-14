@@ -9,6 +9,7 @@ use App\Enums\ServerState;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Models\Traits\HasIcon;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\TransferProgressCache;
 use App\Services\Subusers\SubuserDeletionService;
 use App\Traits\HasValidation;
 use Carbon\CarbonInterface;
@@ -564,5 +565,13 @@ class Server extends Model implements HasAvatar, Validatable
 
             return $variable?->server_value ?: null;
         });
+    }
+
+    /** @return Attribute<?array{step: string, bytes: int, total_bytes: int}, never> */
+    protected function transferProgress(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => app(TransferProgressCache::class)->get($this),
+        );
     }
 }

@@ -17,6 +17,9 @@ Route::prefix('/servers/{server:uuid}')->group(function () {
 
     Route::post('/transfer/failure', [Remote\Servers\ServerTransferController::class, 'failure']);
     Route::post('/transfer/success', [Remote\Servers\ServerTransferController::class, 'success']);
+    Route::post('/transfer-progress', [Remote\Servers\ServerTransferController::class, 'progress'])
+        ->middleware('throttle:transfer-progress')
+        ->name('api.remote.servers.transfer-progress');
 
     Route::post('/container/status', [Remote\Servers\ServerContainersController::class, 'status']);
 

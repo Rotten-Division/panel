@@ -9,6 +9,7 @@ use App\Models\Allocation;
 use App\Models\Node;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\TransferProgressCache;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +27,7 @@ class ServerTransferController extends Controller
     public function __construct(
         private ConnectionInterface $connection,
         private DaemonServerRepository $daemonServerRepository,
+        private TransferProgressCache $transferProgressCache,
     ) {}
 
     /**
@@ -63,6 +65,8 @@ class ServerTransferController extends Controller
         if ($releasedOnFailure !== []) {
             event(new AllocationsReleased($server, $releasedOnFailure));
         }
+
+        $this->transferProgressCache->forget($server);
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
@@ -126,6 +130,39 @@ class ServerTransferController extends Controller
         } catch (ConnectionException $exception) {
             logger()->warning($exception, ['transfer_id' => $server->transfer->id]);
         }
+
+        $this->transferProgressCache->forget($server);
+
+        return new JsonResponse([], Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * The daemon reports a structured progress update mid-transfer.
+     * Wings fires this at ~500ms cadence during the source upload and
+     * once per step transition on the destination. Either node may
+     * post — auth matches the failure/success handlers.
+     */
+    public function progress(Request $request, Server $server): JsonResponse
+    {
+        $transfer = $server->transfer;
+        if (is_null($transfer)) {
+            throw new ConflictHttpException('Server is not being transferred.');
+        }
+
+        /* @var Node $node */
+        Assert::isInstanceOf($node = $request->attributes->get('node'), Node::class);
+
+        if (!$node->is($transfer->newNode) && !$node->is($transfer->oldNode)) {
+            throw new HttpForbiddenException('Requesting node does not have permission to access this server.');
+        }
+
+        $payload = $request->validate([
+            'step' => ['required', 'string', 'in:archiving,uploading,extracting,verifying,cleanup'],
+            'bytes' => ['required', 'integer', 'min:0'],
+            'total_bytes' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $this->transferProgressCache->put($server, $payload);
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }

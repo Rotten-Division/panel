@@ -100,6 +100,16 @@ class RouteServiceProvider extends ServiceProvider
             )->by($key);
         });
 
+        // Wings posts transfer progress at ~500ms cadence (≈120/min per
+        // active transfer). 300/min per server uuid covers that with
+        // headroom; concurrent transfers on the same server are not a
+        // thing.
+        RateLimiter::for('transfer-progress', function (Request $request) {
+            $serverUuid = $request->route('server')?->uuid ?? 'unknown';
+
+            return Limit::perMinute(300)->by($serverUuid);
+        });
+
         ResourceLimit::boot();
     }
 }
