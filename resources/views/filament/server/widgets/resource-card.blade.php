@@ -31,12 +31,14 @@
             @endif
         </div>
 
-        <div class="overview-resource-card__row">
-            <p class="overview-resource-card__value">{{ $card['current'] }}</p>
-            @if (! empty($card['allocation']))
-                <p class="overview-resource-card__allocation">{{ $card['allocation'] }}</p>
-            @endif
-        </div>
+        @if (! empty($card['current']))
+            <div class="overview-resource-card__row">
+                <p class="overview-resource-card__value">{{ $card['current'] }}</p>
+                @if (! empty($card['allocation']))
+                    <p class="overview-resource-card__allocation">{{ $card['allocation'] }}</p>
+                @endif
+            </div>
+        @endif
 
         @if (! empty($card['progress']))
             @php
