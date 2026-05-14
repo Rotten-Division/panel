@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
+use Filament\Support\Enums\Width;
 
 class ServerPanelProvider extends PanelProvider
 {
@@ -20,6 +21,7 @@ class ServerPanelProvider extends PanelProvider
         $panel = parent::panel($panel)
             ->id('server')
             ->path('server')
+            ->maxContentWidth(Width::Full)
             ->homeUrl(fn () => Filament::getPanel('app')->getUrl())
             ->tenant(Server::class, 'uuid_short')
             ->userMenuItems([
