@@ -25,7 +25,7 @@ class ServerNetworkChart extends Widget
         /** @var Server $server */
         $server = Filament::getTenant();
 
-        return !$server->isInConflictState() && !$server->retrieveStatus()->isOffline();
+        return !$server->isInConflictState();
     }
 
     public function mount(): void

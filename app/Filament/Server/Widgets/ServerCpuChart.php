@@ -22,7 +22,11 @@ class ServerCpuChart extends Widget
         /** @var Server $server */
         $server = Filament::getTenant();
 
-        return !$server->isInConflictState() && !$server->retrieveStatus()->isOffline();
+        // visible across running, starting, stopped, stopping. the chart
+        // renders empty samples gracefully when the container is offline.
+        // conflict states (nest, installing, transfer, suspended) still
+        // hide because the server has nothing to graph against.
+        return !$server->isInConflictState();
     }
 
     public function mount(): void

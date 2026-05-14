@@ -29,8 +29,6 @@
         ['label' => 'Egg', 'value' => $eggName],
         ['label' => 'Version', 'value' => $server->version],
         ['label' => 'World', 'value' => null],
-        ['label' => 'CPU', 'value' => null],
-        ['label' => 'Memory', 'value' => null],
     ];
 @endphp
 
@@ -42,7 +40,7 @@
     :show-progress="$showProgress"
 />
 
-<div class="overview-stat-grid overview-stat-grid--6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 overview-stat-grid--muted">
+<div class="overview-stat-grid overview-stat-grid--4 grid grid-cols-2 md:grid-cols-4 gap-3 overview-stat-grid--muted">
     @foreach ($cards as $card)
         <div class="overview-stat-card @if ($card['value'] === null) overview-stat-card--muted @endif">
             <p class="overview-stat-card__label">{{ $card['label'] }}</p>

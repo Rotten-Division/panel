@@ -21,8 +21,6 @@
         ['label' => 'Players', 'value' => null],
         ['label' => 'Uptime', 'value' => null],
         ['label' => 'World size', 'value' => null],
-        ['label' => 'CPU', 'value' => null],
-        ['label' => 'Memory', 'value' => null],
     ];
 @endphp
 
@@ -34,7 +32,7 @@
     :show-progress="true"
 />
 
-<div class="overview-stat-grid overview-stat-grid--6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 overview-stat-grid--muted">
+<div class="overview-stat-grid overview-stat-grid--4 grid grid-cols-2 md:grid-cols-4 gap-3 overview-stat-grid--muted">
     @foreach ($cards as $card)
         <div class="overview-stat-card overview-stat-card--muted">
             <p class="overview-stat-card__label">{{ $card['label'] }}</p>
@@ -58,4 +56,14 @@
     :columns="1"
     :data="$this->getWidgetData()"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
+/>
+
+<x-filament-widgets::widgets
+    :columns="3"
+    :data="$this->getWidgetData()"
+    :widgets="[
+        \App\Filament\Server\Widgets\ServerCpuChart::class,
+        \App\Filament\Server\Widgets\ServerMemoryChart::class,
+        \App\Filament\Server\Widgets\ServerNetworkChart::class,
+    ]"
 />
