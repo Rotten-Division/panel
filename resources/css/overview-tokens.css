@@ -367,9 +367,28 @@
 .overview-topbar {
     background: var(--ink) !important;
     border-bottom: 0.5px solid var(--graphite) !important;
-    margin: -1rem -1rem 1rem -1rem;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
+    margin-top: -2rem;
+    margin-bottom: 1.5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+@media (min-width: 768px) {
+    .overview-topbar {
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+@media (min-width: 1024px) {
+    .overview-topbar {
+        margin-left: -2rem;
+        margin-right: -2rem;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
 }
 
 .overview-stat-card--muted .overview-stat-card__value { color: var(--stone); }
