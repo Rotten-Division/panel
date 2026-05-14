@@ -130,3 +130,28 @@
 .overview-banner--transient .overview-banner__progress-bar { color: var(--hearth); }
 .overview-banner--installing .overview-banner__progress-bar { color: var(--honey); }
 @keyframes overview-banner-shuttle { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+
+/* ============================================================ */
+/* overview-stage-hero: phase 4 task 6                          */
+/* ============================================================ */
+.overview-stage-hero {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 28px;
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 9px;
+    padding: 28px;
+}
+.overview-stage-hero--nest { background: linear-gradient(to bottom right, var(--ink), rgba(111, 168, 224, 0.08)); }
+.overview-stage-hero--rouse { background: linear-gradient(to bottom right, var(--ink), rgba(238, 96, 10, 0.10)); }
+.overview-stage-hero--capture { background: linear-gradient(to bottom right, rgba(111, 168, 224, 0.06), rgba(238, 96, 10, 0.08)); }
+.overview-stage-hero--suspended { background: linear-gradient(to bottom right, var(--ink), rgba(180, 60, 60, 0.10)); }
+.overview-stage-hero__title { font-family: var(--font-display); font-weight: 500; font-size: 28px; letter-spacing: -0.01em; color: var(--linen); max-width: 440px; }
+.overview-stage-hero__body { font-size: 14px; color: var(--sand); line-height: 1.65; max-width: 480px; margin-top: 8px; }
+.overview-stage-hero__cta { margin-top: 18px; }
+.overview-stage-hero__illustration { width: 200px; height: 200px; }
+@media (max-width: 640px) {
+    .overview-stage-hero { grid-template-columns: 1fr; }
+    .overview-stage-hero__illustration { display: none; }
+}
