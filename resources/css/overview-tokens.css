@@ -74,3 +74,33 @@
 .overview-state-pill__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .overview-state-pill__dot--pulse { animation: overview-pulse 1.4s ease-in-out infinite; }
 @keyframes overview-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ============================================================ */
+/* overview-power-buttons: phase 4 task 2                       */
+/* ============================================================ */
+.overview-power-buttons { display: inline-flex; align-items: center; gap: 8px; }
+.overview-power-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: 0.5px solid var(--graphite);
+    background: var(--ink);
+    color: var(--linen);
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 120ms ease, border-color 120ms ease;
+}
+.overview-power-button:hover:not(:disabled) { border-color: var(--hearth); }
+.overview-power-button:disabled { opacity: 0.45; cursor: not-allowed; }
+.overview-power-button--start { background: var(--hearth); border-color: var(--hearth); color: var(--linen); }
+.overview-power-button--start:hover:not(:disabled) { background: var(--ember); border-color: var(--ember); }
+.overview-power-button--stop { background: var(--brick); border-color: var(--brick); color: var(--linen); }
+.overview-power-button--stop:hover:not(:disabled) { background: #983131; border-color: #983131; }
+
+/* ============================================================ */
+/* overview-page-head: phase 4 task 3                            */
+/* ============================================================ */
+.overview-page-head__address { letter-spacing: -0.01em; }
+.overview-page-head__copy:hover svg { color: var(--hearth); }
