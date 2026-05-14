@@ -302,3 +302,6 @@
 .overview-bar--danger .overview-bar__fill { background: var(--brick-fg); }
 
 .overview-body-spacer { margin-bottom: 14px; }
+
+.overview-stat-card--muted .overview-stat-card__value { color: var(--stone); }
+.overview-stat-grid--muted .overview-stat-card__label { opacity: 0.72; }
