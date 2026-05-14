@@ -1,8 +1,15 @@
-{{-- phase 5 task 6 stub: filled in next commit. --}}
+@php
+    /** @var \App\Models\Server $server */
+    $sourceName = $server->transfer?->oldNode?->name ?? 'old node';
+    $destinationName = $server->transfer?->newNode?->name ?? 'new node';
+@endphp
+
 <x-overview.state-banner
     variant="transient"
     title="Moving to a new home"
-    subtitle="Transferring to another node"
+    :subtitle="$sourceName . ' → ' . $destinationName"
     icon="tabler-arrow-right"
     :show-progress="true"
 />
+
+<x-overview.transfer-detail :server="$server" />
