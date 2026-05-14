@@ -7,6 +7,7 @@ use App\Exceptions\Service\Egg\HasChildrenException;
 use App\Exceptions\Service\HasActiveServersException;
 use App\Models\Traits\HasIcon;
 use App\Traits\HasValidation;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -361,5 +362,32 @@ class Egg extends Model implements Validatable
     public function getKebabName(): string
     {
         return str($this->name)->kebab()->lower()->trim()->split('/[^\w\-]/')->join('');
+    }
+
+    /** @return Attribute<?string, never> */
+    protected function game(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->tagValueAfter('game:'),
+        );
+    }
+
+    /** @return Attribute<?string, never> */
+    protected function versionVar(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->tagValueAfter('version_var:'),
+        );
+    }
+
+    private function tagValueAfter(string $prefix): ?string
+    {
+        foreach ((array) ($this->tags ?? []) as $tag) {
+            if (is_string($tag) && str_starts_with($tag, $prefix)) {
+                return substr($tag, strlen($prefix));
+            }
+        }
+
+        return null;
     }
 }

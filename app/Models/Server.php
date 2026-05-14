@@ -534,4 +534,35 @@ class Server extends Model implements HasAvatar, Validatable
     {
         return $this->icon ?? $this->egg->icon;
     }
+
+    /** @return Attribute<?string, never> */
+    protected function game(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->egg?->game,
+        );
+    }
+
+    /** @return Attribute<?string, never> */
+    protected function flavour(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->egg?->name,
+        );
+    }
+
+    /** @return Attribute<?string, never> */
+    protected function version(): Attribute
+    {
+        return Attribute::make(get: function () {
+            $varName = $this->egg?->versionVar;
+            if ($varName === null) {
+                return null;
+            }
+
+            $variable = $this->variables->firstWhere('env_variable', $varName);
+
+            return $variable?->server_value ?: null;
+        });
+    }
 }
