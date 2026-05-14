@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Filament\App\Resources\Servers\Pages\ListServers;
-use App\Filament\Server\Pages\Console;
+use App\Filament\Server\Pages\Overview;
 use App\Models\Server;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -68,7 +68,7 @@ class ServerEntry extends Component implements HasActions, HasSchemas
 
     public function redirectUrl(?bool $shouldOpenUrlInNewTab = false): string
     {
-        $url = Console::getUrl(panel: 'server', tenant: $this->server);
+        $url = Overview::getUrl(panel: 'server', tenant: $this->server);
         $target = $shouldOpenUrlInNewTab ? '_blank' : '_self';
 
         if (!$shouldOpenUrlInNewTab && FilamentView::hasSpaMode($url)) {

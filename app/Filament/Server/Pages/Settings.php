@@ -244,7 +244,7 @@ class Settings extends ServerFormPage
                                     ->success()
                                     ->send();
 
-                                redirect(Console::getUrl());
+                                redirect(Overview::getUrl());
                             }),
                     ])
                     ->footerActionsAlignment(Alignment::Right)

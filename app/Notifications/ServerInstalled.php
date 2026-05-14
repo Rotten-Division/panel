@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Filament\Server\Pages\Console;
+use App\Filament\Server\Pages\Overview;
 use App\Models\Server;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -30,6 +30,6 @@ class ServerInstalled extends Notification implements ShouldQueue
             ->greeting(trans('mail.greeting', ['name' => $notifiable->username], $locale))
             ->line(trans('mail.server_installed.body', locale: $locale))
             ->line(trans('mail.server_installed.server_name', ['name' => $this->server->name], $locale))
-            ->action(trans('mail.server_installed.action', locale: $locale), Console::getUrl(panel: 'server', tenant: $this->server));
+            ->action(trans('mail.server_installed.action', locale: $locale), Overview::getUrl(panel: 'server', tenant: $this->server));
     }
 }

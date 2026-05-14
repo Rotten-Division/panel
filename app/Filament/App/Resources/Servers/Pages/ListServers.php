@@ -11,7 +11,7 @@ use App\Filament\App\Resources\Servers\ServerResource;
 use App\Filament\Components\Actions\StartSwapModal;
 use App\Filament\Components\Tables\Columns\ProgressBarColumn;
 use App\Filament\Components\Tables\Columns\ServerEntryColumn;
-use App\Filament\Server\Pages\Console;
+use App\Filament\Server\Pages\Overview;
 use App\Models\Server;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Services\Servers\StartGateDecision;
@@ -129,7 +129,7 @@ class ListServers extends ListRecords
             ->query(fn () => $baseQuery)
             ->poll('15s')
             ->columns($usingGrid ? $this->gridColumns() : $this->tableColumns())
-            ->recordUrl(!$usingGrid ? (fn (Server $server) => Console::getUrl(panel: 'server', tenant: $server)) : null)
+            ->recordUrl(!$usingGrid ? (fn (Server $server) => Overview::getUrl(panel: 'server', tenant: $server)) : null)
             ->recordActions(!$usingGrid ? static::getPowerActionGroup() : [])
             ->recordActionsAlignment(Alignment::Center->value)
             ->headerActions($this->getCustomTableHeaderActions())

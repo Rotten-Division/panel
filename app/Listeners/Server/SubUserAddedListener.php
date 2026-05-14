@@ -3,7 +3,7 @@
 namespace App\Listeners\Server;
 
 use App\Events\Server\SubUserAdded;
-use App\Filament\Server\Pages\Console;
+use App\Filament\Server\Pages\Overview;
 use App\Notifications\AddedToServer;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -25,7 +25,7 @@ class SubUserAddedListener
                     ->button()
                     ->label(trans('notifications.open_server', locale: $locale))
                     ->markAsRead()
-                    ->url(fn () => Console::getUrl(panel: 'server', tenant: $event->subuser->server)),
+                    ->url(fn () => Overview::getUrl(panel: 'server', tenant: $event->subuser->server)),
             ])
             ->sendToDatabase($event->subuser->user);
 

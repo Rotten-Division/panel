@@ -11,7 +11,7 @@ use App\Filament\Components\Actions\UploadIcon;
 use App\Filament\Components\Forms\Fields\MonacoEditor;
 use App\Filament\Components\Forms\Fields\StartupVariable;
 use App\Filament\Components\StateCasts\ServerConditionStateCast;
-use App\Filament\Server\Pages\Console;
+use App\Filament\Server\Pages\Overview;
 use App\Models\Allocation;
 use App\Models\Backup;
 use App\Models\Egg;
@@ -1022,7 +1022,7 @@ class EditServer extends EditRecord
                 ->hiddenLabel()
                 ->tooltip(trans('admin/server.console'))
                 ->icon(TablerIcon::Terminal)
-                ->url(fn (Server $server) => Console::getUrl(panel: 'server', tenant: $server)),
+                ->url(fn (Server $server) => Overview::getUrl(panel: 'server', tenant: $server)),
             Action::make('save')
                 ->hiddenLabel()
                 ->action('save')

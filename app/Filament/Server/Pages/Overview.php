@@ -34,7 +34,7 @@ use Filament\Widgets\WidgetConfiguration;
 use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
-class Console extends Page
+class Overview extends Page
 {
     use CanCustomizeHeaderActions, HasHeaderActions {
         CanCustomizeHeaderActions::getHeaderActions insteadof HasHeaderActions;
@@ -43,9 +43,9 @@ class Console extends Page
 
     protected static ?int $navigationSort = 1;
 
-    protected static string|BackedEnum|null $navigationIcon = TablerIcon::Terminal2;
+    protected static string|BackedEnum|null $navigationIcon = TablerIcon::LayoutDashboard;
 
-    protected string $view = 'filament.server.pages.console';
+    protected string $view = 'filament.server.pages.overview';
 
     public ContainerStatus $status = ContainerStatus::Offline;
 
