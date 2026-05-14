@@ -102,6 +102,17 @@ class Overview extends Page
         /** @var Server $server */
         $server = Filament::getTenant();
 
+        // hydrate the container status from the wings stats cache so the
+        // initial render dispatches to the right state partial. without
+        // this the page flashes Stopped for a beat before the websocket
+        // first console-status event flips $this->status.
+        $cached = cache()->get("servers.$server->uuid.status");
+        if ($cached instanceof ContainerStatus) {
+            $this->status = $cached;
+        }
+
+        $this->refreshLiveData();
+
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
