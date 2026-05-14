@@ -329,11 +329,11 @@ class Overview extends Page
 
     public static function getNavigationLabel(): string
     {
-        return trans('server/console.title');
+        return trans('server/overview.nav.label');
     }
 
     public function getTitle(): string
     {
-        return trans('server/console.title');
+        return trans('server/overview.title');
     }
 }
