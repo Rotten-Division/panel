@@ -359,6 +359,19 @@
 
 .overview-body-spacer { margin-bottom: 14px; }
 
+/* ============================================================ */
+/* overview-topbar: distinct surface above the body. !important */
+/* needed because Filament's unlayered chrome stacks below this */
+/* element at equal specificity.                                */
+/* ============================================================ */
+.overview-topbar {
+    background: var(--ink) !important;
+    border-bottom: 0.5px solid var(--graphite) !important;
+    margin: -1rem -1rem 1rem -1rem;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
 .overview-stat-card--muted .overview-stat-card__value { color: var(--stone); }
 .overview-stat-grid--muted .overview-stat-card__label { opacity: 0.72; }
 

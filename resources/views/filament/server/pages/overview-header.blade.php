@@ -11,7 +11,7 @@
      right rail carries state pill + power buttons. Phase 4 supplies
      the StatePill + PowerButtons components, until then placeholders
      render the raw state value so the row is testable. --}}
-<div class="fi-overview-topbar flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+<div class="fi-overview-topbar overview-topbar flex items-center justify-between gap-4 px-4 py-3">
     <div class="fi-overview-eyebrow flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-gray-500 dark:text-gray-400">
         @if ($eyebrow['game'])
             <span>{{ $eyebrow['game'] }}</span>
