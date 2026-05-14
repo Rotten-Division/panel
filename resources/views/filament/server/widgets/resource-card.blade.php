@@ -18,7 +18,7 @@
     };
 @endphp
 
-<div @if ($poll) wire:poll.5s="refreshSeries" @endif class="overview-resource-card">
+<div @if ($poll) wire:poll.1s="refreshSeries" @endif class="overview-resource-card">
     <div class="overview-resource-card__stat">
         <div class="overview-resource-card__row">
             <p class="overview-resource-card__label">{{ $card['label'] }}</p>
