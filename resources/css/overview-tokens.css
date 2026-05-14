@@ -251,13 +251,13 @@
     height: 100%;
     transition: width 600ms ease;
 }
-/* chart area reserves a label gutter on the right so the path stops at
-   the gutter edge instead of running under the y-axis labels. */
+/* chart area reserves a label gutter sized for the widest tick value
+   the cards emit ("X.X GiB" on memory, formatted rates on network). */
 .overview-resource-card__chart {
     position: relative;
     width: 100%;
     height: 96px;
-    padding-right: 38px;
+    padding-right: 58px;
 }
 .overview-resource-card__svg { width: 100%; height: 100%; }
 .overview-resource-card__ticks {
@@ -265,7 +265,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: 38px;
+    width: 58px;
     pointer-events: none;
 }
 .overview-resource-card__tick {
