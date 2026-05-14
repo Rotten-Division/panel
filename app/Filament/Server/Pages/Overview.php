@@ -22,6 +22,7 @@ use App\Models\Server;
 use App\Services\Servers\StartGateDecision;
 use App\Traits\Filament\CanCustomizeHeaderActions;
 use BackedEnum;
+use Carbon\CarbonInterval;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -56,6 +57,8 @@ class Overview extends Page
     public ?int $playerLimit = null;
 
     public int $diskUsedBytes = 0;
+
+    public int $uptimeMs = 0;
 
     protected FeatureService $featureService;
 
@@ -276,16 +279,39 @@ class Overview extends Page
         /** @var Server $server */
         $server = Filament::getTenant();
 
-        // disk usage from wings stats cache, populated by the console
-        // websocket as stats events stream in.
-        $resources = cache()->get("servers.$server->uuid.resources");
-        $this->diskUsedBytes = (int) ($resources['disk_bytes'] ?? 0);
+        // wings stats are cached per field at `servers.{id}.{field}` by the
+        // ServerConsole widget's store-stats handler. each value is a time
+        // series keyed by timestamp, capped at 120 samples; we read the
+        // most recent one for the live stat grid.
+        $this->diskUsedBytes = $this->latestStatsValue($server, 'disk_bytes');
+        $this->uptimeMs = $this->latestStatsValue($server, 'uptime');
 
         // player count contract returns null by default; live stats plugin
         // would rebind to return real values.
         $payload = App::make(PlayerCountProvider::class)->resolve($server);
         $this->playerCount = $payload['current'] ?? null;
         $this->playerLimit = $payload['max'] ?? null;
+    }
+
+    private function latestStatsValue(Server $server, string $field): int
+    {
+        $series = cache()->get("servers.$server->id.$field");
+        if (!is_array($series) || $series === []) {
+            return 0;
+        }
+
+        return (int) end($series);
+    }
+
+    public function uptimeLabel(): ?string
+    {
+        if ($this->uptimeMs <= 0) {
+            return null;
+        }
+
+        return CarbonInterval::milliseconds($this->uptimeMs)
+            ->cascade()
+            ->forHumans(['short' => true, 'parts' => 2]);
     }
 
     /** @return array<Action|ActionGroup> */

@@ -1,12 +1,10 @@
 @php
     /** @var \App\Models\Server $server */
+    $uptime = $this->uptimeLabel();
     $diskUsed = $this->diskUsedBytes;
     $diskLimit = (int) ($server->disk ?? 0) * 1024 * 1024;
     $diskPct = $diskLimit > 0 ? min(100, ($diskUsed / $diskLimit) * 100) : 0;
     $diskBarTone = $diskPct >= 85 ? 'danger' : ($diskPct >= 60 ? 'warning' : 'success');
-    $cards = [
-        ['label' => 'Players', 'value' => null],
-    ];
 @endphp
 
 <x-overview.state-banner
@@ -16,19 +14,24 @@
     icon="tabler-player-pause-filled"
 />
 
-<div class="overview-stat-grid overview-stat-grid--2 grid grid-cols-1 md:grid-cols-2 gap-3 overview-stat-grid--muted">
-    @foreach ($cards as $card)
-        <div class="overview-stat-card overview-stat-card--muted">
-            <p class="overview-stat-card__label">{{ $card['label'] }}</p>
-            <p class="overview-stat-card__value">
-                @if ($card['value'] === null)
-                    <span class="overview-stat-card__placeholder">—</span>
-                @else
-                    {{ $card['value'] }}
-                @endif
-            </p>
-        </div>
-    @endforeach
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid overview-stat-grid--3 grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
+    <div class="overview-stat-card overview-stat-card--muted">
+        <p class="overview-stat-card__label">Players</p>
+        <p class="overview-stat-card__value">
+            <span class="overview-stat-card__placeholder">—</span>
+        </p>
+    </div>
+
+    <div class="overview-stat-card overview-stat-card--muted">
+        <p class="overview-stat-card__label">Uptime</p>
+        <p class="overview-stat-card__value">
+            @if ($uptime)
+                {{ $uptime }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
+    </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
         <p class="overview-stat-card__label">Disk</p>

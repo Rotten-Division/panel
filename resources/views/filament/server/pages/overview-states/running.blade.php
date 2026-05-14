@@ -2,14 +2,14 @@
     /** @var \App\Models\Server $server */
     $playerCount = $this->playerCount;
     $playerLimit = $this->playerLimit;
-    $lastBackup = $server->backups()->latest()->first();
+    $uptime = $this->uptimeLabel();
     $diskUsed = $this->diskUsedBytes;
     $diskLimit = (int) ($server->disk ?? 0) * 1024 * 1024;
     $diskPct = $diskLimit > 0 ? min(100, ($diskUsed / $diskLimit) * 100) : 0;
     $diskBarTone = $diskPct >= 85 ? 'danger' : ($diskPct >= 60 ? 'warning' : 'success');
 @endphp
 
-<div class="overview-stat-grid overview-stat-grid--3 grid grid-cols-3 gap-3">
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid overview-stat-grid--3 grid grid-cols-3 gap-3">
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Players</p>
         <p class="overview-stat-card__value">
@@ -22,17 +22,14 @@
     </div>
 
     <div class="overview-stat-card">
-        <p class="overview-stat-card__label">Last backup</p>
+        <p class="overview-stat-card__label">Uptime</p>
         <p class="overview-stat-card__value">
-            @if ($lastBackup)
-                {{ $lastBackup->created_at->diffForHumans() }}
+            @if ($uptime)
+                {{ $uptime }}
             @else
-                Never
+                <span class="overview-stat-card__placeholder">—</span>
             @endif
         </p>
-        @if ($lastBackup)
-            <p class="overview-stat-card__sub">{{ $lastBackup->created_at->format('M j, H:i') }}</p>
-        @endif
     </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">

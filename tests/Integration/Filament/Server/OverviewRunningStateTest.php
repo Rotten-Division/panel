@@ -30,7 +30,7 @@ test('running state renders the three card stat grid', function () {
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
         ->assertSee('Players', escape: false)
-        ->assertSee('Last backup', escape: false)
+        ->assertSee('Uptime', escape: false)
         ->assertSee('Disk', escape: false);
 });
 
@@ -43,11 +43,11 @@ test('players card shows the placeholder when no PlayerCountProvider data', func
         ->assertSee('overview-stat-card__placeholder', escape: false);
 });
 
-test('last backup card falls back to Never when none exist', function () {
+test('uptime card shows placeholder when no stats cached', function () {
     [$user, $server] = runningStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Never', escape: false);
+        ->assertSee('overview-stat-card__placeholder', escape: false);
 });

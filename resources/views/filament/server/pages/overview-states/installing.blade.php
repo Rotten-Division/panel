@@ -1,5 +1,6 @@
 @php
     /** @var \App\Models\Server $server */
+    $uptime = $this->uptimeLabel();
     $diskUsed = $this->diskUsedBytes;
     $diskLimit = (int) ($server->disk ?? 0) * 1024 * 1024;
     $diskPct = $diskLimit > 0 ? min(100, ($diskUsed / $diskLimit) * 100) : 0;
@@ -25,10 +26,6 @@
         ],
     };
     $showProgress = $server->status === \App\Enums\ServerState::Installing;
-    $cards = [
-        ['label' => 'Egg', 'value' => $eggName],
-        ['label' => 'Version', 'value' => $server->version],
-    ];
 @endphp
 
 <x-overview.state-banner
@@ -39,19 +36,33 @@
     :show-progress="$showProgress"
 />
 
-<div class="overview-stat-grid overview-stat-grid--3 grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
-    @foreach ($cards as $card)
-        <div class="overview-stat-card @if ($card['value'] === null) overview-stat-card--muted @endif">
-            <p class="overview-stat-card__label">{{ $card['label'] }}</p>
-            <p class="overview-stat-card__value">
-                @if ($card['value'] === null)
-                    <span class="overview-stat-card__placeholder">—</span>
-                @else
-                    {{ $card['value'] }}
-                @endif
-            </p>
-        </div>
-    @endforeach
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid overview-stat-grid--4 grid grid-cols-2 md:grid-cols-4 gap-3 overview-stat-grid--muted">
+    <div class="overview-stat-card">
+        <p class="overview-stat-card__label">Egg</p>
+        <p class="overview-stat-card__value">{{ $eggName }}</p>
+    </div>
+
+    <div class="overview-stat-card">
+        <p class="overview-stat-card__label">Version</p>
+        <p class="overview-stat-card__value">
+            @if ($server->version)
+                {{ $server->version }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
+    </div>
+
+    <div class="overview-stat-card overview-stat-card--muted">
+        <p class="overview-stat-card__label">Uptime</p>
+        <p class="overview-stat-card__value">
+            @if ($uptime)
+                {{ $uptime }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
+    </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
         <p class="overview-stat-card__label">Disk</p>
