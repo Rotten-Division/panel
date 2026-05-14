@@ -241,6 +241,25 @@
     color: var(--sand);
 }
 .overview-resource-card__legend-separator { color: var(--graphite); }
+.overview-resource-card__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+/* solid / dashed line swatches mirror the SVG stroke styles so the user
+   doesn't have to learn the colour mapping by inference. */
+.overview-resource-card__legend-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 0;
+    border-top-width: 1.5px;
+    border-top-style: solid;
+}
+.overview-resource-card__legend-swatch--in { border-top-color: var(--hearth); }
+.overview-resource-card__legend-swatch--out {
+    border-top-color: #6FA8E0;
+    border-top-style: dashed;
+}
 .overview-resource-card__bar {
     height: 3px;
     background: var(--graphite);

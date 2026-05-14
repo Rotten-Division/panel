@@ -33,9 +33,15 @@
             <p class="overview-resource-card__label">{{ $card['label'] }}</p>
             @if (! empty($card['legend']))
                 <div class="overview-resource-card__legend">
-                    <span>↓ {{ $card['legend']['in']['value'] }} {{ $card['legend']['in']['unit'] }} in</span>
-                    <span class="overview-resource-card__legend-separator">·</span>
-                    <span>↑ {{ $card['legend']['out']['value'] }} {{ $card['legend']['out']['unit'] }} out</span>
+                    <span class="overview-resource-card__legend-item">
+                        <span class="overview-resource-card__legend-swatch overview-resource-card__legend-swatch--in" aria-hidden="true"></span>
+                        ↓ {{ $card['legend']['in']['value'] }} {{ $card['legend']['in']['unit'] }} in
+                    </span>
+                    <span class="overview-resource-card__legend-separator" aria-hidden="true">·</span>
+                    <span class="overview-resource-card__legend-item">
+                        <span class="overview-resource-card__legend-swatch overview-resource-card__legend-swatch--out" aria-hidden="true"></span>
+                        ↑ {{ $card['legend']['out']['value'] }} {{ $card['legend']['out']['unit'] }} out
+                    </span>
                 </div>
             @endif
         </div>
