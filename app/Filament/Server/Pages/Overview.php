@@ -31,6 +31,7 @@ use Filament\Schemas\Components\Concerns\HasHeaderActions;
 use Filament\Support\Enums\Size;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
@@ -50,6 +51,42 @@ class Overview extends Page
     public ContainerStatus $status = ContainerStatus::Offline;
 
     protected FeatureService $featureService;
+
+    // replaces the default Filament page header (breadcrumb + title) with
+    // a game / flavour / version eyebrow row and a slot the Phase 4
+    // components mount into. Filament's page template calls getHeader().
+    public function getHeader(): ?ViewContract
+    {
+        /** @var Server $server */
+        $server = Filament::getTenant();
+
+        return view('filament.server.pages.overview-header', [
+            'server' => $server,
+            'eyebrow' => [
+                'game' => $this->displayGame($server->game),
+                'flavour' => $server->flavour,
+                'version' => $server->version,
+            ],
+            'state' => $server->status,
+            'containerStatus' => $this->status,
+            'transferActive' => $server->transfer !== null && $server->transfer->successful === null,
+        ]);
+    }
+
+    // bedrock carries game:bedrock for routing pool separation, but the
+    // eyebrow groups it under minecraft because bedrock is a flavour of
+    // minecraft in the user's mental model, not a separate game.
+    private function displayGame(?string $game): ?string
+    {
+        if ($game === null) {
+            return null;
+        }
+
+        return match ($game) {
+            'minecraft', 'bedrock' => 'minecraft',
+            default => $game,
+        };
+    }
 
     public function mount(): void
     {

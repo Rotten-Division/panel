@@ -33,4 +33,11 @@ class EggFactory extends Factory
             'startup_commands' => ['java -jar test.jar'],
         ];
     }
+
+    public function withGameTag(string $game, string $versionVar = 'MC_VERSION'): static
+    {
+        return $this->state(fn () => [
+            'tags' => ["game:{$game}", "version_var:{$versionVar}"],
+        ]);
+    }
 }
