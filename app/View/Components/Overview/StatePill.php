@@ -65,6 +65,10 @@ class StatePill extends Component
 
     public function render()
     {
-        return view('components.overview.state-pill');
+        return view('components.overview.state-pill', [
+            'variant' => $this->variant(),
+            'label' => $this->label(),
+            'pulses' => $this->pulses(),
+        ]);
     }
 }

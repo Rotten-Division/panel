@@ -1,11 +1,4 @@
-@php
-    /** @var \App\View\Components\Overview\PageHead $component */
-    $address = $component->address();
-    $host = $component->hostBeforePort();
-    $port = $component->port();
-    $city = $component->locationCity();
-    $cc = $component->locationCountryCode();
-@endphp
+@props(['address', 'host', 'port', 'city', 'cc'])
 
 <div class="overview-page-head flex items-start justify-between gap-4">
     <div class="flex flex-col gap-2 flex-1 min-w-0">

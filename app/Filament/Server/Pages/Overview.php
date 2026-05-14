@@ -72,7 +72,6 @@ class Overview extends Page
             'state' => $server->status,
             'containerStatus' => $this->status,
             'transferActive' => $server->transfer !== null && $server->transfer->successful === null,
-            'headerActions' => $this->getCachedHeaderActions(),
         ]);
     }
 

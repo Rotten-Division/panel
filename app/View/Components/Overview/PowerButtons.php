@@ -53,6 +53,11 @@ class PowerButtons extends Component
 
     public function render()
     {
-        return view('components.overview.power-buttons');
+        return view('components.overview.power-buttons', [
+            'hidden' => $this->shouldHide(),
+            'startEnabled' => $this->canStart(),
+            'restartEnabled' => $this->canRestart(),
+            'stopEnabled' => $this->canStop(),
+        ]);
     }
 }

@@ -1,13 +1,11 @@
-@php
-    /** @var \App\View\Components\Overview\PowerButtons $component */
-@endphp
+@props(['hidden', 'startEnabled', 'restartEnabled', 'stopEnabled'])
 
-@if (! $component->shouldHide())
+@if (! $hidden)
     <div class="overview-power-buttons flex items-center gap-2">
         <button
             type="button"
             wire:click="mountAction('start')"
-            @disabled(! $component->canStart())
+            @disabled(! $startEnabled)
             class="overview-power-button overview-power-button--start"
         >
             <x-filament::icon icon="tabler-player-play-filled" class="size-3.5" />
@@ -17,7 +15,7 @@
         <button
             type="button"
             wire:click="mountAction('restart')"
-            @disabled(! $component->canRestart())
+            @disabled(! $restartEnabled)
             class="overview-power-button"
         >
             <x-filament::icon icon="tabler-rotate-clockwise-2" class="size-3.5" />
@@ -27,7 +25,7 @@
         <button
             type="button"
             wire:click="mountAction('stop')"
-            @disabled(! $component->canStop())
+            @disabled(! $stopEnabled)
             class="overview-power-button overview-power-button--stop"
         >
             <x-filament::icon icon="tabler-player-stop-filled" class="size-3.5" />

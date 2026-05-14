@@ -60,6 +60,12 @@ class PageHead extends Component
 
     public function render()
     {
-        return view('components.overview.page-head');
+        return view('components.overview.page-head', [
+            'address' => $this->address(),
+            'host' => $this->hostBeforePort(),
+            'port' => $this->port(),
+            'city' => $this->locationCity(),
+            'cc' => $this->locationCountryCode(),
+        ]);
     }
 }
