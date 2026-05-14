@@ -124,6 +124,7 @@
 .fi-sidebar {
     background-color: rgb(var(--ospite-surface-card));
     border-color: rgb(var(--ospite-surface-border));
+    border-right: 0.5px solid var(--graphite);
 }
 
 /* modal window picks up the same surface-card tone as its header so the
