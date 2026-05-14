@@ -17,6 +17,23 @@
 
         return implode(' ', $segments);
     };
+    // closed area path for the gradient fill — same coords as the stroke
+    // path, then drop to chartBottom on the last x and return to chartBottom
+    // on the first x before closing.
+    $areaFor = static function (array $samples) use ($pathFor, $chartBottom): string {
+        if (empty($samples)) {
+            return '';
+        }
+        $stroke = $pathFor($samples);
+        $firstX = number_format((float) $samples[0][0], 2, '.', '');
+        $lastX = number_format((float) end($samples)[0], 2, '.', '');
+        $floor = number_format((float) $chartBottom, 2, '.', '');
+
+        return $stroke." L{$lastX},{$floor} L{$firstX},{$floor} Z";
+    };
+    // unique gradient ids per render so multiple cards on the same page
+    // don't share defs and the right gradient picks for each card.
+    $gradId = 'overview-area-'.bin2hex(random_bytes(4));
     // y-axis tick positions as a 0..100 percentage of the chart height.
     // labels are rendered as positioned HTML outside the SVG so they don't
     // inherit the SVG's non-uniform horizontal stretch.
@@ -68,10 +85,28 @@
     <div class="overview-resource-card__chart">
         <div class="overview-resource-card__plot">
             <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
+                <defs>
+                    <linearGradient id="{{ $gradId }}-in" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="var(--hearth)" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="var(--hearth)" stop-opacity="0" />
+                    </linearGradient>
+                    @if (! empty($card['series2']))
+                        <linearGradient id="{{ $gradId }}-out" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#6FA8E0" stop-opacity="0.16" />
+                            <stop offset="100%" stop-color="#6FA8E0" stop-opacity="0" />
+                        </linearGradient>
+                    @endif
+                </defs>
+
                 @foreach ($tickPositions as $tick)
                     @php($yLine = $chartTop + ($chartHeight * $tick['percent'] / 100))
                     <line x1="0" x2="{{ $width }}" y1="{{ $yLine }}" y2="{{ $yLine }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
                 @endforeach
+
+                @if (! empty($card['series2']))
+                    <path d="{{ $areaFor($card['series2']) }}" fill="url(#{{ $gradId }}-out)" stroke="none" />
+                @endif
+                <path d="{{ $areaFor($card['series']) }}" fill="url(#{{ $gradId }}-in)" stroke="none" />
 
                 <path d="{{ $pathFor($card['series']) }}" fill="none" stroke="var(--hearth)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
 
