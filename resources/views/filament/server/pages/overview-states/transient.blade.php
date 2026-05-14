@@ -19,8 +19,6 @@
 
     $cards = [
         ['label' => 'Players', 'value' => null],
-        ['label' => 'Uptime', 'value' => null],
-        ['label' => 'World size', 'value' => null],
     ];
 @endphp
 
@@ -32,7 +30,7 @@
     :show-progress="true"
 />
 
-<div class="overview-stat-grid overview-stat-grid--4 grid grid-cols-2 md:grid-cols-4 gap-3 overview-stat-grid--muted">
+<div class="overview-stat-grid overview-stat-grid--2 grid grid-cols-1 md:grid-cols-2 gap-3 overview-stat-grid--muted">
     @foreach ($cards as $card)
         <div class="overview-stat-card overview-stat-card--muted">
             <p class="overview-stat-card__label">{{ $card['label'] }}</p>

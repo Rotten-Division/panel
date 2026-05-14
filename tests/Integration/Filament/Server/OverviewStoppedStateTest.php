@@ -32,15 +32,15 @@ test('stopped state shows the default banner', function () {
         ->assertSee('overview-banner--default', escape: false);
 });
 
-test('stopped state renders the muted six column grid', function () {
+test('stopped state renders the players and disk cards', function () {
     [$user, $server] = stoppedStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
         ->assertSee('Players', escape: false)
-        ->assertSee('Uptime', escape: false)
-        ->assertSee('World size', escape: false)
         ->assertSee('Disk', escape: false)
+        ->assertDontSee('Uptime', escape: false)
+        ->assertDontSee('World size', escape: false)
         ->assertSee('overview-stat-card--muted', escape: false);
 });
