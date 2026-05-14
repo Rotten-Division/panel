@@ -370,7 +370,6 @@
 .overview-topbar {
     background: var(--ink) !important;
     border-bottom: 0.5px solid var(--graphite) !important;
-    border-left: 0.5px solid var(--graphite) !important;
     margin-top: -2rem;
     margin-bottom: 1.5rem;
     margin-left: -1rem;
