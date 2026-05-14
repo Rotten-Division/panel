@@ -60,22 +60,27 @@
     </div>
 
     <div class="overview-resource-card__chart">
-        <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
-            @foreach ($tickPositions as $tick)
-                @php($yLine = $chartTop + ($chartHeight * $tick['percent'] / 100))
-                <line x1="0" x2="{{ $width }}" y1="{{ $yLine }}" y2="{{ $yLine }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
-            @endforeach
+        <div class="overview-resource-card__plot">
+            <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
+                @foreach ($tickPositions as $tick)
+                    @php($yLine = $chartTop + ($chartHeight * $tick['percent'] / 100))
+                    <line x1="0" x2="{{ $width }}" y1="{{ $yLine }}" y2="{{ $yLine }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
+                @endforeach
 
-            <path d="{{ $pathFor($card['series']) }}" fill="none" stroke="var(--hearth)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
+                <path d="{{ $pathFor($card['series']) }}" fill="none" stroke="var(--hearth)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
 
-            @if (! empty($card['series2']))
-                <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="#6FA8E0" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
-            @endif
-        </svg>
+                @if (! empty($card['series2']))
+                    <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="#6FA8E0" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
+                @endif
+            </svg>
+        </div>
 
+        {{-- ticks are a flex column on the right of the chart, the column
+             auto-sizes to its widest label so CPU "200%" and memory "3.0 GiB"
+             each reserve only the gutter they actually need. --}}
         <div class="overview-resource-card__ticks" aria-hidden="true">
             @foreach ($tickPositions as $tick)
-                <span class="overview-resource-card__tick" style="top: calc({{ $chartTop }}px + ({{ $chartHeight }}px * {{ $tick['percent'] }} / 100));">{{ $tick['label'] }}</span>
+                <span class="overview-resource-card__tick">{{ $tick['label'] }}</span>
             @endforeach
         </div>
     </div>

@@ -251,27 +251,36 @@
     height: 100%;
     transition: width 600ms ease;
 }
-/* chart area reserves a label gutter sized for the widest tick value
-   the cards emit ("X.X GiB" on memory, formatted rates on network). */
+/* chart row: SVG fills the remaining width, label column auto-sizes to
+   its widest tick so cpu "200%" reserves a narrow gutter while memory
+   "3.0 GiB" reserves a wider one. */
 .overview-resource-card__chart {
-    position: relative;
+    display: flex;
+    align-items: stretch;
     width: 100%;
     height: 96px;
-    padding-right: 58px;
+    column-gap: 8px;
+}
+.overview-resource-card__plot {
+    flex: 1;
+    min-width: 0;
+    /* SVG viewBox already pads 8px top + 16px bottom inside its box, so
+       no extra padding here. */
 }
 .overview-resource-card__svg { width: 100%; height: 100%; }
 .overview-resource-card__ticks {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 58px;
-    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    /* matches the chart's internal vertical padding so the tick labels
+       align with the top, mid, bot of the actual plot area, not the
+       outer container. */
+    padding-top: 8px;
+    padding-bottom: 16px;
+    flex-shrink: 0;
 }
 .overview-resource-card__tick {
-    position: absolute;
-    right: 6px;
-    transform: translateY(-50%);
     font-family: var(--font-mono);
     font-size: 10px;
     line-height: 1;
