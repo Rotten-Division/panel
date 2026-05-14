@@ -1,0 +1,76 @@
+/*
+ * overview redesign design tokens.
+ * canonical source: docs/DESIGN_SYSTEM.md sections 2 and 3, mirrored in the
+ * design handoff bundle. brand css tokens already live in theme.css as rgb
+ * triplets for filament alpha compatibility, this file adds hex tokens the
+ * new overview components consume directly.
+ *
+ * fonts (Inter + JetBrains Mono) are loaded by the ospite-theme plugin's
+ * render hook so no @import is needed here.
+ */
+
+:root {
+    /* brand anchors */
+    --hearth: #EE600A;
+    --ember: #C64916;
+    --bark: #A03A0F;
+    --linen: #FAF7F2;
+    --sand: #8B7355;
+    --walnut: #2A1F14;
+    --bark-light: #6B5942;
+    --sand-light: #9C8B71;
+    --stone: #5C6878;
+
+    /* dark surfaces */
+    --pitch: #0B1018;
+    --ink: #131C2A;
+    --slate: #1E2A3D;
+    --graphite: #2C3A52;
+
+    /* light surfaces */
+    --parchment: #F4EFE6;
+    --linen-surface: #FAF7F2;
+    --paper: #FFFFFF;
+    --twine: #E5DCC9;
+
+    /* semantic state */
+    --moss: #2DA76D;
+    --moss-fg: #5DCAA5;
+    --moss-bg: rgba(45, 167, 109, 0.12);
+    --brick: #B43C3C;
+    --brick-fg: #E89090;
+    --brick-bg: rgba(180, 60, 60, 0.12);
+    --idle-bg: rgba(92, 104, 120, 0.14);
+    --idle-fg: #8B95A8;
+    --honey: #D89020;
+
+    /* type families */
+    --font-display: 'Instrument Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* ============================================================ */
+/* overview-state-pill: phase 4 task 1                          */
+/* ============================================================ */
+.overview-state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+}
+.overview-state-pill--online { background: rgba(45, 167, 109, 0.12); color: var(--moss-fg); }
+.overview-state-pill--stopped { background: rgba(92, 104, 120, 0.14); color: var(--stone); }
+.overview-state-pill--transient { background: rgba(238, 96, 10, 0.12); color: var(--hearth); }
+.overview-state-pill--nest { background: rgba(111, 168, 224, 0.13); color: #9CC2EA; }
+.overview-state-pill--installing { background: rgba(216, 144, 32, 0.12); color: #E2B05E; }
+.overview-state-pill--suspended { background: rgba(180, 60, 60, 0.12); color: var(--brick-fg); }
+.overview-state-pill__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.overview-state-pill__dot--pulse { animation: overview-pulse 1.4s ease-in-out infinite; }
+@keyframes overview-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
