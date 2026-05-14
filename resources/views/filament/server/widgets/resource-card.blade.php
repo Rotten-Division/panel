@@ -87,12 +87,14 @@
             <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
                 <defs>
                     <linearGradient id="{{ $gradId }}-in" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--hearth)" stop-opacity="0.22" />
+                        <stop offset="0%" stop-color="var(--hearth)" stop-opacity="0.38" />
+                        <stop offset="70%" stop-color="var(--hearth)" stop-opacity="0.14" />
                         <stop offset="100%" stop-color="var(--hearth)" stop-opacity="0" />
                     </linearGradient>
                     @if (! empty($card['series2']))
                         <linearGradient id="{{ $gradId }}-out" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#6FA8E0" stop-opacity="0.16" />
+                            <stop offset="0%" stop-color="#6FA8E0" stop-opacity="0.30" />
+                            <stop offset="70%" stop-color="#6FA8E0" stop-opacity="0.10" />
                             <stop offset="100%" stop-color="#6FA8E0" stop-opacity="0" />
                         </linearGradient>
                     @endif
