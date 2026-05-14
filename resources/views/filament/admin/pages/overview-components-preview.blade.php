@@ -123,7 +123,7 @@
                 ];
             @endphp
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                @include('filament.server.widgets.resource-card', ['card' => $cpuCard])
+                @include('filament.server.widgets.resource-card', ['card' => $cpuCard, 'poll' => false])
             </div>
         </section>
     </div>

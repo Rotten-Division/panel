@@ -1,5 +1,7 @@
 @php
     /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
+    /** the include path uses $poll=false so the static preview doesn't try to call refreshSeries on the admin page livewire component. */
+    $poll = $poll ?? true;
     $width = 320;
     $chartHeight = 80;
     $chartTop = 8;
@@ -16,7 +18,7 @@
     };
 @endphp
 
-<div wire:poll.5s="refreshSeries" class="overview-resource-card">
+<div @if ($poll) wire:poll.5s="refreshSeries" @endif class="overview-resource-card">
     <div class="overview-resource-card__stat">
         <div class="overview-resource-card__row">
             <p class="overview-resource-card__label">{{ $card['label'] }}</p>
