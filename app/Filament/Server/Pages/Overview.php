@@ -2,6 +2,7 @@
 
 namespace App\Filament\Server\Pages;
 
+use App\Contracts\Servers\PlayerCountProvider;
 use App\Contracts\Servers\ServerStartGate;
 use App\Enums\ConsoleWidgetPosition;
 use App\Enums\ContainerStatus;
@@ -49,6 +50,12 @@ class Overview extends Page
     protected string $view = 'filament.server.pages.overview';
 
     public ContainerStatus $status = ContainerStatus::Offline;
+
+    public ?int $playerCount = null;
+
+    public ?int $playerLimit = null;
+
+    public int $diskUsedBytes = 0;
 
     protected FeatureService $featureService;
 
@@ -238,7 +245,36 @@ class Overview extends Page
             cache()->put("servers.$server->uuid.status", $this->status, now()->addSeconds(15));
         }
 
+        $this->refreshLiveData();
         $this->headerActions($this->getHeaderActions());
+    }
+
+    /**
+     * resolve a plugin state handler that owns the entire body render
+     * for the current server. phase 7 nest manager registers a handler
+     * here; until then the contract returns null so the dispatcher
+     * falls through to the built-in state switch.
+     */
+    public function resolveStateHandler(Server $server): ?object
+    {
+        return null;
+    }
+
+    public function refreshLiveData(): void
+    {
+        /** @var Server $server */
+        $server = Filament::getTenant();
+
+        // disk usage from wings stats cache, populated by the console
+        // websocket as stats events stream in.
+        $resources = cache()->get("servers.$server->uuid.resources");
+        $this->diskUsedBytes = (int) ($resources['disk_bytes'] ?? 0);
+
+        // player count contract returns null by default; live stats plugin
+        // would rebind to return real values.
+        $payload = App::make(PlayerCountProvider::class)->resolve($server);
+        $this->playerCount = $payload['current'] ?? null;
+        $this->playerLimit = $payload['max'] ?? null;
     }
 
     /** @return array<Action|ActionGroup> */

@@ -13,6 +13,7 @@ use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
 use App\Contracts\Servers\NestMembershipGate;
 use App\Contracts\Servers\NodeSelector;
+use App\Contracts\Servers\PlayerCountProvider;
 use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
 use App\Http\Responses\LoginResponse;
@@ -34,6 +35,7 @@ use App\Services\Helpers\SoftwareVersionService;
 use App\Services\Servers\FirstAvailableNodeSelector;
 use App\Services\Servers\NoNestMembershipGate;
 use App\Services\Servers\NoPortHoldsGate;
+use App\Services\Servers\NullPlayerCountProvider;
 use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -168,6 +170,14 @@ class AppServiceProvider extends ServiceProvider
         // an enforcer that walks the user's non-nest servers and returns the
         // one that needs to roost before another can come out of the nest.
         $this->app->singleton(NestMembershipGate::class, NoNestMembershipGate::class);
+
+        // default player count provider returns null. a future live player
+        // stats plugin will rebind this to query wings or scrape the game
+        // protocol per egg.
+        $this->app->singleton(
+            PlayerCountProvider::class,
+            NullPlayerCountProvider::class,
+        );
 
         Scramble::ignoreDefaultRoutes();
 
