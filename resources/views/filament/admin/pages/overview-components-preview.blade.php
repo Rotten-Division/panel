@@ -110,9 +110,8 @@
             <h2 class="text-lg font-semibold mb-3">ResourceCard (synthetic)</h2>
             <p class="text-sm text-gray-500 mb-3">Rendered against fabricated samples without a live server. Live cards on a server's Overview page poll every 5s.</p>
             @php
-                use App\Support\ResourceCard;
                 $cpuSeries = [12, 18, 25, 28, 22, 30, 35, 40, 38, 42, 50, 55, 60, 58, 65, 70, 68, 72, 75, 80, 78, 82, 85, 90];
-                $cpuTicks = ResourceCard::ticks(array_map('floatval', $cpuSeries));
+                $cpuTicks = \App\Support\ResourceCard::ticks(array_map('floatval', $cpuSeries));
                 $cpuCard = [
                     'label' => 'CPU',
                     'unit' => '%',
@@ -120,7 +119,7 @@
                     'allocation' => '200%',
                     'progress' => ['value' => 90.0, 'max' => 200.0, 'colour' => 'honey'],
                     'ticks' => array_map(fn ($v) => number_format($v, 0) . '%', $cpuTicks),
-                    'series' => ResourceCard::points(array_map('floatval', $cpuSeries), $cpuTicks[0], $cpuTicks[2]),
+                    'series' => \App\Support\ResourceCard::points(array_map('floatval', $cpuSeries), $cpuTicks[0], $cpuTicks[2]),
                 ];
             @endphp
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
