@@ -10,24 +10,27 @@
  */
 
 :root {
-    /* brand anchors */
+    /* brand anchors (mode-agnostic) */
     --hearth: #EE600A;
     --ember: #C64916;
     --bark: #A03A0F;
-    --linen: #FAF7F2;
-    --sand: #8B7355;
     --walnut: #2A1F14;
     --bark-light: #6B5942;
     --sand-light: #9C8B71;
-    --stone: #5C6878;
 
-    /* dark surfaces */
-    --pitch: #0B1018;
-    --ink: #131C2A;
-    --slate: #1E2A3D;
-    --graphite: #2C3A52;
+    /* surface + text tokens are aliased to the ospite triplets in theme.css
+       so the overview components flip with light/dark mode automatically.
+       names are kept for backwards compatibility — read them as "surface" or
+       "ink", not as literal dark navy. */
+    --pitch: rgb(var(--ospite-surface-base));
+    --ink: rgb(var(--ospite-surface-card));
+    --slate: rgb(var(--ospite-surface-elevated));
+    --graphite: rgb(var(--ospite-surface-border));
+    --linen: rgb(var(--ospite-text-primary));
+    --sand: rgb(var(--ospite-text-secondary));
+    --stone: rgb(var(--ospite-text-tertiary));
 
-    /* light surfaces */
+    /* light surfaces — kept as static refs for state-specific accents */
     --parchment: #F4EFE6;
     --linen-surface: #FAF7F2;
     --paper: #FFFFFF;
