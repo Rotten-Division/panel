@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use RuntimeException;
 use Spatie\Permission\PermissionRegistrar;
 
 abstract class TestCase extends BaseTestCase
@@ -18,11 +19,28 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // belt-and-suspenders for phpunit.xml: if a real env var (e.g.
+        // DB_CONNECTION=pgsql baked into the docker container) wins over
+        // the force="true" directives, DatabaseTruncation wipes prod tables
+        // on the first test run. refuse to boot the suite in that case.
+        $connection = (string) config('database.default');
+        $driver = (string) config("database.connections.$connection.driver");
+        if ($driver !== 'sqlite') {
+            throw new RuntimeException(
+                "tests must run against sqlite, got driver={$driver} for connection={$connection}. "
+                .'check phpunit.xml <env> force="true" attributes and the docker env. '
+                .'if this fires in CI, do NOT remove this guard — fix the env leak.'
+            );
+        }
+        $database = (string) config("database.connections.$connection.database");
+        if ($database !== ':memory:' && !str_contains($database, 'testing')) {
+            throw new RuntimeException(
+                "tests must run against :memory: or a testing.sqlite file, got database={$database}."
+            );
+        }
+
         Carbon::setTestNow(Carbon::now());
         CarbonImmutable::setTestNow(Carbon::now());
-
-        // TODO: if unit tests suite, then force set DB_HOST=UNIT_NO_DB
-        // env('DB_DATABASE', 'UNIT_NO_DB');
 
         // Why, you ask? If we don't force this to false it is possible for certain exceptions
         // to show their error message properly in the integration test output, but not actually

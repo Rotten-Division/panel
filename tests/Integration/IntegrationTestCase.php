@@ -9,7 +9,7 @@ use App\Tests\Traits\Integration\CreatesTestModels;
 use App\Transformers\Api\Application\BaseTransformer;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
-use Illuminate\Foundation\Testing\DatabaseTruncation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
@@ -17,7 +17,12 @@ abstract class IntegrationTestCase extends TestCase
 {
     use AssertsActivityLogged;
     use CreatesTestModels;
-    use DatabaseTruncation;
+
+    // RefreshDatabase migrates a fresh schema per test, which is the safe
+    // combo with :memory: sqlite enforced by tests/bootstrap.php. swapping
+    // to DatabaseTruncation would either require a persisted testing.sqlite
+    // or risk the connection cycling and dropping the schema mid-suite.
+    use RefreshDatabase;
 
     protected $seed = true;
 

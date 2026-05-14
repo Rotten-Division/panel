@@ -45,6 +45,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
@@ -70,6 +71,13 @@ class AppServiceProvider extends ServiceProvider
 
         if ($app->runningInConsole() && empty(config('app.key'))) {
             $config->set('app.key', '');
+        }
+
+        // block migrate:fresh / migrate:refresh / db:wipe on prod so a typo
+        // can't wipe the panel database. the installer's `migrate` call is
+        // non-destructive and stays allowed.
+        if ($app->isProduction()) {
+            DB::prohibitDestructiveCommands();
         }
 
         Relation::enforceMorphMap([
