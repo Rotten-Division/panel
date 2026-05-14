@@ -364,28 +364,21 @@
 /* needed because Filament's unlayered chrome stacks below this */
 /* element at equal specificity.                                */
 /* ============================================================ */
+/* full-bleed across .fi-main-ctn (viewport minus sidebar). this breaks
+   out of .fi-main's max-w-screen-2xl + mx-auto centering so the strip
+   really does run edge-to-edge regardless of viewport width. */
 .overview-topbar {
     background: var(--ink) !important;
     border-bottom: 0.5px solid var(--graphite) !important;
     margin-top: -2rem;
     margin-bottom: 1.5rem;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-}
-@media (min-width: 768px) {
-    .overview-topbar {
-        margin-left: -1.5rem;
-        margin-right: -1.5rem;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-    }
+    margin-left: calc((100% - (100vw - var(--sidebar-width, 0px))) / 2);
+    margin-right: calc((100% - (100vw - var(--sidebar-width, 0px))) / 2);
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
 }
 @media (min-width: 1024px) {
     .overview-topbar {
-        margin-left: -2rem;
-        margin-right: -2rem;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
     }
