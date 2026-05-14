@@ -9,6 +9,11 @@ use Filament\Facades\Filament;
 
 uses(IntegrationTestCase::class);
 
+// array cache persists across tests in one process while DatabaseTruncation
+// resets server IDs to 1, so seeded `servers.1.*` keys leak into later tests.
+// flush per case so each test starts with an empty wings stats cache.
+beforeEach(fn () => cache()->flush());
+
 function seedServerForLiveData(): Server
 {
     [$user] = generateTestAccount();

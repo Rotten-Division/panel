@@ -8,9 +8,7 @@
 
 {{-- Server panel overview-page topbar. left rail carries the game ·
      flavour · version eyebrow that used to live in the page body.
-     right rail carries state pill + power buttons. Phase 4 supplies
-     the StatePill + PowerButtons components, until then placeholders
-     render the raw state value so the row is testable. --}}
+     right rail carries state pill + power buttons. --}}
 <div class="fi-overview-topbar overview-topbar flex items-center justify-between gap-4 px-4 py-3">
     <div class="fi-overview-eyebrow flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-gray-500 dark:text-gray-400">
         @if ($eyebrow['game'])

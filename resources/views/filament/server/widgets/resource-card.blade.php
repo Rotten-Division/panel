@@ -1,7 +1,7 @@
 @php
     /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
-    /** the include path uses $poll=false so the static preview doesn't try to call refreshSeries on the admin page livewire component. */
-    $poll = $poll ?? true;
+    // the chart widgets listen for `refresh-overview` dispatched from the
+    // page's refreshLiveData poll, so the card template itself doesn't poll.
     $width = 320;
     $chartHeight = 80;
     $chartTop = 8;
@@ -44,7 +44,7 @@
     ];
 @endphp
 
-<div @if ($poll) wire:poll.1s="refreshSeries" @endif class="overview-resource-card">
+<div class="overview-resource-card">
     <div class="overview-resource-card__stat">
         <div class="overview-resource-card__row">
             <p class="overview-resource-card__label">{{ $card['label'] }}</p>
@@ -93,9 +93,9 @@
                     </linearGradient>
                     @if (! empty($card['series2']))
                         <linearGradient id="{{ $gradId }}-out" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#6FA8E0" stop-opacity="0.30" />
-                            <stop offset="70%" stop-color="#6FA8E0" stop-opacity="0.10" />
-                            <stop offset="100%" stop-color="#6FA8E0" stop-opacity="0" />
+                            <stop offset="0%" stop-color="var(--azure)" stop-opacity="0.30" />
+                            <stop offset="70%" stop-color="var(--azure)" stop-opacity="0.10" />
+                            <stop offset="100%" stop-color="var(--azure)" stop-opacity="0" />
                         </linearGradient>
                     @endif
                 </defs>
@@ -113,7 +113,7 @@
                 <path d="{{ $pathFor($card['series']) }}" fill="none" stroke="var(--hearth)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
 
                 @if (! empty($card['series2']))
-                    <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="#6FA8E0" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
+                    <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="var(--azure)" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
                 @endif
             </svg>
         </div>

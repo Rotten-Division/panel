@@ -30,11 +30,8 @@
     --sand: rgb(var(--ospite-text-secondary));
     --stone: rgb(var(--ospite-text-tertiary));
 
-    /* light surfaces — kept as static refs for state-specific accents */
-    --parchment: #F4EFE6;
-    --linen-surface: #FAF7F2;
-    --paper: #FFFFFF;
-    --twine: #E5DCC9;
+    /* network "out" accent, paired with --hearth for the "in" series */
+    --azure: #6FA8E0;
 
     /* semantic state */
     --moss: #2DA76D;
@@ -105,7 +102,18 @@
 /* ============================================================ */
 /* overview-page-head: phase 4 task 3                            */
 /* ============================================================ */
-.overview-page-head__address { letter-spacing: -0.01em; }
+.overview-page-head__address {
+    letter-spacing: -0.01em;
+    color: var(--linen);
+}
+.overview-page-head__address-port { color: var(--hearth); }
+.overview-page-head__loc-city { color: var(--sand); }
+.overview-page-head__copy {
+    background: var(--ink);
+    border: 1px solid var(--graphite);
+    transition: border-color 150ms ease;
+}
+.overview-page-head__copy:hover { border-color: var(--hearth); }
 .overview-page-head__copy:hover svg { color: var(--hearth); }
 
 /* ============================================================ */
@@ -123,7 +131,7 @@
 .overview-banner--default .overview-banner__accent,
 .overview-banner--transient .overview-banner__accent { background: var(--hearth); }
 .overview-banner--installing .overview-banner__accent { background: var(--honey); }
-.overview-banner--nest .overview-banner__accent { background: #6FA8E0; }
+.overview-banner--nest .overview-banner__accent { background: var(--azure); }
 .overview-banner--suspended .overview-banner__accent { background: var(--brick); }
 .overview-banner__body { display: flex; align-items: center; gap: 10px; }
 .overview-banner__title { font-size: 13px; font-weight: 500; color: var(--linen); }
@@ -260,7 +268,7 @@
 }
 .overview-resource-card__legend-swatch--in { border-top-color: var(--hearth); }
 .overview-resource-card__legend-swatch--out {
-    border-top-color: #6FA8E0;
+    border-top-color: var(--azure);
     border-top-style: dashed;
 }
 .overview-resource-card__bar {

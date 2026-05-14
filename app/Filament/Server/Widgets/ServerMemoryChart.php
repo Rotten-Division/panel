@@ -7,6 +7,7 @@ use App\Models\Server;
 use App\Support\ResourceCard;
 use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
+use Livewire\Attributes\On;
 
 class ServerMemoryChart extends Widget
 {
@@ -30,6 +31,7 @@ class ServerMemoryChart extends Widget
         $this->refreshSeries();
     }
 
+    #[On('refresh-overview')]
     public function refreshSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);

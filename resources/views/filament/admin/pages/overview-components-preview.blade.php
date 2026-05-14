@@ -92,15 +92,15 @@
             <p class="text-sm text-gray-500 mb-3">PageHead reads from a live Server. Below is the rendered shape using the same CSS hooks.</p>
             <div class="overview-page-head flex items-start justify-between gap-4">
                 <div class="flex flex-col gap-2 flex-1 min-w-0">
-                    <h1 class="overview-page-head__address font-mono font-medium text-2xl text-[var(--linen)]">
-                        <span>{{ Str::before($sampleAddress, ':') }}</span><span class="text-[var(--hearth)]">:{{ Str::after($sampleAddress, ':') }}</span>
+                    <h1 class="overview-page-head__address font-mono font-medium text-2xl">
+                        <span>{{ Str::before($sampleAddress, ':') }}</span><span class="overview-page-head__address-port">:{{ Str::after($sampleAddress, ':') }}</span>
                     </h1>
                     <div class="overview-page-head__loc flex items-center gap-2">
                         <x-overview.country-flag code="gb" />
-                        <span class="font-mono text-xs text-[var(--sand)]">London, GB</span>
+                        <span class="overview-page-head__loc-city font-mono text-xs">London, GB</span>
                     </div>
                 </div>
-                <button type="button" class="overview-page-head__copy inline-flex items-center justify-center size-8 rounded border border-[var(--graphite)] bg-[var(--ink)] hover:border-[var(--hearth)] transition-colors">
+                <button type="button" class="overview-page-head__copy inline-flex items-center justify-center size-8 rounded">
                     <x-filament::icon icon="tabler-copy" class="size-4" />
                 </button>
             </div>

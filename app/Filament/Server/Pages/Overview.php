@@ -16,7 +16,6 @@ use App\Filament\Server\Widgets\ServerConsole;
 use App\Filament\Server\Widgets\ServerCpuChart;
 use App\Filament\Server\Widgets\ServerMemoryChart;
 use App\Filament\Server\Widgets\ServerNetworkChart;
-use App\Filament\Server\Widgets\ServerOverview;
 use App\Livewire\AlertBanner;
 use App\Models\Server;
 use App\Services\Servers\StartGateDecision;
@@ -187,7 +186,7 @@ class Overview extends Page
     public function getWidgets(): array
     {
         // nest evicted servers have node_id=null so the panel-core widgets
-        // (ServerOverview, ServerConsole, *Chart) crash on $server->node->X.
+        // (ServerConsole, *Chart) crash on $server->node->X.
         // Hydrating and Capturing servers do have a node but wings has
         // nothing to serve through the websocket while the volume transfer
         // is in flight, the console widget surfaces a websocket connect
@@ -215,8 +214,6 @@ class Overview extends Page
         $allWidgets = [];
 
         $allWidgets = array_merge($allWidgets, static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? []);
-
-        $allWidgets[] = ServerOverview::class;
 
         $allWidgets = array_merge($allWidgets, static::$customWidgets[ConsoleWidgetPosition::AboveConsole->value] ?? []);
 
@@ -298,6 +295,11 @@ class Overview extends Page
         $payload = App::make(PlayerCountProvider::class)->resolve($server);
         $this->playerCount = $payload['current'] ?? null;
         $this->playerLimit = $payload['max'] ?? null;
+
+        // single cadence source for the page. the CPU/Memory/Network chart
+        // widgets listen for `refresh-overview` on their `refreshSeries`
+        // handler so all four cards refresh against the same tick.
+        $this->dispatch('refresh-overview');
     }
 
     private function latestStatsValue(Server $server, string $field): int
