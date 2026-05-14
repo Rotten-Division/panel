@@ -197,3 +197,59 @@
     font-weight: 500;
     color: var(--linen);
 }
+
+/* ============================================================ */
+/* overview-resource-card: phase 4 task 8                       */
+/* ============================================================ */
+.overview-resource-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 7px;
+    padding: 14px 16px;
+}
+.overview-resource-card__stat { display: flex; flex-direction: column; gap: 6px; }
+.overview-resource-card__row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.overview-resource-card__label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--stone);
+}
+.overview-resource-card__value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--linen);
+}
+.overview-resource-card__allocation {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--sand);
+}
+.overview-resource-card__legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--sand);
+}
+.overview-resource-card__legend-separator { color: var(--graphite); }
+.overview-resource-card__bar {
+    height: 3px;
+    background: var(--graphite);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.overview-resource-card__bar-fill {
+    height: 100%;
+    transition: width 600ms ease;
+}
+.overview-resource-card__chart { width: 100%; height: 88px; }
+.overview-resource-card__svg { width: 100%; height: 100%; }
