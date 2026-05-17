@@ -19,7 +19,7 @@
 
     <div id="terminal" wire:ignore></div>
 
-    @if ($this->authorizeSendCommand())
+    @if ($this->authorizeSendCommand() && ! ($readOnly ?? false))
         <div class="flex items-center w-full border-top overflow-hidden dark:bg-gray-900"
              style="border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;">
             <x-filament::icon
@@ -91,6 +91,16 @@
         terminal.loadAddon(webglAddon);
 
         terminal.open(document.getElementById('terminal'));
+
+        @if ($showMarkerOnly ?? false)
+            // marker mode — pre-write dim italic-feel markers to the xterm
+            // scrollback so the console isn't visually empty when the server
+            // is offline. [2m is the ansi dim attribute, matches the
+            // design canvas's italic muted .marker treatment without needing
+            // a separate html element outside xterm's wire:ignore container.
+            terminal.writeln('[2m— Server marked as offline. —[0m');
+            terminal.writeln('[2m— Hit start in the header to bring it back. —[0m');
+        @endif
 
         fitAddon.fit(); // Fixes SPA issues.
 

@@ -43,12 +43,11 @@
     </div>
 </div>
 
-{{-- console + resource cards stay until Phase 5b.4 Task 3 swaps the cards
-     for a flat spark row. keeping them here avoids a half-state between
-     commits where Stopped renders no chart material at all. --}}
+{{-- console: read-only + marker mode. resource cards stay until Phase 5b.4
+     Task 3 swaps the cards for a flat spark row. --}}
 <x-filament-widgets::widgets
     :columns="1"
-    :data="$this->getWidgetData()"
+    :data="$this->getWidgetData() + ['readOnly' => true, 'showMarkerOnly' => true]"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 

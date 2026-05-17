@@ -27,6 +27,15 @@ class ServerConsole extends Widget
 
     public ?User $user = null;
 
+    /** hide the command-input row when true. set by state partials that
+     *  render the console in read-only mode (stopped, transient, installing). */
+    public bool $readOnly = false;
+
+    /** pre-write two dim marker lines to the xterm scrollback on mount.
+     *  matches design canvas Stopped artboard which shows
+     *  "Server marked as offline" + "Hit start in the header" in the console. */
+    public bool $showMarkerOnly = false;
+
     /** @var string[] */
     #[Session(key: 'server.{server.id}.history')]
     public array $history = [];

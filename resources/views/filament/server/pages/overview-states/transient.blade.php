@@ -72,11 +72,11 @@
     </div>
 </div>
 
-{{-- console + resource cards stay until Phase 5b.4 Task 3 swaps the cards
-     for a flat spark row. --}}
+{{-- console: read-only (live stream, no input). resource cards stay until
+     Phase 5b.4 Task 3 swaps the cards for a flat spark row. --}}
 <x-filament-widgets::widgets
     :columns="1"
-    :data="$this->getWidgetData()"
+    :data="$this->getWidgetData() + ['readOnly' => true]"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 
