@@ -27,9 +27,9 @@ test('starting status renders the transient banner with progress band', function
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Starting up', escape: false)
+        ->assertSee(trans('server/overview.transient.starting.title'), escape: false)
         ->assertSee('overview-banner--transient', escape: false)
-        ->assertSee('overview-banner__progress', escape: false);
+        ->assertSee('overview-progress-band', escape: false);
 });
 
 test('stopping status flips the banner title and subtitle', function () {
@@ -38,8 +38,8 @@ test('stopping status flips the banner title and subtitle', function () {
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Stopping', escape: false)
-        ->assertSee('Saving state', escape: false);
+        ->assertSee(trans('server/overview.transient.stopping.title'), escape: false)
+        ->assertSee('Saving the game', escape: false);
 });
 
 test('restarting status uses the dedicated copy', function () {
@@ -48,6 +48,17 @@ test('restarting status uses the dedicated copy', function () {
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Restarting', escape: false)
+        ->assertSee(trans('server/overview.transient.restarting.title'), escape: false)
         ->assertSee('cycling the container', escape: false);
+});
+
+test('transient grid is 5 columns and drops world size per user lock', function () {
+    [$user, $server] = transientStateSeed(ContainerStatus::Starting);
+
+    $this->actingAs($user)
+        ->get("/server/{$server->uuid_short}/overview")
+        ->assertOk()
+        ->assertSee('lg:grid-cols-5', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">World size</p>', escape: false);
 });

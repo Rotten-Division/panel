@@ -38,7 +38,11 @@
     }
 @endphp
 
-<div class="overview-spark overview-spark--{{ $color }} @if ($muted) overview-spark--muted @endif">
+<div @class([
+    'overview-spark',
+    "overview-spark--{$color}",
+    'overview-spark--muted' => $muted,
+])>
     <div class="overview-spark__title">
         <span>{{ $title }}</span>
         @if ($value !== null)

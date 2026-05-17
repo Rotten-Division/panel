@@ -20,16 +20,15 @@ function installingStateSeed(ServerState $status): array
     return [$user, $server];
 }
 
-test('installing status renders the honey banner with egg name', function () {
+test('installing status renders the honey banner with progress band', function () {
     [$user, $server] = installingStateSeed(ServerState::Installing);
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Setting up your server', escape: false)
-        ->assertSee('Installing Forge', escape: false)
+        ->assertSee(trans('server/overview.installing.installing.title'), escape: false)
         ->assertSee('overview-banner--installing', escape: false)
-        ->assertSee('overview-banner__progress', escape: false);
+        ->assertSee('overview-progress-band--honey', escape: false);
 });
 
 test('install_failed flips to the suspended variant with retry hint', function () {
@@ -38,9 +37,9 @@ test('install_failed flips to the suspended variant with retry hint', function (
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Install failed', escape: false)
+        ->assertSee(trans('server/overview.installing.install_failed.title'), escape: false)
         ->assertSee('overview-banner--suspended', escape: false)
-        ->assertDontSee('overview-banner__progress', escape: false);
+        ->assertDontSee('overview-progress-band', escape: false);
 });
 
 test('reinstall_failed uses its own copy', function () {
@@ -49,5 +48,20 @@ test('reinstall_failed uses its own copy', function () {
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('Reinstall failed', escape: false);
+        ->assertSee(trans('server/overview.installing.reinstall_failed.title'), escape: false);
+});
+
+test('installing grid is 6 columns with Egg / Version / World / CPU / Memory / Disk', function () {
+    [$user, $server] = installingStateSeed(ServerState::Installing);
+
+    $this->actingAs($user)
+        ->get("/server/{$server->uuid_short}/overview")
+        ->assertOk()
+        ->assertSee('lg:grid-cols-6', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">Egg</p>', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">Version</p>', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">World</p>', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
+        ->assertSee('<p class="overview-stat-card__label">Disk</p>', escape: false);
 });
