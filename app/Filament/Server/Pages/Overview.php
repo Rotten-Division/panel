@@ -118,12 +118,23 @@ class Overview extends Page
         try {
             $server->validateCurrentState();
         } catch (ServerStateConflictException $exception) {
-            // skip the session banner for any nest-related state. the nest
-            // manager plugin renders an inline NestNotice widget at the top
-            // of the page that carries the appropriate brand-voice copy and
-            // the wake button. AlertBanner stays the path for the other
-            // conflict reasons (installing, transferring, suspended).
-            if (in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)) {
+            // every conflict state now renders its own inline state-banner
+            // through the overview-states partials (installing, transferring,
+            // suspended, nest, restoring-backup), all carrying brand-voice
+            // copy and the right action. the legacy session-scoped
+            // AlertBanner duplicates that and stacks above the new layout.
+            // suppress it for any state we know has a dedicated partial.
+            $stateHasOwnBanner = in_array($server->status, [
+                ServerState::Installing,
+                ServerState::InstallFailed,
+                ServerState::ReinstallFailed,
+                ServerState::RestoringBackup,
+                ServerState::Suspended,
+                ServerState::Nest,
+                ServerState::Hydrating,
+                ServerState::Capturing,
+            ], true) || ($server->transfer !== null && $server->transfer->successful === null);
+            if ($stateHasOwnBanner) {
                 return;
             }
 

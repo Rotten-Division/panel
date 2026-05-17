@@ -9,6 +9,7 @@ use App\Models\Server;
 use App\Models\User;
 use App\Services\Nodes\NodeJWTService;
 use App\Services\Servers\GetUserPermissionsService;
+use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Arr;
 use Livewire\Attributes\On;
@@ -132,6 +133,17 @@ class ServerConsole extends Widget
     #[On('websocket-error')]
     public function websocketError(): void
     {
+        // suppress the websocket failure banner whenever the server is in a
+        // conflict state (install failed, transferring, suspended, nest).
+        // wings has nothing to serve over the socket in those cases and the
+        // state partial already tells the user what's going on. raising a
+        // second red banner on top of the inline state copy is noise.
+        /** @var Server $server */
+        $server = Filament::getTenant();
+        if ($server->isInConflictState()) {
+            return;
+        }
+
         AlertBanner::make('websocket_error')
             ->title(trans('server/console.websocket_error.title'))
             ->body(trans('server/console.websocket_error.body'))
