@@ -72,20 +72,38 @@
     </div>
 </div>
 
-{{-- console: read-only (live stream, no input). resource cards stay until
-     Phase 5b.4 Task 3 swaps the cards for a flat spark row. --}}
+{{-- console: read-only (live stream, no input) --}}
 <x-filament-widgets::widgets
     :columns="1"
     :data="$this->getWidgetData() + ['readOnly' => true]"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 
-<x-filament-widgets::widgets
-    :columns="3"
-    :data="$this->getWidgetData()"
-    :widgets="[
-        \App\Filament\Server\Widgets\ServerCpuChart::class,
-        \App\Filament\Server\Widgets\ServerMemoryChart::class,
-        \App\Filament\Server\Widgets\ServerNetworkChart::class,
-    ]"
-/>
+@php
+    // partial memory data flows during boot; cpu + network stay muted
+    // across every transient sub-state until the container fully reaches
+    // running. memory series is normalised against its own max to fit
+    // the 0..1 height-scaling in the spark component.
+    $memorySeries = collect(cache()->get("servers.$server->id.memory_bytes") ?? [])
+        ->slice(-24)
+        ->map(fn ($v) => (float) round($v / 1024 / 1024 / 1024, 2))
+        ->values()
+        ->all();
+    $memoryMax = ! empty($memorySeries) ? max($memorySeries) : 0;
+    $memoryNormalised = $memoryMax > 0
+        ? array_map(fn ($v) => $v / $memoryMax, $memorySeries)
+        : [];
+    $memoryValue = ! empty($memorySeries) ? number_format(end($memorySeries), 2).' GiB' : null;
+@endphp
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <x-overview.spark title="CPU" value="—" muted />
+    <x-overview.spark
+        title="Memory"
+        :value="$memoryValue"
+        :series="$memoryNormalised"
+        color="moss"
+        :muted="empty($memoryNormalised)"
+    />
+    <x-overview.spark title="Network" value="—" muted />
+</div>

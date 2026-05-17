@@ -43,20 +43,18 @@
     </div>
 </div>
 
-{{-- console: read-only + marker mode. resource cards stay until Phase 5b.4
-     Task 3 swaps the cards for a flat spark row. --}}
+{{-- console: read-only + marker mode --}}
 <x-filament-widgets::widgets
     :columns="1"
     :data="$this->getWidgetData() + ['readOnly' => true, 'showMarkerOnly' => true]"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 
-<x-filament-widgets::widgets
-    :columns="3"
-    :data="$this->getWidgetData()"
-    :widgets="[
-        \App\Filament\Server\Widgets\ServerCpuChart::class,
-        \App\Filament\Server\Widgets\ServerMemoryChart::class,
-        \App\Filament\Server\Widgets\ServerNetworkChart::class,
-    ]"
-/>
+{{-- flat spark row replaces the live resource cards while the server is
+     offline — no data to plot, but the canvas keeps the three slots
+     visible as muted placeholders for visual continuity. --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <x-overview.spark title="CPU" value="—" muted />
+    <x-overview.spark title="Memory" value="—" muted />
+    <x-overview.spark title="Network" value="—" muted />
+</div>
