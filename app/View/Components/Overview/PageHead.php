@@ -3,7 +3,6 @@
 namespace App\View\Components\Overview;
 
 use App\Enums\ContainerStatus;
-use App\Enums\ServerState;
 use App\Models\Server;
 use Illuminate\View\Component;
 
@@ -14,12 +13,6 @@ class PageHead extends Component
         public ?ContainerStatus $containerStatus = null,
         public bool $transferring = false,
     ) {}
-
-    /** ServerState enum off the model — used by the right-rail state pill. */
-    public function state(): ?ServerState
-    {
-        return $this->server->status;
-    }
 
     public function address(): string
     {
@@ -114,7 +107,7 @@ class PageHead extends Component
             'game' => $this->game(),
             'flavour' => $this->flavour(),
             'version' => $this->version(),
-            'state' => $this->state(),
+            'state' => $this->server->status,
             'containerStatus' => $this->containerStatus,
             'transferring' => $this->transferring,
             'server' => $this->server,

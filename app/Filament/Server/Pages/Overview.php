@@ -3,35 +3,28 @@
 namespace App\Filament\Server\Pages;
 
 use App\Contracts\Servers\PlayerCountProvider;
-use App\Contracts\Servers\ServerStartGate;
 use App\Enums\ConsoleWidgetPosition;
 use App\Enums\ContainerStatus;
 use App\Enums\ServerState;
-use App\Enums\SubuserPermission;
 use App\Enums\TablerIcon;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Extensions\Features\FeatureService;
-use App\Filament\Components\Actions\StartSwapModal;
 use App\Filament\Server\Widgets\ServerConsole;
 use App\Filament\Server\Widgets\ServerCpuChart;
 use App\Filament\Server\Widgets\ServerMemoryChart;
 use App\Filament\Server\Widgets\ServerNetworkChart;
 use App\Livewire\AlertBanner;
 use App\Models\Server;
-use App\Services\Servers\StartGateDecision;
 use App\Traits\Filament\CanCustomizeHeaderActions;
 use BackedEnum;
 use Carbon\CarbonInterval;
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Concerns\HasHeaderActions;
-use Filament\Support\Enums\Size;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
@@ -52,6 +45,15 @@ class Overview extends Page
     // that would otherwise render at the top of the page body now that
     // getHeader() is gone.
     protected ?string $heading = null;
+
+    // suppress Filament's default header chrome entirely. without this
+    // override the parent Page renders a header strip containing the page
+    // title and getHeaderActions() output, which duplicates the power
+    // buttons that the page-head right rail now owns.
+    public function getHeader(): ?View
+    {
+        return null;
+    }
 
     public ContainerStatus $status = ContainerStatus::Offline;
 
@@ -234,7 +236,6 @@ class Overview extends Page
         }
 
         $this->refreshLiveData();
-        $this->headerActions($this->getHeaderActions());
     }
 
     /**
@@ -329,91 +330,6 @@ class Overview extends Page
         }
 
         return min(100.0, ($this->diskUsedBytes / $limit) * 100);
-    }
-
-    /** @return array<Action|ActionGroup> */
-    protected function getDefaultHeaderActions(): array
-    {
-        return [
-            ActionGroup::make([
-                StartSwapModal::configure(
-                    Action::make('start')
-                        ->label(trans('server/console.power_actions.start'))
-                        ->color('primary')
-                        ->icon(TablerIcon::PlayerPlayFilled)
-                        ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStart, $server))
-                        ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStartable()),
-                    fn (Server $server) => App::make(ServerStartGate::class)->wouldBlock($server, user()),
-                )
-                    ->action(function (Server $server) {
-                        $decision = App::make(ServerStartGate::class)->gateStart(
-                            $server,
-                            user(),
-                            fn () => $this->dispatch('setServerState', uuid: $server->uuid, state: 'start'),
-                        );
-
-                        if (!$decision->proceeded) {
-                            $isTransient = $decision->outcome === StartGateDecision::LOCK_TIMEOUT;
-                            $notification = Notification::make()
-                                ->title($isTransient ? 'Try again in a moment' : 'Could not start server')
-                                ->body($decision->message);
-
-                            $isTransient ? $notification->warning() : $notification->danger();
-                            $notification->send();
-
-                            return;
-                        }
-
-                        // surface the swap explicitly, the live state widget
-                        // covers the new servers transition but the user has
-                        // no other signal that another of their servers was
-                        // stopped to make room.
-                        if ($decision->outcome === StartGateDecision::SWAPPED && $decision->stopped !== null) {
-                            Notification::make()
-                                ->title('Switched servers')
-                                ->body("Stopped \"{$decision->stopped->name}\" to start this one.")
-                                ->success()
-                                ->send();
-                        }
-                    })
-                    ->size(Size::ExtraLarge),
-                Action::make('restart')
-                    ->label(trans('server/console.power_actions.restart'))
-                    ->color('gray')
-                    ->icon(TablerIcon::Reload)
-                    ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlRestart, $server))
-                    ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isRestartable())
-                    ->action(fn (Server $server) => $this->dispatch('setServerState', uuid: $server->uuid, state: 'restart'))
-                    ->size(Size::ExtraLarge),
-                Action::make('stop')
-                    ->label(trans('server/console.power_actions.stop'))
-                    ->color('danger')
-                    ->icon(TablerIcon::PlayerStopFilled)
-                    ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStop, $server))
-                    ->visible(fn () => !$this->status->isKillable())
-                    ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isStoppable())
-                    ->action(fn (Server $server) => $this->dispatch('setServerState', uuid: $server->uuid, state: 'stop'))
-                    ->size(Size::ExtraLarge),
-                Action::make('kill')
-                    ->label(trans('server/console.power_actions.kill'))
-                    ->color('danger')
-                    ->icon(TablerIcon::AlertSquare)
-                    ->tooltip(trans('server/console.power_actions.kill_tooltip'))
-                    ->requiresConfirmation()
-                    ->authorize(fn (Server $server) => user()?->can(SubuserPermission::ControlStop, $server))
-                    ->visible(fn () => $this->status->isKillable())
-                    ->disabled(fn (Server $server) => $server->isInConflictState() || !$this->status->isKillable())
-                    ->action(fn (Server $server) => $this->dispatch('setServerState', uuid: $server->uuid, state: 'kill'))
-                    ->size(Size::ExtraLarge),
-            ])
-                ->record(function () {
-                    /** @var Server $server */
-                    $server = Filament::getTenant();
-
-                    return $server;
-                })
-                ->buttonGroup(),
-        ];
     }
 
     public static function getNavigationLabel(): string
