@@ -401,6 +401,13 @@
     font-size: 11px;
     color: var(--sand);
 }
+.overview-stat-card__sub-inline {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--sand);
+    margin-left: 4px;
+}
 .overview-stat-card--with-bar { gap: 4px; }
 .overview-stat-card--with-bar .overview-bar { margin-top: 8px; }
 .overview-bar {
