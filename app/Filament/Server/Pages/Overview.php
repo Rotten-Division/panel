@@ -41,11 +41,8 @@ class Overview extends Page
 
     protected string $view = 'filament.server.pages.overview';
 
-    // page-head IS the heading. setting $heading = null is not enough —
-    // Filament's getHeading() falls back to getTitle() ("Overview") so
-    // the panels::page template would still render an <h1>Overview</h1>
-    // inside the body. returning '' here makes the truthy check
-    // `@if ($heading = $this->getHeading())` skip the block entirely.
+    // page-head owns the heading. $heading = null falls back to getTitle()
+    // so the empty string from getHeading() is what actually suppresses it.
     protected ?string $heading = null;
 
     public function getHeading(): string
@@ -53,10 +50,7 @@ class Overview extends Page
         return '';
     }
 
-    // suppress Filament's default header chrome entirely. without this
-    // override the parent Page renders a header strip containing the page
-    // title and getHeaderActions() output, which duplicates the power
-    // buttons that the page-head right rail now owns.
+    // page-head owns the header chrome, no Filament default strip.
     public function getHeader(): ?View
     {
         return null;
