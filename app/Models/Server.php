@@ -561,13 +561,13 @@ class Server extends Model implements HasAvatar, Validatable
                 return null;
             }
 
-            // guard the lookup against N+1 when callers don't eager-load.
-            // overview's installing partial and page-head eyebrow hit this
-            // attribute on every render; without loadMissing, each render
-            // would issue a fresh SELECT against server_variables. with the
-            // guard, the relation is cached on the model after the first
-            // access and subsequent reads in the same request are free.
-            $this->loadMissing('variables');
+            // do NOT use $this->loadMissing('variables') here — the relation
+            // closure captures $this->id at construction time inside a
+            // leftJoin clause, and triggering the relation through
+            // loadMissing inside this Attribute closure binds $this in a
+            // way that breaks the join (server_value comes back null on
+            // every row). lazy loading via the property access below works
+            // correctly. N+1 guard belongs at the call site via eager-load.
             $variable = $this->variables->firstWhere('env_variable', $varName);
 
             return $variable?->server_value ?: null;
