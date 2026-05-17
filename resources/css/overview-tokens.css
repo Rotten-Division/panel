@@ -305,8 +305,8 @@
 .overview-resource-card__chart-zone {
     flex: 1;
     display: grid;
-    grid-template-columns: 30px 1fr;
-    grid-template-rows: 1fr 14px;
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: 1fr 18px;
     min-height: 96px;
     padding-top: 6px;
 }
@@ -316,13 +316,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 2px 4px 2px 6px;
+    padding: 2px 6px 2px 8px;
     font-family: var(--font-mono);
-    font-size: 8.5px;
+    font-size: 11px;
     color: var(--stone);
     text-align: right;
     letter-spacing: -0.01em;
     line-height: 1;
+    white-space: nowrap;
 }
 .overview-resource-card__y-axis span:first-child { margin-top: -3px; }
 .overview-resource-card__y-axis span:last-child  { margin-bottom: -3px; }
@@ -344,9 +345,9 @@
     grid-row: 2;
     display: flex;
     justify-content: space-between;
-    padding: 3px 4px 4px;
+    padding: 4px 6px 4px;
     font-family: var(--font-mono);
-    font-size: 8.5px;
+    font-size: 11px;
     color: var(--stone);
     letter-spacing: -0.01em;
     line-height: 1;
