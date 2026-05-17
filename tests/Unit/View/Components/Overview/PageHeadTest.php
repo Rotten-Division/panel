@@ -33,7 +33,7 @@ function pageHeadServer(?string $address, ?string $city = null, ?string $cc = nu
 
 /**
  * Stub a Server with an Egg whose tags drive the page-head eyebrow's
- * game/flavour/version line. Server::version is a virtual Attribute that
+ * flavour/version line. Server::version is a virtual Attribute that
  * walks $this->variables looking for the env var named by egg->versionVar
  * (which itself parses the `version_var:` tag). To exercise that path
  * without the DB, stub the matching variable as a related model.
@@ -74,14 +74,16 @@ function pageHeadServerWithEgg(array $eggTags, ?string $eggName = null, ?string 
 function renderPageHead(PageHead $component): string
 {
     return view('components.overview.page-head', [
-        'address' => $component->address(),
+        'server' => $component->server,
         'host' => $component->hostBeforePort(),
         'port' => $component->port(),
         'city' => $component->locationCity(),
         'cc' => $component->locationCountryCode(),
-        'game' => $component->game(),
         'flavour' => $component->flavour(),
         'version' => $component->version(),
+        'state' => $component->server->status,
+        'containerStatus' => $component->containerStatus,
+        'transferring' => $component->transferring,
     ])->render();
 }
 
@@ -130,65 +132,28 @@ test('location accessors read from node tags when present', function () {
 
 test('page head renders location tag inline with address', function () {
     $component = new PageHead(pageHeadServer('play.ospite.host:25565', 'london', 'gb'));
-
-    $rendered = view('components.overview.page-head', [
-        'address' => $component->address(),
-        'host' => $component->hostBeforePort(),
-        'port' => $component->port(),
-        'city' => $component->locationCity(),
-        'cc' => $component->locationCountryCode(),
-    ])->render();
+    $rendered = renderPageHead($component);
 
     // address H1 anchor stays so future tests have something stable
     expect($rendered)->toContain('overview-page-head__address');
     expect($rendered)->toContain('London, GB');
     // sanity: loctag sits inside the same flex row as the H1 (no stacked column)
-    expect($rendered)->toContain('flex items-center gap-3 min-w-0');
+    expect($rendered)->toContain('flex items-center gap-4 min-w-0');
     // stacked-column class from the previous shipped version must be gone
     expect($rendered)->not->toContain('overview-page-head__loc-city');
 });
 
 test('page head omits location tag when node has no loc/cc tags', function () {
     $component = new PageHead(pageHeadServer('play.ospite.host:25565'));
-
-    $rendered = view('components.overview.page-head', [
-        'address' => $component->address(),
-        'host' => $component->hostBeforePort(),
-        'port' => $component->port(),
-        'city' => $component->locationCity(),
-        'cc' => $component->locationCountryCode(),
-    ])->render();
+    $rendered = renderPageHead($component);
 
     expect($rendered)->not->toContain('London');
 });
 
-// ── eyebrow (game · flavour · version) ───────────────────────────
-
-test('game accessor reads from the egg game: tag', function () {
-    $server = pageHeadServerWithEgg(['game:minecraft', 'version_var:VANILLA_VERSION'], 'Vanilla Java');
-    $component = new PageHead($server);
-
-    expect($component->game())->toBe('minecraft');
-});
-
-test('game accessor collapses bedrock to minecraft for display', function () {
-    // routing keeps game:bedrock distinct, but the eyebrow groups both
-    // under "minecraft" — locked in the 2026-05-13 redesign plan.
-    $server = pageHeadServerWithEgg(['game:bedrock'], 'Bedrock');
-    $component = new PageHead($server);
-
-    expect($component->game())->toBe('minecraft');
-});
-
-test('game accessor returns null when egg has no game: tag', function () {
-    $server = pageHeadServerWithEgg(['version_var:VANILLA_VERSION'], 'Forge');
-    $component = new PageHead($server);
-
-    expect($component->game())->toBeNull();
-});
+// ── eyebrow (flavour · version) ──────────────────────────────────
 
 test('flavour accessor returns the egg name', function () {
-    $server = pageHeadServerWithEgg(['game:minecraft'], 'Forge');
+    $server = pageHeadServerWithEgg([], 'Forge');
     $component = new PageHead($server);
 
     expect($component->flavour())->toBe('Forge');
@@ -197,42 +162,33 @@ test('flavour accessor returns the egg name', function () {
 test('version accessor returns the server version attribute', function () {
     // egg must have a version_var: tag so Egg::versionVar resolves; the
     // stub helper then injects a matching ServerVariable.
-    $server = pageHeadServerWithEgg(['game:minecraft', 'version_var:MC_VERSION'], 'Forge', '1.21.4');
+    $server = pageHeadServerWithEgg(['version_var:MC_VERSION'], 'Forge', '1.21.4');
     $component = new PageHead($server);
 
     expect($component->version())->toBe('1.21.4');
 });
 
 test('version accessor returns null when egg has no version_var tag', function () {
-    $server = pageHeadServerWithEgg(['game:minecraft'], 'Forge');
+    $server = pageHeadServerWithEgg([], 'Forge');
     $component = new PageHead($server);
 
     expect($component->version())->toBeNull();
 });
 
-test('page head renders the eyebrow with game · flavour · version', function () {
-    $server = pageHeadServerWithEgg(['game:minecraft', 'version_var:MC_VERSION'], 'Forge', '1.21.4');
+test('page head renders the eyebrow with flavour · version', function () {
+    $server = pageHeadServerWithEgg(['version_var:MC_VERSION'], 'Forge', '1.21.4');
     $rendered = renderPageHead(new PageHead($server));
 
-    expect($rendered)->toContain('minecraft');
     expect($rendered)->toContain('Forge');
     expect($rendered)->toContain('1.21.4');
     // 0.16em letter-spacing matches the canvas eyebrow spec
     expect($rendered)->toContain('tracking-[0.16em]');
 });
 
-test('page head eyebrow does not literally render bedrock', function () {
-    $server = pageHeadServerWithEgg(['game:bedrock'], 'Bedrock');
-    $rendered = renderPageHead(new PageHead($server));
-
-    expect($rendered)->toContain('minecraft');
-    expect($rendered)->not->toContain('bedrock');
-});
-
-test('page head omits the eyebrow div when egg has no game/flavour/version', function () {
+test('page head omits the eyebrow div when egg has no flavour/version', function () {
     $server = pageHeadServer('play.ospite.host:25565');
     $rendered = renderPageHead(new PageHead($server));
 
-    // no eyebrow markup at all when all three eyebrow parts are missing
+    // no eyebrow markup at all when both eyebrow parts are missing
     expect($rendered)->not->toContain('tracking-[0.16em]');
 });
