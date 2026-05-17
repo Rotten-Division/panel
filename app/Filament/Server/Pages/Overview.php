@@ -32,7 +32,6 @@ use Filament\Schemas\Components\Concerns\HasHeaderActions;
 use Filament\Support\Enums\Size;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
-use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
 
@@ -49,6 +48,11 @@ class Overview extends Page
 
     protected string $view = 'filament.server.pages.overview';
 
+    // page-head IS the heading — suppress Filament's default <h1>Overview</h1>
+    // that would otherwise render at the top of the page body now that
+    // getHeader() is gone.
+    protected ?string $heading = null;
+
     public ContainerStatus $status = ContainerStatus::Offline;
 
     public ?int $playerCount = null;
@@ -60,22 +64,6 @@ class Overview extends Page
     public int $uptimeMs = 0;
 
     protected FeatureService $featureService;
-
-    // replaces the default Filament page header (breadcrumb + title) with
-    // a topbar carrying the state pill + power buttons. the game · flavour
-    // · version eyebrow lives in the page-head component above the address.
-    public function getHeader(): ?ViewContract
-    {
-        /** @var Server $server */
-        $server = Filament::getTenant();
-
-        return view('filament.server.pages.overview-header', [
-            'server' => $server,
-            'state' => $server->status,
-            'containerStatus' => $this->status,
-            'transferActive' => $server->transfer !== null && $server->transfer->successful === null,
-        ]);
-    }
 
     public function mount(): void
     {
