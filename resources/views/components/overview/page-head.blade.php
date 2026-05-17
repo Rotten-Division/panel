@@ -1,4 +1,16 @@
-@props(['address', 'host', 'port', 'city', 'cc', 'game' => null, 'flavour' => null, 'version' => null])
+@props([
+    'server',
+    'host',
+    'port',
+    'city',
+    'cc',
+    'game' => null,
+    'flavour' => null,
+    'version' => null,
+    'state' => null,
+    'containerStatus' => null,
+    'transferring' => false,
+])
 
 @php
     $eyebrowParts = array_values(array_filter([$game, $flavour, $version]));
@@ -31,15 +43,15 @@
         </div>
     </div>
 
-    @if ($address !== '')
-        <button
-            type="button"
-            class="inline-flex items-center justify-center size-[34px] rounded-md bg-[var(--ink)] border border-[var(--graphite)] text-[var(--sand)] hover:text-[var(--linen)] hover:border-[var(--hearth)] transition-colors flex-none"
-            x-data
-            x-on:click="navigator.clipboard.writeText(@js($address))"
-            aria-label="Copy server address"
-        >
-            <x-filament::icon icon="tabler-copy" class="size-4" />
-        </button>
-    @endif
+    <div class="flex items-center gap-3 flex-none">
+        <x-overview.state-pill
+            :state="$state"
+            :containerStatus="$containerStatus"
+            :transferring="$transferring"
+        />
+        <x-overview.power-buttons
+            :server="$server"
+            :containerStatus="$containerStatus"
+        />
+    </div>
 </div>

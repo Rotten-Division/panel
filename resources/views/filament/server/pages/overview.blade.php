@@ -11,10 +11,20 @@
         {{-- phase 6: suspended renders without a page head --}}
         @include('filament.server.pages.overview-states.suspended', compact('server'))
     @elseif ($transferring)
-        <x-overview.page-head :server="$server" class="overview-body-spacer" />
+        <x-overview.page-head
+            :server="$server"
+            :container-status="$containerStatus"
+            :transferring="$transferring"
+            class="overview-body-spacer"
+        />
         @include('filament.server.pages.overview-states.transferring', compact('server'))
     @elseif ($server->node_id !== null)
-        <x-overview.page-head :server="$server" class="overview-body-spacer" />
+        <x-overview.page-head
+            :server="$server"
+            :container-status="$containerStatus"
+            :transferring="$transferring"
+            class="overview-body-spacer"
+        />
 
         {{-- @switch(true) lets each case combine ServerState + ContainerStatus.
              do not refactor to @switch($server->status), the predicates compose both. --}}

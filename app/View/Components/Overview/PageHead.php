@@ -2,12 +2,24 @@
 
 namespace App\View\Components\Overview;
 
+use App\Enums\ContainerStatus;
+use App\Enums\ServerState;
 use App\Models\Server;
 use Illuminate\View\Component;
 
 class PageHead extends Component
 {
-    public function __construct(public Server $server) {}
+    public function __construct(
+        public Server $server,
+        public ?ContainerStatus $containerStatus = null,
+        public bool $transferring = false,
+    ) {}
+
+    /** ServerState enum off the model — used by the right-rail state pill. */
+    public function state(): ?ServerState
+    {
+        return $this->server->status;
+    }
 
     public function address(): string
     {
@@ -91,7 +103,10 @@ class PageHead extends Component
     public function render()
     {
         return view('components.overview.page-head', [
-            'address' => $this->address(),
+            // address removed from the payload — the copy button that
+            // consumed it is gone. host + port still render the value.
+            // PageHead::address() stays public; port() / hostBeforePort()
+            // depend on it internally.
             'host' => $this->hostBeforePort(),
             'port' => $this->port(),
             'city' => $this->locationCity(),
@@ -99,6 +114,10 @@ class PageHead extends Component
             'game' => $this->game(),
             'flavour' => $this->flavour(),
             'version' => $this->version(),
+            'state' => $this->state(),
+            'containerStatus' => $this->containerStatus,
+            'transferring' => $this->transferring,
+            'server' => $this->server,
         ]);
     }
 }
