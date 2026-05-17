@@ -62,10 +62,8 @@ class Overview extends Page
     protected FeatureService $featureService;
 
     // replaces the default Filament page header (breadcrumb + title) with
-    // a game / flavour / version eyebrow row and a slot the Phase 4
-    // components mount into. Filament's page template calls getHeader().
-    // Passes the existing header actions through so the power buttons
-    // stay live until Phase 4 lands the dedicated PowerButtons component.
+    // a topbar carrying the state pill + power buttons. the game · flavour
+    // · version eyebrow lives in the page-head component above the address.
     public function getHeader(): ?ViewContract
     {
         /** @var Server $server */
@@ -73,30 +71,10 @@ class Overview extends Page
 
         return view('filament.server.pages.overview-header', [
             'server' => $server,
-            'eyebrow' => [
-                'game' => $this->displayGame($server->game),
-                'flavour' => $server->flavour,
-                'version' => $server->version,
-            ],
             'state' => $server->status,
             'containerStatus' => $this->status,
             'transferActive' => $server->transfer !== null && $server->transfer->successful === null,
         ]);
-    }
-
-    // bedrock carries game:bedrock for routing pool separation, but the
-    // eyebrow groups it under minecraft because bedrock is a flavour of
-    // minecraft in the user's mental model, not a separate game.
-    private function displayGame(?string $game): ?string
-    {
-        if ($game === null) {
-            return null;
-        }
-
-        return match ($game) {
-            'minecraft', 'bedrock' => 'minecraft',
-            default => $game,
-        };
     }
 
     public function mount(): void

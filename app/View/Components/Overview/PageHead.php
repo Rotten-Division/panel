@@ -58,6 +58,36 @@ class PageHead extends Component
         return $this->server->node?->locationCountryCode;
     }
 
+    /**
+     * Game tag from the egg's `game:<slug>` namespaced tag.
+     * Bedrock displays as "minecraft" in the eyebrow per the decision lock
+     * in the 2026-05-13 redesign plan — the tag stays distinct (`game:bedrock`)
+     * for routing, but the visible label collapses to minecraft.
+     */
+    public function game(): ?string
+    {
+        $tags = (array) ($this->server->egg?->tags ?? []);
+        foreach ($tags as $tag) {
+            if (is_string($tag) && str_starts_with($tag, 'game:')) {
+                $raw = substr($tag, strlen('game:'));
+
+                return $raw === 'bedrock' ? 'minecraft' : $raw;
+            }
+        }
+
+        return null;
+    }
+
+    public function flavour(): ?string
+    {
+        return $this->server->egg?->name;
+    }
+
+    public function version(): ?string
+    {
+        return $this->server->version;
+    }
+
     public function render()
     {
         return view('components.overview.page-head', [
@@ -66,6 +96,9 @@ class PageHead extends Component
             'port' => $this->port(),
             'city' => $this->locationCity(),
             'cc' => $this->locationCountryCode(),
+            'game' => $this->game(),
+            'flavour' => $this->flavour(),
+            'version' => $this->version(),
         ]);
     }
 }
