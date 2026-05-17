@@ -18,6 +18,8 @@ class ServerMemoryChart extends Widget
     /** @var array<int, float> */
     public array $series = [];
 
+    public string $windowLabel = 'earlier';
+
     public static function canView(): bool
     {
         /** @var Server $server */
@@ -37,11 +39,13 @@ class ServerMemoryChart extends Widget
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
         $divisor = config('panel.use_binary_prefix') ? 1024 * 1024 * 1024 : 1_000_000_000;
 
-        $this->series = collect(cache()->get("servers.{$this->server?->id}.memory_bytes") ?? [])
+        $raw = cache()->get("servers.{$this->server?->id}.memory_bytes") ?? [];
+        $this->series = collect($raw)
             ->slice(-$period)
             ->map(fn ($value) => (float) round($value / $divisor, 2))
             ->values()
             ->all();
+        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
     }
 
     public function getCurrentValue(): float
@@ -92,6 +96,7 @@ class ServerMemoryChart extends Widget
                 ],
                 'ticks' => array_map(fn (float $v) => number_format($v, 1) . ' GiB', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
+                'windowLabel' => $this->windowLabel,
             ],
         ];
     }

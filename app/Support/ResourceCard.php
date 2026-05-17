@@ -82,6 +82,40 @@ class ResourceCard
     }
 
     /**
+     * Human-readable label for the chart's left x-axis tick. Takes the raw
+     * cache array (timestamp-keyed) and a slice period, returns "30s ago",
+     * "2m ago", etc. based on the actual oldest sample visible. Falls back
+     * to "earlier" when the cache is empty or has only one sample.
+     *
+     * @param  array<int, float|int>  $rawCache  cache keyed by unix timestamp
+     */
+    public static function formatTimeWindow(array $rawCache, int $period): string
+    {
+        $sliced = array_slice($rawCache, -$period, null, preserve_keys: true);
+        if (count($sliced) < 2) {
+            return 'earlier';
+        }
+
+        $timestamps = array_keys($sliced);
+        $span = (int) end($timestamps) - (int) reset($timestamps);
+        if ($span <= 0) {
+            return 'earlier';
+        }
+
+        if ($span < 60) {
+            return "{$span}s ago";
+        }
+        if ($span < 3600) {
+            $minutes = (int) round($span / 60);
+
+            return "{$minutes}m ago";
+        }
+        $hours = (int) round($span / 3600);
+
+        return "{$hours}h ago";
+    }
+
+    /**
      * Auto-scale a bytes-per-second rate to the right unit. Returns the
      * formatted value (one decimal place) and the unit string.
      *

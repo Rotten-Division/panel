@@ -21,6 +21,8 @@ class ServerNetworkChart extends Widget
     /** @var array<int, int> */
     public array $outboundSeries = [];
 
+    public string $windowLabel = 'earlier';
+
     public static function canView(): bool
     {
         /** @var Server $server */
@@ -38,10 +40,12 @@ class ServerNetworkChart extends Widget
     public function refreshSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
-        $samples = collect(cache()->get("servers.{$this->server?->id}.network") ?? [])
+        $raw = cache()->get("servers.{$this->server?->id}.network") ?? [];
+        $samples = collect($raw)
             ->slice(-$period)
             ->values()
             ->all();
+        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
 
         $inbound = [];
         $outbound = [];
@@ -110,6 +114,7 @@ class ServerNetworkChart extends Widget
                     'in' => ResourceCard::formatRate($this->getCurrentInbound()),
                     'out' => ResourceCard::formatRate($this->getCurrentOutbound()),
                 ],
+                'windowLabel' => $this->windowLabel,
             ],
         ];
     }

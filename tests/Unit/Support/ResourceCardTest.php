@@ -67,3 +67,43 @@ test('formatRateInUnit uses the supplied unit for all values', function () {
     expect(ResourceCard::formatRateInUnit(2 * 1024 * 1024, 'KiB/s'))->toBe('2,048.0 KiB/s');
     expect(ResourceCard::formatRateInUnit(0, 'B/s'))->toBe('0 B/s');
 });
+
+test('formatTimeWindow returns earlier for empty or single-sample cache', function () {
+    expect(ResourceCard::formatTimeWindow([], 30))->toBe('earlier');
+    expect(ResourceCard::formatTimeWindow([1700000000 => 1.0], 30))->toBe('earlier');
+});
+
+test('formatTimeWindow formats seconds when span under a minute', function () {
+    $cache = [
+        1700000000 => 1.0,
+        1700000015 => 2.0,
+        1700000030 => 3.0,
+    ];
+    expect(ResourceCard::formatTimeWindow($cache, 30))->toBe('30s ago');
+});
+
+test('formatTimeWindow rounds to minutes when span over a minute', function () {
+    $cache = [
+        1700000000 => 1.0,
+        1700000300 => 2.0, // 5 min
+    ];
+    expect(ResourceCard::formatTimeWindow($cache, 30))->toBe('5m ago');
+});
+
+test('formatTimeWindow rounds to hours when span over an hour', function () {
+    $cache = [
+        1700000000 => 1.0,
+        1700007200 => 2.0, // 2h
+    ];
+    expect(ResourceCard::formatTimeWindow($cache, 30))->toBe('2h ago');
+});
+
+test('formatTimeWindow respects the slice period — only counts the last N samples', function () {
+    // 100 samples spanning 100s, but $period=10 means we only look at the
+    // last 10 samples → ~10s window, not 100s.
+    $cache = [];
+    for ($i = 0; $i < 100; $i++) {
+        $cache[1700000000 + $i] = (float) $i;
+    }
+    expect(ResourceCard::formatTimeWindow($cache, 10))->toBe('9s ago');
+});

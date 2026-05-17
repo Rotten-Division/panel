@@ -157,7 +157,7 @@
         </div>
 
         <div class="overview-resource-card__x-axis" aria-hidden="true">
-            <span>15m ago</span>
+            <span>{{ $card['windowLabel'] ?? 'earlier' }}</span>
             <span>now</span>
         </div>
     </div>

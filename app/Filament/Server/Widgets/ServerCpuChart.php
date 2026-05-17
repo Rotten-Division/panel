@@ -18,6 +18,11 @@ class ServerCpuChart extends Widget
     /** @var array<int, float> */
     public array $series = [];
 
+    /** rolling-window label for the left x-axis tick, e.g. "30s ago".
+     *  computed from the actual cache timestamps so the chart never lies
+     *  about how far back the data goes. */
+    public string $windowLabel = 'earlier';
+
     public static function canView(): bool
     {
         /** @var Server $server */
@@ -39,11 +44,13 @@ class ServerCpuChart extends Widget
     public function refreshSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
-        $this->series = collect(cache()->get("servers.{$this->server?->id}.cpu_absolute") ?? [])
+        $raw = cache()->get("servers.{$this->server?->id}.cpu_absolute") ?? [];
+        $this->series = collect($raw)
             ->slice(-$period)
             ->map(fn ($value) => (float) round($value, 2))
             ->values()
             ->all();
+        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
     }
 
     public function getCurrentValue(): float
@@ -95,6 +102,7 @@ class ServerCpuChart extends Widget
                 ],
                 'ticks' => array_map(fn (float $v) => number_format($v, 0) . '%', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
+                'windowLabel' => $this->windowLabel,
             ],
         ];
     }
