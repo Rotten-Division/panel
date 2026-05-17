@@ -482,7 +482,10 @@
     background: var(--ink) !important;
     border-bottom: 0.5px solid var(--graphite) !important;
     margin-top: -2rem;
-    margin-bottom: 1.5rem;
+    /* no margin-bottom: filament's page wrapper already gives a space-y gap
+       below us, and the eyebrow lives in the page-head now so the topbar
+       no longer needs its own breathing room between it and the body. */
+    margin-bottom: 0;
     margin-left: -1rem;
     margin-right: -1rem;
     padding-left: 1rem !important;
