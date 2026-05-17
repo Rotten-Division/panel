@@ -100,21 +100,13 @@
 .overview-power-button--stop:hover:not(:disabled) { background: #983131; border-color: #983131; }
 
 /* ============================================================ */
-/* overview-page-head: phase 4 task 3                            */
+/* overview-page-head: layout via Tailwind utilities (page-head.blade.php),
+   colours via arbitrary-value tokens. only the H1's letter-spacing lives
+   here because Tailwind tracking utilities don't reach -0.015em.          */
 /* ============================================================ */
 .overview-page-head__address {
-    letter-spacing: -0.01em;
-    color: var(--linen);
+    letter-spacing: -0.015em;
 }
-.overview-page-head__address-port { color: var(--hearth); }
-.overview-page-head__loc-city { color: var(--sand); }
-.overview-page-head__copy {
-    background: var(--ink);
-    border: 1px solid var(--graphite);
-    transition: border-color 150ms ease;
-}
-.overview-page-head__copy:hover { border-color: var(--hearth); }
-.overview-page-head__copy:hover svg { color: var(--hearth); }
 
 /* ============================================================ */
 /* overview-banner: phase 4 task 5                              */

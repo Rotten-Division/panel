@@ -2,7 +2,12 @@
 
 use App\Models\Node;
 use App\Models\Server;
+use App\Tests\TestCase;
 use App\View\Components\Overview\PageHead;
+
+// rendering tests below need the laravel container for the view() helper.
+// extends App\Tests\TestCase which boots the app without DB.
+uses(TestCase::class);
 
 function pageHeadServer(?string $address, ?string $city = null, ?string $cc = null): Server
 {
@@ -66,4 +71,38 @@ test('location accessors read from node tags when present', function () {
 
     expect($head->locationCity())->toBe('london');
     expect($head->locationCountryCode())->toBe('gb');
+});
+
+test('page head renders location tag inline with address', function () {
+    $component = new PageHead(pageHeadServer('play.ospite.host:25565', 'london', 'gb'));
+
+    $rendered = view('components.overview.page-head', [
+        'address' => $component->address(),
+        'host' => $component->hostBeforePort(),
+        'port' => $component->port(),
+        'city' => $component->locationCity(),
+        'cc' => $component->locationCountryCode(),
+    ])->render();
+
+    // address H1 anchor stays so future tests have something stable
+    expect($rendered)->toContain('overview-page-head__address');
+    expect($rendered)->toContain('London, GB');
+    // sanity: loctag sits inside the same flex row as the H1 (no stacked column)
+    expect($rendered)->toContain('flex items-center gap-3 min-w-0');
+    // stacked-column class from the previous shipped version must be gone
+    expect($rendered)->not->toContain('overview-page-head__loc-city');
+});
+
+test('page head omits location tag when node has no loc/cc tags', function () {
+    $component = new PageHead(pageHeadServer('play.ospite.host:25565'));
+
+    $rendered = view('components.overview.page-head', [
+        'address' => $component->address(),
+        'host' => $component->hostBeforePort(),
+        'port' => $component->port(),
+        'city' => $component->locationCity(),
+        'cc' => $component->locationCountryCode(),
+    ])->render();
+
+    expect($rendered)->not->toContain('London');
 });
