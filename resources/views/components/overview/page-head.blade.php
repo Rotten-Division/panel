@@ -28,13 +28,13 @@
             </div>
         @endif
 
-        <div class="flex items-center gap-4 min-w-0">
-            <h1 class="overview-page-head__address font-mono font-medium text-4xl text-[var(--linen)] truncate leading-none">
+        <div class="flex items-baseline gap-4 min-w-0">
+            <h1 class="overview-page-head__address font-mono font-medium text-5xl text-[var(--linen)] truncate leading-tight">
                 <span>{{ $host }}</span>@if ($port)<span class="text-[var(--hearth)]">:{{ $port }}</span>@endif
             </h1>
 
             @if ($city && $cc)
-                <span class="inline-flex items-center gap-2 flex-none font-mono text-sm text-[var(--sand)] leading-none">
+                <span class="inline-flex items-center gap-2 flex-none font-mono text-base text-[var(--sand)]">
                     <x-overview.country-flag :code="$cc" />
                     <span>{{ ucfirst($city) }}, {{ strtoupper($cc) }}</span>
                 </span>
