@@ -9,7 +9,8 @@
     title="Moving to a new home"
     :subtitle="$sourceName . ' → ' . $destinationName"
     icon="tabler-arrow-right"
-    :show-progress="true"
 />
+
+<x-overview.progress-band />
 
 <x-overview.transfer-detail :server="$server" />
