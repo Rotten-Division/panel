@@ -82,9 +82,31 @@
         @endif
     </div>
 
-    <div class="overview-resource-card__chart">
+    @php
+        // last in-series point in viewbox coords → percent of plot wrapper
+        // so the live dot anchors at exactly the rightmost line endpoint
+        // regardless of how the svg stretches. viewbox is W × ($chartBottom+16);
+        // the +16 is bottom padding inside the viewbox, so bottom% must use
+        // the full viewbox height as the divisor (NOT just $chartHeight).
+        $viewBoxH = $chartBottom + 16;
+        $lastPoint = ! empty($card['series']) ? end($card['series']) : null;
+        $dotInLeft = $lastPoint !== null ? ($lastPoint[0] / $width) * 100 : null;
+        $dotInBottom = $lastPoint !== null ? (($viewBoxH - $lastPoint[1]) / $viewBoxH) * 100 : null;
+
+        $lastPoint2 = ! empty($card['series2'] ?? null) ? end($card['series2']) : null;
+        $dotOutLeft = $lastPoint2 !== null ? ($lastPoint2[0] / $width) * 100 : null;
+        $dotOutBottom = $lastPoint2 !== null ? (($viewBoxH - $lastPoint2[1]) / $viewBoxH) * 100 : null;
+    @endphp
+
+    <div class="overview-resource-card__chart-zone">
+        <div class="overview-resource-card__y-axis" aria-hidden="true">
+            @foreach ($tickPositions as $tick)
+                <span>{{ $tick['label'] }}</span>
+            @endforeach
+        </div>
+
         <div class="overview-resource-card__plot">
-            <svg viewBox="0 0 {{ $width }} {{ $chartBottom + 16 }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
+            <svg viewBox="0 0 {{ $width }} {{ $viewBoxH }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
                 <defs>
                     <linearGradient id="{{ $gradId }}-in" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="var(--hearth)" stop-opacity="0.38" />
@@ -116,15 +138,27 @@
                     <path d="{{ $pathFor($card['series2']) }}" fill="none" stroke="var(--azure)" stroke-width="1.5" stroke-dasharray="4 2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round" />
                 @endif
             </svg>
+
+            @if ($dotInLeft !== null)
+                <span
+                    class="overview-resource-card__dot overview-resource-card__dot--in"
+                    style="left: {{ number_format($dotInLeft, 2, '.', '') }}%; bottom: {{ number_format($dotInBottom, 2, '.', '') }}%;"
+                    aria-hidden="true"
+                ></span>
+            @endif
+
+            @if ($dotOutLeft !== null)
+                <span
+                    class="overview-resource-card__dot overview-resource-card__dot--out"
+                    style="left: {{ number_format($dotOutLeft, 2, '.', '') }}%; bottom: {{ number_format($dotOutBottom, 2, '.', '') }}%;"
+                    aria-hidden="true"
+                ></span>
+            @endif
         </div>
 
-        {{-- ticks are a flex column on the right of the chart, the column
-             auto-sizes to its widest label so CPU "200%" and memory "3.0 GiB"
-             each reserve only the gutter they actually need. --}}
-        <div class="overview-resource-card__ticks" aria-hidden="true">
-            @foreach ($tickPositions as $tick)
-                <span class="overview-resource-card__tick">{{ $tick['label'] }}</span>
-            @endforeach
+        <div class="overview-resource-card__x-axis" aria-hidden="true">
+            <span>15m ago</span>
+            <span>now</span>
         </div>
     </div>
 </div>
