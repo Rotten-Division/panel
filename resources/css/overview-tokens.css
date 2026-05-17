@@ -128,11 +128,33 @@
 .overview-banner__body { display: flex; align-items: center; gap: 10px; }
 .overview-banner__title { font-size: 13px; font-weight: 500; color: var(--linen); }
 .overview-banner__subtitle { font-size: 12px; color: var(--sand); }
-.overview-banner__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; overflow: hidden; }
-.overview-banner__progress-bar { width: 30%; height: 100%; background: currentColor; animation: overview-banner-shuttle 1.5s ease-in-out infinite; }
-.overview-banner--transient .overview-banner__progress-bar { color: var(--hearth); }
-.overview-banner--installing .overview-banner__progress-bar { color: var(--honey); }
-@keyframes overview-banner-shuttle { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+/* indeterminate progress shuttle — matches design canvas .fs-progress.
+   standalone sibling under state-banner, not nested inside it. */
+.overview-progress-band {
+    height: 2px;
+    background: var(--graphite);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+}
+.overview-progress-band > i {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, var(--hearth), transparent);
+    width: 40%;
+    animation: overview-shuttle 1.8s linear infinite;
+}
+.overview-progress-band--honey > i {
+    background: linear-gradient(90deg, transparent, var(--honey), transparent);
+}
+.overview-progress-band--nest > i {
+    background: linear-gradient(90deg, transparent, var(--azure), transparent);
+}
+@keyframes overview-shuttle {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
 
 /* ============================================================ */
 /* overview-stage-hero: phase 4 task 6                          */
