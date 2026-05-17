@@ -561,6 +561,13 @@ class Server extends Model implements HasAvatar, Validatable
                 return null;
             }
 
+            // guard the lookup against N+1 when callers don't eager-load.
+            // overview's installing partial and page-head eyebrow hit this
+            // attribute on every render; without loadMissing, each render
+            // would issue a fresh SELECT against server_variables. with the
+            // guard, the relation is cached on the model after the first
+            // access and subsequent reads in the same request are free.
+            $this->loadMissing('variables');
             $variable = $this->variables->firstWhere('env_variable', $varName);
 
             return $variable?->server_value ?: null;

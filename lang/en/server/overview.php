@@ -35,8 +35,10 @@ return [
     ],
 
     'stopped' => [
+        // canvas verbatim — "while it's down" with the contraction (matches
+        // the apostrophe usage in the title for tonal consistency).
         'title' => "This server's stopped.",
-        'subtitle' => 'Hit start in the header to bring it back. Files, backups and schedules stay available while it is down.',
+        'subtitle' => "Hit start in the header to bring it back. Files, backups and schedules stay available while it's down.",
     ],
 
     'installing' => [

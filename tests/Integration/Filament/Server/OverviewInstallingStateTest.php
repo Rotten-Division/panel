@@ -65,3 +65,22 @@ test('installing grid is 6 columns with Egg / Version / World / CPU / Memory / D
         ->assertSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Disk</p>', escape: false);
 });
+
+test('installing Version card shows placeholder when egg has no version_var tag', function () {
+    // overwrite the seed's egg with one that has no version_var: tag.
+    // Egg::versionVar returns null → Server::version returns null → the
+    // partial renders the placeholder dash inside the Version card.
+    [$user] = generateTestAccount();
+    $user->forceFill(['email_verified_at' => now()])->save();
+    $egg = Egg::factory()->state(['tags' => ['game:minecraft']])->create(['name' => 'Forge']);
+    $server = Server::factory()->for($user, 'user')->create([
+        'egg_id' => $egg->id,
+        'status' => ServerState::Installing,
+    ]);
+
+    $this->actingAs($user)
+        ->get("/server/{$server->uuid_short}/overview")
+        ->assertOk()
+        ->assertSee('<p class="overview-stat-card__label">Version</p>', escape: false)
+        ->assertSee('<span class="overview-stat-card__placeholder">—</span>', escape: false);
+});

@@ -15,6 +15,21 @@ use Illuminate\Support\Arr;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Session;
 
+/**
+ * State-aware server console widget.
+ *
+ * Public typed properties below are hydrated by Filament's widget container
+ * from the `:data` array on `<x-filament-widgets::widgets>`. State partials
+ * pass overrides like:
+ *
+ *   :data="$this->getWidgetData() + ['readOnly' => true, 'showMarkerOnly' => true]"
+ *
+ * The keys map 1:1 to property names — they ARE NOT routed through an
+ * explicit `mount(...)` method because Filament + Livewire hydrate public
+ * properties directly. If you ever add a `mount()` signature here, include
+ * `bool $readOnly = false` and `bool $showMarkerOnly = false` so the data
+ * array continues to flow through.
+ */
 class ServerConsole extends Widget
 {
     protected string $view = 'filament.components.server-console';
