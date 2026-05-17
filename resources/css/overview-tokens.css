@@ -305,7 +305,11 @@
 .overview-resource-card__chart-zone {
     flex: 1;
     display: grid;
-    grid-template-columns: 60px 1fr;
+    /* y-axis col auto-sizes to its widest label so cards with short ticks
+       ("2%" / "0 B/s") don't reserve dead space, and cards with long ticks
+       ("0.6 GiB") get exactly what they need. trades cross-card uniformity
+       for left-hugging — each chart fills the rest of the card width. */
+    grid-template-columns: auto 1fr;
     grid-template-rows: 1fr 18px;
     min-height: 96px;
     padding-top: 6px;
