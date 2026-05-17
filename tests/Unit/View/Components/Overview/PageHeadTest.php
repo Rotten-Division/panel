@@ -138,7 +138,7 @@ test('page head renders location tag inline with address', function () {
     expect($rendered)->toContain('overview-page-head__address');
     expect($rendered)->toContain('London, GB');
     // sanity: loctag sits inside the same flex row as the H1 (no stacked column)
-    expect($rendered)->toContain('flex items-center gap-4 min-w-0');
+    expect($rendered)->toContain('flex items-baseline gap-4 min-w-0');
     // stacked-column class from the previous shipped version must be gone
     expect($rendered)->not->toContain('overview-page-head__loc-city');
 });
