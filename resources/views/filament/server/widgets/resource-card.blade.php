@@ -1,5 +1,5 @@
 @php
-    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, times?: array<int, string>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
+    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, times?: array<int, string>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
     // the chart widgets listen for `refresh-overview` dispatched from the
     // page's refreshLiveData poll, so the card template itself doesn't poll.
     $width = 320;
@@ -34,14 +34,10 @@
     // unique gradient ids per render so multiple cards on the same page
     // don't share defs and the right gradient picks for each card.
     $gradId = 'overview-area-'.bin2hex(random_bytes(4));
-    // y-axis tick positions as a 0..100 percentage of the chart height.
-    // labels are rendered as positioned HTML outside the SVG so they don't
-    // inherit the SVG's non-uniform horizontal stretch.
-    $tickPositions = [
-        ['percent' => 0, 'label' => $card['ticks'][0] ?? ''],
-        ['percent' => 50, 'label' => $card['ticks'][1] ?? ''],
-        ['percent' => 100, 'label' => $card['ticks'][2] ?? ''],
-    ];
+    // dashed horizontal gridline positions at 0 / 50 / 100% of the
+    // chart height. y-axis labels were dropped — the hover tooltip
+    // surfaces precise values so the labels added noise without value.
+    $gridlinePercents = [0, 50, 100];
 @endphp
 
 <div class="overview-resource-card">
@@ -99,12 +95,6 @@
     @endphp
 
     <div class="overview-resource-card__chart-zone">
-        <div class="overview-resource-card__y-axis" aria-hidden="true">
-            @foreach ($tickPositions as $tick)
-                <span>{{ $tick['label'] }}</span>
-            @endforeach
-        </div>
-
         <div
             class="overview-resource-card__plot"
             data-pts="{{ json_encode($card['series'] ?? []) }}"
@@ -129,8 +119,8 @@
                     @endif
                 </defs>
 
-                @foreach ($tickPositions as $tick)
-                    @php($yLine = $chartTop + ($chartHeight * $tick['percent'] / 100))
+                @foreach ($gridlinePercents as $percent)
+                    @php($yLine = $chartTop + ($chartHeight * $percent / 100))
                     <line x1="0" x2="{{ $width }}" y1="{{ $yLine }}" y2="{{ $yLine }}" stroke="var(--graphite)" stroke-width="0.5" stroke-dasharray="2 3" />
                 @endforeach
 
