@@ -311,7 +311,8 @@
    "3.0 GiB" reserves a wider one. flex:1 + min-height lets each card
    stretch its chart to the bottom even when neighbour cards in the row
    are taller (memory has a progress bar, network does not). */
-/* chart zone — grid: y-axis col (30px) + plot col (1fr) + x-axis row.
+/* chart zone — grid: y-axis col (30px) + plot col (1fr). x-axis row
+   was removed in favour of per-sample timestamps on the hover tooltip.
    matches design canvas .rc-chart-zone (resource-cards.css:82-90). */
 .overview-resource-card__chart-zone {
     flex: 1;
