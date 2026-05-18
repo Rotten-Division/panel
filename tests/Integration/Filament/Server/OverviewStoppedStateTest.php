@@ -50,13 +50,13 @@ test('stopped state renders the 3-card grid with offline placeholders', function
         ->assertSee('overview-stat-card--muted', escape: false);
 });
 
-test('stopped state renders the spark row below the console', function () {
+test('stopped state renders the full resource-card row below the console', function () {
     [$user, $server] = stoppedStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('overview-spark overview-spark--hearth overview-spark--muted', escape: false);
+        ->assertSee('overview-resource-card', escape: false);
 });
 
 test('stopped cards needing live data are wrapped in the offline overlay', function () {
