@@ -96,34 +96,28 @@
         : '0 B/s';
 @endphp
 
-{{-- resource sparks blurred behind an offline chip — keep them mounted so
-     the row animates back in cleanly the moment the server returns. they
-     render the last-known cached series, not flatlines. --}}
+{{-- resource sparks render the last-known cached series in full so the
+     user can see the final shape and value — the state banner already
+     conveys that the server is stopped, no need to blur the cards too. --}}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-    <x-overview.offline-card>
-        <x-overview.spark
-            title="CPU"
-            :value="$cpuValue"
-            :series="$cpuNormalised"
-            :muted="empty($cpuNormalised)"
-        />
-    </x-overview.offline-card>
-    <x-overview.offline-card>
-        <x-overview.spark
-            title="Memory"
-            :value="$memoryValue"
-            :series="$memoryNormalised"
-            color="moss"
-            :muted="empty($memoryNormalised)"
-        />
-    </x-overview.offline-card>
-    <x-overview.offline-card>
-        <x-overview.spark
-            title="Network"
-            :value="$networkValue"
-            :series="$networkNormalised"
-            color="azure"
-            :muted="empty($networkNormalised)"
-        />
-    </x-overview.offline-card>
+    <x-overview.spark
+        title="CPU"
+        :value="$cpuValue"
+        :series="$cpuNormalised"
+        :muted="empty($cpuNormalised)"
+    />
+    <x-overview.spark
+        title="Memory"
+        :value="$memoryValue"
+        :series="$memoryNormalised"
+        color="moss"
+        :muted="empty($memoryNormalised)"
+    />
+    <x-overview.spark
+        title="Network"
+        :value="$networkValue"
+        :series="$networkNormalised"
+        color="azure"
+        :muted="empty($networkNormalised)"
+    />
 </div>
