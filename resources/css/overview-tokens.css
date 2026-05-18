@@ -483,12 +483,21 @@
     position: relative;
     border-radius: 5px;
     overflow: hidden;
+    height: 100%;
+    display: flex;
 }
 .overview-offline-card__content {
+    flex: 1;
+    display: flex;
     filter: blur(3px);
     opacity: 0.45;
     pointer-events: none;
     user-select: none;
+}
+/* stretch whatever sits inside (stat-card / spark) so the blurred slot
+   matches the disk card and the spark cards in the same row. */
+.overview-offline-card__content > * {
+    flex: 1;
 }
 .overview-offline-card__overlay {
     position: absolute;
