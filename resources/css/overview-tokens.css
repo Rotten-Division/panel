@@ -94,8 +94,10 @@
     font-weight: 500;
     transition: background-color 120ms ease, border-color 120ms ease;
 }
-/* lock svg dims so filled/stroked tabler glyphs all sit in the same box. */
-.overview-power-button svg {
+/* lock svg dims so filled/stroked tabler glyphs all sit in the same box.
+   selector specificity has to beat Filament's `.fi-icon.fi-size-md` (0,2,0)
+   that gets applied by <x-filament::icon>, so attach the class. */
+.overview-power-button svg.fi-icon {
     width: 14px;
     height: 14px;
     flex: none;
