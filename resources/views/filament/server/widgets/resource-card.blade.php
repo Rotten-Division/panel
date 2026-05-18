@@ -178,13 +178,9 @@
             </div>
         </div>
 
-        @php($axisTicks = $card['axisTicks'] ?? ['—', '—', '—'])
-
-        <div class="overview-resource-card__x-axis" aria-hidden="true">
-            <span>{{ $axisTicks[0] }}</span>
-            <span>{{ $axisTicks[1] }}</span>
-            <span>{{ $axisTicks[2] }}</span>
-        </div>
+        {{-- x-axis timestamp row removed — the chart's sub-minute scale
+             makes per-tick HH:MM:SS labels noisier than informative. the
+             per-sample timestamp lives on the hover tooltip instead. --}}
     </div>
 </div>
 
