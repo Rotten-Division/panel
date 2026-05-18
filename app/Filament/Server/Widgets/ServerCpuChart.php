@@ -23,6 +23,12 @@ class ServerCpuChart extends Widget
      *  about how far back the data goes. */
     public string $windowLabel = 'earlier';
 
+    /** when true the mount snapshot is the final render — the
+     *  refresh-overview event is ignored. used by stopped/stopping
+     *  states to pin the chart at the last running value instead of
+     *  re-polling against an idle cache. */
+    public bool $frozen = false;
+
     public static function canView(): bool
     {
         /** @var Server $server */
@@ -37,11 +43,22 @@ class ServerCpuChart extends Widget
 
     public function mount(): void
     {
-        $this->refreshSeries();
+        // always pull the initial snapshot, even when frozen — the freeze
+        // gate only applies to subsequent poll-driven refreshes.
+        $this->pullSeries();
     }
 
     #[On('refresh-overview')]
     public function refreshSeries(): void
+    {
+        if ($this->frozen) {
+            return;
+        }
+
+        $this->pullSeries();
+    }
+
+    private function pullSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
         $raw = cache()->get("servers.{$this->server?->id}.cpu_absolute") ?? [];
