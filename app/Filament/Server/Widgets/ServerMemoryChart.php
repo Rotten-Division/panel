@@ -117,7 +117,6 @@ class ServerMemoryChart extends Widget
                     'max' => $this->getMaxValue(),
                     'colour' => $this->getProgressColor(),
                 ],
-                'ticks' => array_map(fn (float $v) => number_format($v, 1) . ' GiB', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
                 'labels' => array_map(fn (float $v) => number_format($v, 2) . ' GiB', $raw),
                 'times' => $alignedTimes,
