@@ -1,9 +1,12 @@
 <?php
 
 use App\Enums\ContainerStatus;
+use App\Filament\Server\Widgets\ServerCpuChart;
 use App\Models\Egg;
 use App\Models\Server;
 use App\Tests\Integration\IntegrationTestCase;
+use Filament\Facades\Filament;
+use Livewire\Livewire;
 
 uses(IntegrationTestCase::class);
 
@@ -50,4 +53,26 @@ test('uptime card shows placeholder when no stats cached', function () {
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
         ->assertSee('overview-stat-card__placeholder', escape: false);
+});
+
+test('CPU chart widget renders the hover overlay markup', function () {
+    [$user, $server] = runningStateSeed();
+    // prime a series so the chart has data to render
+    cache()->put("servers.{$server->id}.cpu_absolute", [
+        1700000000 => 12.5,
+        1700000001 => 73.0,
+    ]);
+
+    $this->actingAs($user);
+    Filament::setTenant($server);
+
+    // the @script block lives outside the morphed widget HTML so it
+    // isn't in this assertion path — covered by a manual smoke test.
+    Livewire::test(ServerCpuChart::class, ['server' => $server])
+        ->assertSee('overview-resource-card__plot', escape: false)
+        ->assertSee('data-pts=', escape: false)
+        ->assertSee('data-labels=', escape: false)
+        ->assertSee('overview-resource-card__hover', escape: false)
+        ->assertSee('overview-resource-card__tooltip', escape: false)
+        ->assertSee('data-tooltip', escape: false);
 });
