@@ -1,0 +1,1 @@
+{{-- empty stub returned from Overview::getHeader() to bypass Filament's default header chrome while keeping getHeaderActions() registered so the page-head buttons can resolve them via mountAction(). --}}
