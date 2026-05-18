@@ -51,19 +51,19 @@ test('reinstall_failed uses its own copy', function () {
         ->assertSee(trans('server/overview.installing.reinstall_failed.title'), escape: false);
 });
 
-test('installing grid is 6 columns with Egg / Version / World / CPU / Memory / Disk', function () {
+test('installing grid is 4 columns with Egg / Version / World / Disk', function () {
     [$user, $server] = installingStateSeed(ServerState::Installing);
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('lg:grid-cols-6', escape: false)
+        ->assertSee('md:grid-cols-4', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Egg</p>', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Version</p>', escape: false)
         ->assertSee('<p class="overview-stat-card__label">World</p>', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">Disk</p>', escape: false);
+        ->assertSee('<p class="overview-stat-card__label">Disk</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">Memory</p>', escape: false);
 });
 
 test('installing Version card shows placeholder when egg has no version_var tag', function () {
