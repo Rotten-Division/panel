@@ -34,20 +34,20 @@ test('running state renders the three card stat grid', function () {
         ->assertSee('Disk', escape: false);
 });
 
-test('players card shows the placeholder when no PlayerCountProvider data', function () {
+test('players card shows the empty bar when no PlayerCountProvider data', function () {
     [$user, $server] = runningStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('overview-stat-card__placeholder', escape: false);
+        ->assertSee('overview-stat-empty-bar', escape: false);
 });
 
-test('uptime card shows placeholder when no stats cached', function () {
+test('uptime card shows the empty bar when no stats cached', function () {
     [$user, $server] = runningStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('overview-stat-card__placeholder', escape: false);
+        ->assertSee('overview-stat-empty-bar', escape: false);
 });
