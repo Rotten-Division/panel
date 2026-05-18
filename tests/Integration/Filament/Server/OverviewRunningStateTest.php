@@ -55,6 +55,20 @@ test('uptime card shows placeholder when no stats cached', function () {
         ->assertSee('overview-stat-card__placeholder', escape: false);
 });
 
+test('resource-card view registers the @script-wrapped hover listener', function () {
+    // <x-filament-widgets::widgets> lazy-mounts each chart widget, so the
+    // @script content never appears in the initial HTTP response or in a
+    // Livewire::test() snapshot. assert directly against the source so a
+    // refactor that drops @script (which livewire would silently strip
+    // from a class-based component) gets caught at the test layer.
+    $blade = file_get_contents(resource_path('views/filament/server/widgets/resource-card.blade.php'));
+
+    expect($blade)
+        ->toContain('@script')
+        ->toContain('@endscript')
+        ->toContain('__ospOverviewHoverBound');
+});
+
 test('CPU chart widget renders the hover overlay markup', function () {
     [$user, $server] = runningStateSeed();
     // prime a series so the chart has data to render
