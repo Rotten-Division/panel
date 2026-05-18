@@ -45,21 +45,14 @@
 ])>
     <div class="overview-spark__title">
         <span>{{ $title }}</span>
-        @if ($value !== null && $value !== '—')
+        @if ($value !== null)
             <b class="font-mono">{{ $value }}</b>
-        @elseif ($muted)
-            <span class="overview-stat-empty-bar overview-stat-empty-bar--inline" aria-hidden="true"></span>
         @endif
     </div>
     <svg viewBox="0 0 {{ $width }} {{ $h }}" preserveAspectRatio="none" class="overview-spark__svg" aria-hidden="true">
         @if ($areaPath)
             <path class="overview-spark__fill" d="{{ $areaPath }}" fill="currentColor" fill-opacity="0.10" />
             <path class="overview-spark__line" d="{{ $linePath }}" stroke="currentColor" stroke-width="1.25" fill="none" vector-effect="non-scaling-stroke" />
-        @else
-            {{-- empty/muted: draw a faint baseline so the chart slot reads as "ready, no signal" rather than missing. --}}
-            <line x1="0" y1="{{ $h - 8 }}" x2="{{ $width }}" y2="{{ $h - 8 }}"
-                  stroke="currentColor" stroke-opacity="0.18" stroke-width="1"
-                  stroke-dasharray="2 4" vector-effect="non-scaling-stroke" />
         @endif
     </svg>
 </div>
