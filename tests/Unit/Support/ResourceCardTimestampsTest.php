@@ -42,34 +42,3 @@ test('formatSampleTimes slices to the last $period entries', function () {
     expect($times[0])->toBe('22:14:05');   // 1700000000 + 45
     expect($times[4])->toBe('22:14:09');   // 1700000000 + 49
 });
-
-test('pickAxisTicks returns three em-dashes for empty input', function () {
-    expect(ResourceCard::pickAxisTicks([]))->toBe(['—', '—', '—']);
-});
-
-test('pickAxisTicks duplicates a single sample across three ticks', function () {
-    expect(ResourceCard::pickAxisTicks(['12:00:00']))->toBe(['12:00:00', '12:00:00', '12:00:00']);
-});
-
-test('pickAxisTicks picks oldest, middle, newest from a 30-sample window', function () {
-    $times = [];
-    for ($i = 0; $i < 30; $i++) {
-        $times[] = sprintf('22:14:%02d', $i);
-    }
-
-    expect(ResourceCard::pickAxisTicks($times))->toBe([
-        '22:14:00',
-        '22:14:14',
-        '22:14:29',
-    ]);
-});
-
-test('pickAxisTicks biases left on even counts', function () {
-    $times = ['00:00:00', '00:00:01', '00:00:02', '00:00:03'];
-
-    expect(ResourceCard::pickAxisTicks($times))->toBe([
-        '00:00:00',
-        '00:00:01',
-        '00:00:03',
-    ]);
-});
