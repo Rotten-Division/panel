@@ -21,9 +21,6 @@ class ServerMemoryChart extends Widget
     /** @var array<int, string> */
     public array $times = [];
 
-    /** @var array{0: string, 1: string, 2: string} */
-    public array $axisTicks = ['—', '—', '—'];
-
     public bool $frozen = false;
 
     public static function canView(): bool
@@ -62,7 +59,6 @@ class ServerMemoryChart extends Widget
             ->values()
             ->all();
         $this->times = ResourceCard::formatSampleTimes($raw, $period, $tz);
-        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentValue(): float
@@ -125,7 +121,6 @@ class ServerMemoryChart extends Widget
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
                 'labels' => array_map(fn (float $v) => number_format($v, 2) . ' GiB', $raw),
                 'times' => $alignedTimes,
-                'axisTicks' => $this->axisTicks,
             ],
         ];
     }
