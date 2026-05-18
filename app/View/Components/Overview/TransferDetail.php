@@ -51,10 +51,23 @@ class TransferDetail extends Component
 
     public function render()
     {
+        $payload = $this->progress();
+        $step = $payload['step'] ?? null;
+        $bytes = $payload['bytes'] ?? 0;
+        $total = $payload['total_bytes'] ?? 0;
+
+        // Component::data() merges extractPublicMethods() OVER the view's with()
+        // data, so any view-data key matching a public method name on this class
+        // gets replaced by an InvokableComponentVariable proxy. progress(),
+        // stepLabel(), and bytesLabel() are public for the unit test, so the
+        // view-data keys here must avoid those names.
         return view('components.overview.transfer-detail', [
-            'progress' => $this->progress(),
+            'payload' => $payload,
             'source' => $this->sourceNode(),
             'destination' => $this->destinationNode(),
+            'stepCopy' => $step !== null ? $this->stepLabel($step) : null,
+            'bytesCopy' => $this->bytesLabel($bytes),
+            'totalCopy' => $this->bytesLabel($total),
         ]);
     }
 }

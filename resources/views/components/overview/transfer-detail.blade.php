@@ -1,11 +1,13 @@
 @php
-    /** @var \App\View\Components\Overview\TransferDetail $component */
-    /** @var array{step: string, bytes: int, total_bytes: int}|null $progress */
+    /** @var array{step: string, bytes: int, total_bytes: int}|null $payload */
     /** @var ?string $source */
     /** @var ?string $destination */
-    $step = $progress['step'] ?? null;
-    $bytes = $progress['bytes'] ?? 0;
-    $total = $progress['total_bytes'] ?? 0;
+    /** @var ?string $stepCopy */
+    /** @var string $bytesCopy */
+    /** @var string $totalCopy */
+    $step = $payload['step'] ?? null;
+    $bytes = $payload['bytes'] ?? 0;
+    $total = $payload['total_bytes'] ?? 0;
     $pct = $total > 0 ? min(100, ($bytes / $total) * 100) : null;
 @endphp
 
@@ -27,8 +29,8 @@
     <div class="overview-transfer-detail__step">
         <p class="overview-transfer-detail__label">Current step</p>
         <p class="overview-transfer-detail__step-name">
-            @if ($step)
-                {{ $component->stepLabel($step) }}
+            @if ($stepCopy)
+                {{ $stepCopy }}
             @else
                 Waiting on wings…
             @endif
@@ -39,7 +41,7 @@
         <div class="overview-transfer-detail__bytes">
             <p class="overview-transfer-detail__label">Progress</p>
             <p class="overview-transfer-detail__bytes-value">
-                {{ $component->bytesLabel($bytes) }} <span class="overview-transfer-detail__bytes-sep">/</span> {{ $component->bytesLabel($total) }}
+                {{ $bytesCopy }} <span class="overview-transfer-detail__bytes-sep">/</span> {{ $totalCopy }}
             </p>
             <div class="overview-bar overview-bar--success">
                 <div class="overview-bar__fill" style="width: {{ number_format($pct ?? 0, 1, '.', '') }}%"></div>
