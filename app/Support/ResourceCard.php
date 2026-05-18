@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Carbon\Carbon;
+
 class ResourceCard
 {
     /**
@@ -82,10 +84,57 @@ class ResourceCard
     }
 
     /**
-     * Human-readable label for the chart's left x-axis tick. Takes the raw
-     * cache array (timestamp-keyed) and a slice period, returns "30s ago",
-     * "2m ago", etc. based on the actual oldest sample visible. Falls back
-     * to "earlier" when the cache is empty or has only one sample.
+     * Format the timestamps of the last $period samples from a Unix-second
+     * keyed cache as HH:MM:SS strings in the supplied timezone. Returns an
+     * empty array when the cache is empty.
+     *
+     * @param  array<int|string, mixed>  $rawCache  cache keyed by unix timestamp
+     * @return array<int, string> ordered HH:MM:SS strings
+     */
+    public static function formatSampleTimes(array $rawCache, int $period, ?string $timezone = null): array
+    {
+        if (empty($rawCache)) {
+            return [];
+        }
+
+        $tz = $timezone ?: 'UTC';
+        $sliced = array_slice($rawCache, -$period, null, preserve_keys: true);
+
+        return array_map(
+            fn (int|string $unix) => Carbon::createFromTimestamp((int) $unix, $tz)->format('H:i:s'),
+            array_keys($sliced),
+        );
+    }
+
+    /**
+     * Pick three evenly spaced axis-tick labels from a pre-formatted
+     * sample-times array (output of formatSampleTimes()). Returns three
+     * em-dashes when the array is empty.
+     *
+     * @param  array<int, string>  $sampleTimes
+     * @return array{0: string, 1: string, 2: string}
+     */
+    public static function pickAxisTicks(array $sampleTimes): array
+    {
+        if (empty($sampleTimes)) {
+            return ['—', '—', '—'];
+        }
+
+        $count = count($sampleTimes);
+        if ($count === 1) {
+            return [$sampleTimes[0], $sampleTimes[0], $sampleTimes[0]];
+        }
+
+        return [
+            $sampleTimes[0],
+            $sampleTimes[intdiv($count - 1, 2)],
+            $sampleTimes[$count - 1],
+        ];
+    }
+
+    /**
+     * @deprecated replaced by formatSampleTimes() + pickAxisTicks().
+     *   docs/superpowers/plans/2026-05-18-resource-card-x-axis-timestamps
      *
      * @param  array<int, float|int>  $rawCache  cache keyed by unix timestamp
      */
