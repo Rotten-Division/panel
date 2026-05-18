@@ -41,25 +41,10 @@ test('console shows the command input row on running state', function () {
         ->assertSee('id="send-command"', escape: false);
 });
 
-test('console boot script writes the offline marker lines on stopped state', function () {
+test('console never writes the offline marker copy', function () {
     [$user, $server] = consoleReadOnlySeed(ContainerStatus::Offline);
 
-    // showMarkerOnly=true (passed by stopped.blade.php) injects two
-    // dim-ansi terminal.writeln calls in the boot @script block.
-    // em-dashes render as the unicode escape — and quotes get
-    // html-encoded inside the script block, so anchor on the
-    // substring "marked as offline" which is unambiguous.
-    $this->actingAs($user)
-        ->get("/server/{$server->uuid_short}/overview")
-        ->assertSee('marked as offline', escape: false)
-        ->assertSee('Hit start in the header to bring it back', escape: false);
-});
-
-test('console boot script omits marker writes when showMarkerOnly is false', function () {
-    [$user, $server] = consoleReadOnlySeed(ContainerStatus::Running);
-
-    // running state passes neither readOnly nor showMarkerOnly, so the
-    // marker block doesn't render in the boot script.
+    // marker mode was removed — the stopped console should be plain.
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertDontSee('marked as offline', escape: false);
@@ -68,11 +53,10 @@ test('console boot script omits marker writes when showMarkerOnly is false', fun
 test('console hides the command input on transient state (live but read-only)', function () {
     [$user, $server] = consoleReadOnlySeed(ContainerStatus::Starting);
 
-    // transient passes readOnly=true (no marker mode) — input gated off
-    // while wings still streams stats + console output live.
+    // transient passes readOnly=true, input gated off while wings still
+    // streams stats + console output live.
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertDontSee('id="send-command"', escape: false)
-        ->assertDontSee('marked as offline', escape: false);
+        ->assertDontSee('id="send-command"', escape: false);
 });
