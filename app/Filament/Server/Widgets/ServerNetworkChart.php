@@ -21,7 +21,11 @@ class ServerNetworkChart extends Widget
     /** @var array<int, int> */
     public array $outboundSeries = [];
 
-    public string $windowLabel = 'earlier';
+    /** @var array<int, string> */
+    public array $times = [];
+
+    /** @var array{0: string, 1: string, 2: string} */
+    public array $axisTicks = ['—', '—', '—'];
 
     public bool $frozen = false;
 
@@ -51,12 +55,12 @@ class ServerNetworkChart extends Widget
     private function pullSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
+        $tz = user()?->timezone ?? config('app.timezone', 'UTC');
         $raw = cache()->get("servers.{$this->server?->id}.network") ?? [];
         $samples = collect($raw)
             ->slice(-$period)
             ->values()
             ->all();
-        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
 
         $inbound = [];
         $outbound = [];
@@ -72,6 +76,12 @@ class ServerNetworkChart extends Widget
 
         $this->inboundSeries = $inbound;
         $this->outboundSeries = $outbound;
+
+        // align timestamps with the deltas — drop the first sample's
+        // time since no delta exists for index 0.
+        $allTimes = ResourceCard::formatSampleTimes($raw, $period, $tz);
+        $this->times = array_values(array_slice($allTimes, 1));
+        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentInbound(): int
@@ -113,6 +123,11 @@ class ServerNetworkChart extends Widget
             $outboundRaw = [$outboundRaw[0], $outboundRaw[0]];
         }
 
+        $alignedTimes = $this->times;
+        if (count($alignedTimes) === 1) {
+            $alignedTimes = [$alignedTimes[0], $alignedTimes[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.network'),
@@ -138,11 +153,12 @@ class ServerNetworkChart extends Widget
                     fn (int $v) => '↑ ' . ResourceCard::formatRateInUnit($v, $unit),
                     $outboundRaw,
                 ),
+                'times' => $alignedTimes,
+                'axisTicks' => $this->axisTicks,
                 'legend' => [
                     'in' => ResourceCard::formatRate($this->getCurrentInbound()),
                     'out' => ResourceCard::formatRate($this->getCurrentOutbound()),
                 ],
-                'windowLabel' => $this->windowLabel,
             ],
         ];
     }
