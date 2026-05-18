@@ -285,6 +285,9 @@
             if (plot) { updatePlot(plot, event); }
         }, true);
 
+        // mouseleave doesn't bubble, but capture-phase listeners on
+        // document still receive it when the target is a descendant —
+        // so this one handler covers exits from any of the three plots.
         document.addEventListener('mouseleave', (event) => {
             const plot = findPlot(event.target);
             if (plot) { hidePlotOverlay(plot); }
