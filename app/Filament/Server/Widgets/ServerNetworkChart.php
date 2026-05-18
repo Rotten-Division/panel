@@ -130,7 +130,6 @@ class ServerNetworkChart extends Widget
                 'current' => '',
                 'allocation' => null,
                 'progress' => null,
-                'ticks' => array_map(fn (int $v) => ResourceCard::formatRateInUnit($v, $unit), $ticks),
                 'series' => ResourceCard::points(
                     array_map('floatval', $this->inboundSeries),
                     (float) $ticks[0],
