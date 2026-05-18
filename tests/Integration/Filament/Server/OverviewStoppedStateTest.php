@@ -58,3 +58,14 @@ test('stopped state renders the spark row below the console', function () {
         ->assertOk()
         ->assertSee('overview-spark overview-spark--hearth overview-spark--muted', escape: false);
 });
+
+test('stopped cards needing live data are wrapped in the offline overlay', function () {
+    [$user, $server] = stoppedStateSeed();
+
+    $this->actingAs($user)
+        ->get("/server/{$server->uuid_short}/overview")
+        ->assertOk()
+        ->assertSee('overview-offline-card', escape: false)
+        ->assertSee('overview-offline-card__chip', escape: false)
+        ->assertSee('Server Offline');
+});
