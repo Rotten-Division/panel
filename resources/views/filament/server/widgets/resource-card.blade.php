@@ -1,5 +1,5 @@
 @php
-    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
+    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
     // the chart widgets listen for `refresh-overview` dispatched from the
     // page's refreshLiveData poll, so the card template itself doesn't poll.
     $width = 320;
@@ -105,7 +105,15 @@
             @endforeach
         </div>
 
-        <div class="overview-resource-card__plot">
+        <div
+            class="overview-resource-card__plot"
+            data-pts="{{ json_encode($card['series'] ?? []) }}"
+            data-pts2="{{ json_encode($card['series2'] ?? []) }}"
+            data-labels="{{ json_encode($card['labels'] ?? []) }}"
+            data-labels2="{{ json_encode($card['labels2'] ?? []) }}"
+            data-vb-w="{{ $width }}"
+            data-vb-h="{{ $viewBoxH }}"
+        >
             <svg viewBox="0 0 {{ $width }} {{ $viewBoxH }}" preserveAspectRatio="none" class="overview-resource-card__svg" aria-hidden="true">
                 <defs>
                     <linearGradient id="{{ $gradId }}-in" x1="0" y1="0" x2="0" y2="1">
@@ -152,6 +160,20 @@
                     aria-hidden="true"
                 ></span>
             @endif
+
+            {{-- hover overlay: mutated by the script at the bottom of this
+                 view in response to mousemove on the plot. kept as static
+                 html so livewire morphs don't fight us — style mutations
+                 happen at runtime only. --}}
+            <div class="overview-resource-card__hover" data-overlay aria-hidden="true" style="display: none;">
+                <span class="overview-resource-card__hover-rail" data-rail></span>
+                <span class="overview-resource-card__hover-dot overview-resource-card__hover-dot--in" data-dot-in></span>
+                <span class="overview-resource-card__hover-dot overview-resource-card__hover-dot--out" data-dot-out style="display: none;"></span>
+                <span class="overview-resource-card__tooltip" data-tooltip>
+                    <span data-label></span>
+                    <span class="overview-resource-card__tooltip-row" data-label2 style="display: none;"></span>
+                </span>
+            </div>
         </div>
 
         <div class="overview-resource-card__x-axis" aria-hidden="true">
@@ -160,3 +182,113 @@
         </div>
     </div>
 </div>
+
+@script
+<script>
+    // delegated mousemove handler: walks up to find a chart plot, reads
+    // the JSON data-* attributes, finds the nearest sample by x distance,
+    // and mutates the overlay siblings directly. survives livewire morphs
+    // since the listener is on document and re-reads the dataset on every
+    // move (snap-to-nearest each poll). the IIFE guard means rendering
+    // three widgets only binds the listener once.
+    (() => {
+        if (window.__ospOverviewHoverBound) { return; }
+        window.__ospOverviewHoverBound = true;
+
+        const findPlot = (target) =>
+            target?.closest?.('.overview-resource-card__plot') ?? null;
+
+        const hidePlotOverlay = (plot) => {
+            const overlay = plot.querySelector('[data-overlay]');
+            if (overlay) { overlay.style.display = 'none'; }
+        };
+
+        const updatePlot = (plot, event) => {
+            const overlay = plot.querySelector('[data-overlay]');
+            if (!overlay) { return; }
+
+            let pts = [];
+            let pts2 = [];
+            let labels = [];
+            let labels2 = [];
+            try { pts = JSON.parse(plot.dataset.pts || '[]'); } catch (_) {}
+            try { pts2 = JSON.parse(plot.dataset.pts2 || '[]'); } catch (_) {}
+            try { labels = JSON.parse(plot.dataset.labels || '[]'); } catch (_) {}
+            try { labels2 = JSON.parse(plot.dataset.labels2 || '[]'); } catch (_) {}
+
+            if (!pts.length) { overlay.style.display = 'none'; return; }
+
+            const vbW = parseFloat(plot.dataset.vbW) || 320;
+            const vbH = parseFloat(plot.dataset.vbH) || 104;
+
+            const rect = plot.getBoundingClientRect();
+            const mx = event.clientX - rect.left;
+            const vbX = (mx / rect.width) * vbW;
+
+            let nearest = 0;
+            let minDist = Infinity;
+            for (let i = 0; i < pts.length; i++) {
+                const d = Math.abs(pts[i][0] - vbX);
+                if (d < minDist) { minDist = d; nearest = i; }
+            }
+
+            const pt = pts[nearest];
+            const left = (pt[0] / vbW) * 100;
+            const bottom = ((vbH - pt[1]) / vbH) * 100;
+
+            overlay.style.display = '';
+
+            const rail = overlay.querySelector('[data-rail]');
+            if (rail) { rail.style.left = left + '%'; }
+
+            const dotIn = overlay.querySelector('[data-dot-in]');
+            if (dotIn) {
+                dotIn.style.left = left + '%';
+                dotIn.style.bottom = bottom + '%';
+            }
+
+            const dotOut = overlay.querySelector('[data-dot-out]');
+            const pt2 = pts2[nearest];
+            if (dotOut) {
+                if (pt2) {
+                    dotOut.style.display = '';
+                    dotOut.style.left = left + '%';
+                    dotOut.style.bottom = ((vbH - pt2[1]) / vbH) * 100 + '%';
+                } else {
+                    dotOut.style.display = 'none';
+                }
+            }
+
+            const tooltip = overlay.querySelector('[data-tooltip]');
+            if (tooltip) {
+                tooltip.style.left = left + '%';
+                tooltip.classList.toggle('overview-resource-card__tooltip--flip', left > 70);
+            }
+
+            const labelEl = overlay.querySelector('[data-label]');
+            if (labelEl) { labelEl.textContent = labels[nearest] ?? ''; }
+
+            const label2El = overlay.querySelector('[data-label2]');
+            if (label2El) {
+                const v = labels2[nearest];
+                if (v) {
+                    label2El.style.display = '';
+                    label2El.textContent = v;
+                } else {
+                    label2El.style.display = 'none';
+                }
+            }
+        };
+
+        document.addEventListener('mousemove', (event) => {
+            const plot = findPlot(event.target);
+            if (plot) { updatePlot(plot, event); }
+        }, true);
+
+        document.addEventListener('mouseleave', (event) => {
+            const plot = findPlot(event.target);
+            if (plot) { hidePlotOverlay(plot); }
+        }, true);
+    })();
+</script>
+@endscript
