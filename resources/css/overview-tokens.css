@@ -367,6 +367,12 @@
     letter-spacing: -0.01em;
     line-height: 1;
 }
+/* the middle of three space-between spans sits at the row centre but
+   its text reads left-flush by default; centre it so the visual middle
+   of the timestamp aligns with the chart's midpoint. */
+.overview-resource-card__x-axis > span:nth-child(2) {
+    text-align: center;
+}
 /* live-data dot at rightmost point of each series — matches design
    canvas .rc-dot (resource-cards.css:111-121). 5px circle with a
    1.5px --ink ring so it reads against the gradient fill. */
@@ -439,6 +445,14 @@
     transform: translateX(calc(-100% - 8px));
 }
 .overview-resource-card__tooltip-row { color: var(--sand); }
+.overview-resource-card__tooltip-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--stone);
+    margin-top: 1px;
+    padding-top: 3px;
+    border-top: 0.5px solid var(--graphite);
+}
 
 /* ============================================================ */
 /* overview-stat-grid + overview-stat-card: phase 5             */
