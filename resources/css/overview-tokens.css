@@ -521,9 +521,10 @@
 }
 .overview-offline-card__chip {
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: -0.005em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--sand);
     background: rgba(15, 17, 22, 0.55);
     backdrop-filter: blur(18px);
