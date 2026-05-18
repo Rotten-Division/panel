@@ -24,9 +24,6 @@ class ServerNetworkChart extends Widget
     /** @var array<int, string> */
     public array $times = [];
 
-    /** @var array{0: string, 1: string, 2: string} */
-    public array $axisTicks = ['—', '—', '—'];
-
     public bool $frozen = false;
 
     public static function canView(): bool
@@ -81,7 +78,6 @@ class ServerNetworkChart extends Widget
         // time since no delta exists for index 0.
         $allTimes = ResourceCard::formatSampleTimes($raw, $period, $tz);
         $this->times = array_values(array_slice($allTimes, 1));
-        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentInbound(): int
@@ -154,7 +150,6 @@ class ServerNetworkChart extends Widget
                     $outboundRaw,
                 ),
                 'times' => $alignedTimes,
-                'axisTicks' => $this->axisTicks,
                 'legend' => [
                     'in' => ResourceCard::formatRate($this->getCurrentInbound()),
                     'out' => ResourceCard::formatRate($this->getCurrentOutbound()),
