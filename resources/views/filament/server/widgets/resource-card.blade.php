@@ -81,10 +81,13 @@
     @php
         // last in-series point in viewbox coords → percent of plot wrapper
         // so the live dot anchors at exactly the rightmost line endpoint
-        // regardless of how the svg stretches. viewbox is W × ($chartBottom+16);
-        // the +16 is bottom padding inside the viewbox, so bottom% must use
-        // the full viewbox height as the divisor (NOT just $chartHeight).
-        $viewBoxH = $chartBottom + 16;
+        // regardless of how the svg stretches. viewbox is W × ($chartBottom+8);
+        // the +8 is bottom padding inside the viewbox (symmetric with the
+        // 8px top, so the chart line sits in the visual centre of the
+        // plot area instead of being pushed toward the top), so bottom%
+        // must use the full viewbox height as the divisor (NOT just
+        // $chartHeight).
+        $viewBoxH = $chartBottom + 4;
         $lastPoint = ! empty($card['series']) ? end($card['series']) : null;
         $dotInLeft = $lastPoint !== null ? ($lastPoint[0] / $width) * 100 : null;
         $dotInBottom = $lastPoint !== null ? (($viewBoxH - $lastPoint[1]) / $viewBoxH) * 100 : null;
