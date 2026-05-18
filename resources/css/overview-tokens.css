@@ -322,7 +322,6 @@
     grid-template-rows: 1fr;
     min-height: 140px;
     padding-top: 6px;
-    padding-bottom: 6px;
 }
 .overview-resource-card__plot {
     grid-column: 1;
