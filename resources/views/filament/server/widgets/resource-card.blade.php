@@ -110,14 +110,12 @@
                 <defs>
                     <linearGradient id="{{ $gradId }}-in" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="var(--hearth)" stop-opacity="0.38" />
-                        <stop offset="70%" stop-color="var(--hearth)" stop-opacity="0.14" />
-                        <stop offset="100%" stop-color="var(--hearth)" stop-opacity="0" />
+                        <stop offset="100%" stop-color="var(--hearth)" stop-opacity="0.10" />
                     </linearGradient>
                     @if (! empty($card['series2']))
                         <linearGradient id="{{ $gradId }}-out" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="var(--azure)" stop-opacity="0.30" />
-                            <stop offset="70%" stop-color="var(--azure)" stop-opacity="0.10" />
-                            <stop offset="100%" stop-color="var(--azure)" stop-opacity="0" />
+                            <stop offset="100%" stop-color="var(--azure)" stop-opacity="0.08" />
                         </linearGradient>
                     @endif
                 </defs>
