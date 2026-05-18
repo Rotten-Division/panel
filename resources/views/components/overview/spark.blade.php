@@ -4,7 +4,7 @@
     'series' => [],
     'color' => 'hearth',
     'muted' => false,
-    'height' => 70,
+    'height' => 110,
 ])
 
 @php
