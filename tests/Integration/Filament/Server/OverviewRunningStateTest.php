@@ -91,7 +91,7 @@ test('CPU chart widget renders the hover overlay markup', function () {
         ->assertSee('data-tooltip', escape: false);
 });
 
-test('CPU chart widget renders three timestamp axis ticks and data-times', function () {
+test('CPU chart widget renders the data-times attribute and tooltip time row', function () {
     [$user, $server] = runningStateSeed();
     cache()->put("servers.{$server->id}.cpu_absolute", [
         1700000000 => 12.5,
@@ -103,7 +103,6 @@ test('CPU chart widget renders three timestamp axis ticks and data-times', funct
     Filament::setTenant($server);
 
     Livewire::test(ServerCpuChart::class, ['server' => $server])
-        ->assertSee('overview-resource-card__x-axis', escape: false)
         ->assertSee('data-times=', escape: false)
         ->assertSee('overview-resource-card__tooltip-time', escape: false);
 });
