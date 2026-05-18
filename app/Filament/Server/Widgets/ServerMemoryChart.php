@@ -18,7 +18,11 @@ class ServerMemoryChart extends Widget
     /** @var array<int, float> */
     public array $series = [];
 
-    public string $windowLabel = 'earlier';
+    /** @var array<int, string> */
+    public array $times = [];
+
+    /** @var array{0: string, 1: string, 2: string} */
+    public array $axisTicks = ['—', '—', '—'];
 
     public bool $frozen = false;
 
@@ -48,6 +52,7 @@ class ServerMemoryChart extends Widget
     private function pullSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
+        $tz = user()?->timezone ?? config('app.timezone', 'UTC');
         $divisor = config('panel.use_binary_prefix') ? 1024 * 1024 * 1024 : 1_000_000_000;
 
         $raw = cache()->get("servers.{$this->server?->id}.memory_bytes") ?? [];
@@ -56,7 +61,8 @@ class ServerMemoryChart extends Widget
             ->map(fn ($value) => (float) round($value / $divisor, 2))
             ->values()
             ->all();
-        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
+        $this->times = ResourceCard::formatSampleTimes($raw, $period, $tz);
+        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentValue(): float
@@ -99,6 +105,11 @@ class ServerMemoryChart extends Widget
             $raw = [$raw[0], $raw[0]];
         }
 
+        $alignedTimes = $this->times;
+        if (count($alignedTimes) === 1) {
+            $alignedTimes = [$alignedTimes[0], $alignedTimes[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.memory'),
@@ -113,7 +124,8 @@ class ServerMemoryChart extends Widget
                 'ticks' => array_map(fn (float $v) => number_format($v, 1) . ' GiB', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
                 'labels' => array_map(fn (float $v) => number_format($v, 2) . ' GiB', $raw),
-                'windowLabel' => $this->windowLabel,
+                'times' => $alignedTimes,
+                'axisTicks' => $this->axisTicks,
             ],
         ];
     }
