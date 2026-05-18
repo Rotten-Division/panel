@@ -13,15 +13,19 @@
 />
 
 <div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">Players</p>
-        <x-overview.stat-empty />
-    </div>
+    <x-overview.offline-card>
+        <div class="overview-stat-card overview-stat-card--muted">
+            <p class="overview-stat-card__label">Players</p>
+            <p class="overview-stat-card__value">0 / 20</p>
+        </div>
+    </x-overview.offline-card>
 
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">Uptime</p>
-        <x-overview.stat-empty caption="off" />
-    </div>
+    <x-overview.offline-card>
+        <div class="overview-stat-card overview-stat-card--muted">
+            <p class="overview-stat-card__label">Uptime</p>
+            <p class="overview-stat-card__value">00:00:00</p>
+        </div>
+    </x-overview.offline-card>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
         <p class="overview-stat-card__label">Disk</p>
@@ -40,11 +44,16 @@
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 
-{{-- flat spark row replaces the live resource cards while the server is
-     offline — no data to plot, but the canvas keeps the three slots
-     visible as muted placeholders for visual continuity. --}}
+{{-- resource sparks blurred behind an offline chip — keep them mounted so
+     the row animates back in cleanly the moment the server returns. --}}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-    <x-overview.spark title="CPU" value="—" muted />
-    <x-overview.spark title="Memory" value="—" muted />
-    <x-overview.spark title="Network" value="—" muted />
+    <x-overview.offline-card>
+        <x-overview.spark title="CPU" value="0%" muted />
+    </x-overview.offline-card>
+    <x-overview.offline-card>
+        <x-overview.spark title="Memory" value="0 GiB" muted />
+    </x-overview.offline-card>
+    <x-overview.offline-card>
+        <x-overview.spark title="Network" value="0 B/s" muted />
+    </x-overview.offline-card>
 </div>
