@@ -19,16 +19,9 @@ class ServerCpuChart extends Widget
     public array $series = [];
 
     /** per-sample HH:MM:SS strings in the user's timezone, one entry per
-     *  visible cache sample. populates the hover tooltip's time row and
-     *  drives the three x-axis ticks via pickAxisTicks(). */
+     *  visible cache sample. populates the hover tooltip's time row. */
     /** @var array<int, string> */
     public array $times = [];
-
-    /** three evenly spaced timestamp ticks (oldest, middle, newest)
-     *  rendered on the chart's x-axis. falls back to em-dashes when the
-     *  cache is empty. */
-    /** @var array{0: string, 1: string, 2: string} */
-    public array $axisTicks = ['—', '—', '—'];
 
     /** when true the mount snapshot is the final render — the
      *  refresh-overview event is ignored. used by stopped/stopping
@@ -76,7 +69,6 @@ class ServerCpuChart extends Widget
             ->values()
             ->all();
         $this->times = ResourceCard::formatSampleTimes($raw, $period, $tz);
-        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentValue(): float
@@ -144,7 +136,6 @@ class ServerCpuChart extends Widget
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
                 'labels' => array_map(fn (float $v) => number_format($v, 1) . '%', $raw),
                 'times' => $alignedTimes,
-                'axisTicks' => $this->axisTicks,
             ],
         ];
     }
