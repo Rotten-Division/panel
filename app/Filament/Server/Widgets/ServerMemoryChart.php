@@ -94,6 +94,11 @@ class ServerMemoryChart extends Widget
     {
         $ticks = $this->getYAxisTicks();
 
+        $raw = $this->series;
+        if (count($raw) === 1) {
+            $raw = [$raw[0], $raw[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.memory'),
@@ -107,6 +112,7 @@ class ServerMemoryChart extends Widget
                 ],
                 'ticks' => array_map(fn (float $v) => number_format($v, 1) . ' GiB', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
+                'labels' => array_map(fn (float $v) => number_format($v, 2) . ' GiB', $raw),
                 'windowLabel' => $this->windowLabel,
             ],
         ];
