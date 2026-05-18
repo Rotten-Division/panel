@@ -107,33 +107,7 @@ class ResourceCard
     }
 
     /**
-     * Pick three evenly spaced axis-tick labels from a pre-formatted
-     * sample-times array (output of formatSampleTimes()). Returns three
-     * em-dashes when the array is empty.
-     *
-     * @param  array<int, string>  $sampleTimes
-     * @return array{0: string, 1: string, 2: string}
-     */
-    public static function pickAxisTicks(array $sampleTimes): array
-    {
-        if (empty($sampleTimes)) {
-            return ['—', '—', '—'];
-        }
-
-        $count = count($sampleTimes);
-        if ($count === 1) {
-            return [$sampleTimes[0], $sampleTimes[0], $sampleTimes[0]];
-        }
-
-        return [
-            $sampleTimes[0],
-            $sampleTimes[intdiv($count - 1, 2)],
-            $sampleTimes[$count - 1],
-        ];
-    }
-
-    /**
-     * @deprecated replaced by formatSampleTimes() + pickAxisTicks().
+     * @deprecated replaced by formatSampleTimes().
      *   docs/superpowers/plans/2026-05-18-resource-card-x-axis-timestamps
      *
      * @param  array<int, float|int>  $rawCache  cache keyed by unix timestamp
