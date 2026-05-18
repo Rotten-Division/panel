@@ -144,7 +144,12 @@ class ServerConsole extends Widget
 
             $cachedStats[$timestamp] = $value;
 
-            cache()->put($cacheKey, array_slice($cachedStats, -120), now()->addMinute());
+            // preserve_keys is critical — the cached entries are keyed by
+            // Unix timestamp, and array_slice's default behavior reindexes
+            // integer keys to 0..N, which would replace the timestamps with
+            // sample indexes and break every downstream consumer that reads
+            // array_keys() to recover sample times.
+            cache()->put($cacheKey, array_slice($cachedStats, -120, null, preserve_keys: true), now()->addMinute());
         }
     }
 
