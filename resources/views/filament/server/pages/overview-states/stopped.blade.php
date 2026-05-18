@@ -43,10 +43,10 @@
     </div>
 </div>
 
-{{-- console: read-only + marker mode --}}
+{{-- console: read-only --}}
 <x-filament-widgets::widgets
     :columns="1"
-    :data="$this->getWidgetData() + ['readOnly' => true, 'showMarkerOnly' => true]"
+    :data="$this->getWidgetData() + ['readOnly' => true]"
     :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
 />
 
