@@ -62,9 +62,10 @@ class TransferDetail extends Component
         // stepLabel(), and bytesLabel() are public for the unit test, so the
         // view-data keys here must avoid those names.
         return view('components.overview.transfer-detail', [
-            'payload' => $payload,
             'source' => $this->sourceNode(),
             'destination' => $this->destinationNode(),
+            'step' => $step,
+            'pct' => $total > 0 ? min(100, ($bytes / $total) * 100) : null,
             'stepCopy' => $step !== null ? $this->stepLabel($step) : null,
             'bytesCopy' => $this->bytesLabel($bytes),
             'totalCopy' => $this->bytesLabel($total),

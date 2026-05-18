@@ -1,16 +1,3 @@
-@php
-    /** @var array{step: string, bytes: int, total_bytes: int}|null $payload */
-    /** @var ?string $source */
-    /** @var ?string $destination */
-    /** @var ?string $stepCopy */
-    /** @var string $bytesCopy */
-    /** @var string $totalCopy */
-    $step = $payload['step'] ?? null;
-    $bytes = $payload['bytes'] ?? 0;
-    $total = $payload['total_bytes'] ?? 0;
-    $pct = $total > 0 ? min(100, ($bytes / $total) * 100) : null;
-@endphp
-
 <div class="overview-transfer-detail">
     <div class="overview-transfer-detail__route">
         <div class="overview-transfer-detail__node">
@@ -37,14 +24,14 @@
         </p>
     </div>
 
-    @if ($step === 'uploading' && $total > 0)
+    @if ($step === 'uploading' && $pct !== null)
         <div class="overview-transfer-detail__bytes">
             <p class="overview-transfer-detail__label">Progress</p>
             <p class="overview-transfer-detail__bytes-value">
                 {{ $bytesCopy }} <span class="overview-transfer-detail__bytes-sep">/</span> {{ $totalCopy }}
             </p>
             <div class="overview-bar overview-bar--success">
-                <div class="overview-bar__fill" style="width: {{ number_format($pct ?? 0, 1, '.', '') }}%"></div>
+                <div class="overview-bar__fill" style="width: {{ number_format($pct, 1, '.', '') }}%"></div>
             </div>
         </div>
     @elseif ($step !== null)
