@@ -474,6 +474,41 @@
 .overview-stat-grid--muted .overview-stat-card__label { opacity: 0.72; }
 
 /* ============================================================ */
+/* overview-stat-empty: no-signal value treatment                */
+/* slots into __value for cards whose data only exists while the */
+/* server is running. a slim breathing bar reads as "intentional */
+/* absence" rather than "loading"; optional caption keeps        */
+/* semantic context for slots like Uptime where the word matters.*/
+/* ============================================================ */
+.overview-stat-card__value--empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 25px;
+}
+.overview-stat-empty-bar {
+    display: inline-block;
+    width: 28px;
+    height: 2px;
+    background: var(--graphite);
+    border-radius: 999px;
+    animation: overview-stat-empty-pulse 3.2s ease-in-out infinite;
+}
+.overview-stat-empty-caption {
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--stone);
+    opacity: 0.55;
+}
+@keyframes overview-stat-empty-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.85; }
+}
+
+/* ============================================================ */
 /* overview-transfer-detail: phase 5 task 6                     */
 /* ============================================================ */
 .overview-transfer-detail {
