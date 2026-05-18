@@ -15,12 +15,12 @@
 <div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
     <div class="overview-stat-card overview-stat-card--muted">
         <p class="overview-stat-card__label">Players</p>
-        <p class="overview-stat-card__value"><span class="overview-stat-card__placeholder">—</span></p>
+        <x-overview.stat-empty />
     </div>
 
     <div class="overview-stat-card overview-stat-card--muted">
         <p class="overview-stat-card__label">Uptime</p>
-        <p class="overview-stat-card__value">Offline</p>
+        <x-overview.stat-empty caption="off" />
     </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
