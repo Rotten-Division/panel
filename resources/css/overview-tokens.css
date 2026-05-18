@@ -497,6 +497,11 @@
     overflow: hidden;
     height: 100%;
     display: flex;
+    /* match the card surface that lives here when the server is running
+       so the offline state doesn't read as a washed-out variant — the
+       inner content's opacity only dims the data, not the card shell. */
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
 }
 .overview-offline-card__content {
     flex: 1;
@@ -507,9 +512,12 @@
     user-select: none;
 }
 /* stretch whatever sits inside (stat-card / spark) so the blurred slot
-   matches the disk card and the spark cards in the same row. */
+   matches the disk card and the spark cards in the same row. nuke the
+   inner card border/bg so we don't double-up on the wrapper's shell. */
 .overview-offline-card__content > * {
     flex: 1;
+    background: transparent;
+    border-color: transparent;
 }
 .overview-offline-card__overlay {
     position: absolute;
