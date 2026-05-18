@@ -48,7 +48,7 @@ class ServerConsole extends Widget
 
     /** pre-write two dim marker lines to the xterm scrollback on mount.
      *  matches design canvas Stopped artboard which shows
-     *  "Server marked as offline" + "Hit start in the header" in the console. */
+     *  "Server marked as offline" + "Hit start" in the console. */
     public bool $showMarkerOnly = false;
 
     /** @var string[] */
