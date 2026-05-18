@@ -83,7 +83,9 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 0 12px;
+    height: 32px;
+    line-height: 1;
     border-radius: 5px;
     border: 0.5px solid var(--graphite);
     background: var(--ink);
@@ -91,6 +93,12 @@
     font-size: 13px;
     font-weight: 500;
     transition: background-color 120ms ease, border-color 120ms ease;
+}
+/* lock svg dims so filled/stroked tabler glyphs all sit in the same box. */
+.overview-power-button svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
 }
 .overview-power-button:hover:not(:disabled) { border-color: var(--hearth); }
 .overview-power-button:disabled { opacity: 0.45; cursor: not-allowed; }
