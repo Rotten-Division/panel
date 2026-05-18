@@ -12,15 +12,6 @@
         default => 'starting',
     };
     $transientCopy = trans("server/overview.transient.$transientKey");
-
-    // memory_bytes is the last cached sample; format as GiB. read cache
-    // directly here rather than route through Overview::latestStatsValue,
-    // which returns int and would truncate sub-GiB values.
-    $memoryRaw = collect(cache()->get("servers.$server->id.memory_bytes") ?? [])->last();
-    $memoryDisplay = is_numeric($memoryRaw) && $memoryRaw > 0
-        ? number_format($memoryRaw / 1024 / 1024 / 1024, 2).' GiB'
-        : null;
-    $memorySub = $memoryDisplay !== null ? 'warming up' : null;
 @endphp
 
 <x-overview.state-banner
@@ -32,7 +23,7 @@
 
 <x-overview.progress-band />
 
-<div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 overview-stat-grid--muted">
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
     <div class="overview-stat-card overview-stat-card--muted">
         <p class="overview-stat-card__label">Players</p>
         <p class="overview-stat-card__value"><span class="overview-stat-card__placeholder">—</span></p>
@@ -41,25 +32,6 @@
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Uptime</p>
         <p class="overview-stat-card__value">{{ $transientCopy['uptime'] }}</p>
-    </div>
-
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">CPU load</p>
-        <p class="overview-stat-card__value"><span class="overview-stat-card__placeholder">—</span></p>
-    </div>
-
-    <div class="overview-stat-card">
-        <p class="overview-stat-card__label">Memory</p>
-        <p class="overview-stat-card__value">
-            @if ($memoryDisplay)
-                {{ $memoryDisplay }}
-            @else
-                <span class="overview-stat-card__placeholder">—</span>
-            @endif
-        </p>
-        @if ($memorySub)
-            <p class="overview-stat-card__sub">{{ $memorySub }}</p>
-        @endif
     </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
