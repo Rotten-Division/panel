@@ -23,6 +23,8 @@ class ServerNetworkChart extends Widget
 
     public string $windowLabel = 'earlier';
 
+    public bool $frozen = false;
+
     public static function canView(): bool
     {
         /** @var Server $server */
@@ -33,11 +35,20 @@ class ServerNetworkChart extends Widget
 
     public function mount(): void
     {
-        $this->refreshSeries();
+        $this->pullSeries();
     }
 
     #[On('refresh-overview')]
     public function refreshSeries(): void
+    {
+        if ($this->frozen) {
+            return;
+        }
+
+        $this->pullSeries();
+    }
+
+    private function pullSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
         $raw = cache()->get("servers.{$this->server?->id}.network") ?? [];
