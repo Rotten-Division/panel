@@ -24,10 +24,12 @@
 <x-overview.progress-band />
 
 <div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3 overview-stat-grid--muted">
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">Players</p>
-        <x-overview.stat-empty />
-    </div>
+    <x-overview.offline-card label="Awaiting Server">
+        <div class="overview-stat-card overview-stat-card--muted">
+            <p class="overview-stat-card__label">Players</p>
+            <p class="overview-stat-card__value">0 / 20</p>
+        </div>
+    </x-overview.offline-card>
 
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Uptime</p>
@@ -69,7 +71,9 @@
 @endphp
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-    <x-overview.spark title="CPU" value="—" muted />
+    <x-overview.offline-card label="Awaiting Server">
+        <x-overview.spark title="CPU" value="0%" muted />
+    </x-overview.offline-card>
     <x-overview.spark
         title="Memory"
         :value="$memoryValue"
@@ -77,5 +81,7 @@
         color="moss"
         :muted="empty($memoryNormalised)"
     />
-    <x-overview.spark title="Network" value="—" muted />
+    <x-overview.offline-card label="Awaiting Server">
+        <x-overview.spark title="Network" value="0 B/s" muted />
+    </x-overview.offline-card>
 </div>
