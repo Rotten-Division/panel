@@ -311,41 +311,43 @@
    "3.0 GiB" reserves a wider one. flex:1 + min-height lets each card
    stretch its chart to the bottom even when neighbour cards in the row
    are taller (memory has a progress bar, network does not). */
-/* chart zone — grid: y-axis col (30px) + plot col (1fr). x-axis row
-   was removed in favour of per-sample timestamps on the hover tooltip.
+/* chart zone — single-column plot. y-axis labels are absolutely
+   positioned over the plot's left edge so the chart fills the full
+   content width and lines up with the utilisation bar above it.
    matches design canvas .rc-chart-zone (resource-cards.css:82-90). */
 .overview-resource-card__chart-zone {
     flex: 1;
     display: grid;
-    /* y-axis col auto-sizes to its widest label so cards with short ticks
-       ("2%" / "0 B/s") don't reserve dead space, and cards with long ticks
-       ("0.6 GiB") get exactly what they need. trades cross-card uniformity
-       for left-hugging — each chart fills the rest of the card width. */
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     min-height: 140px;
     padding-top: 6px;
     padding-bottom: 6px;
+    position: relative;
 }
 .overview-resource-card__y-axis {
-    grid-column: 1;
-    grid-row: 1;
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 2px 6px 2px 8px;
+    padding-left: 2px;
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--stone);
-    text-align: right;
+    text-align: left;
     letter-spacing: -0.01em;
     line-height: 1;
     white-space: nowrap;
+    z-index: 2;
+    pointer-events: none;
 }
 .overview-resource-card__y-axis span:first-child { margin-top: -3px; }
 .overview-resource-card__y-axis span:last-child  { margin-bottom: -3px; }
 .overview-resource-card__plot {
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 1;
     position: relative;
     min-width: 0;
