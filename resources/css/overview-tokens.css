@@ -239,11 +239,12 @@
 .overview-resource-card {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     background: var(--ink);
     border: 0.5px solid var(--graphite);
     border-radius: 7px;
-    padding: 14px 16px;
+    padding: 18px 20px;
+    min-height: 200px;
 }
 .overview-resource-card__stat { display: flex; flex-direction: column; gap: 6px; }
 .overview-resource-card__row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
@@ -321,7 +322,7 @@
        for left-hugging — each chart fills the rest of the card width. */
     grid-template-columns: auto 1fr;
     grid-template-rows: 1fr 18px;
-    min-height: 96px;
+    min-height: 140px;
     padding-top: 6px;
 }
 .overview-resource-card__y-axis {
