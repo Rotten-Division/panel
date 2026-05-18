@@ -22,13 +22,12 @@ use Livewire\Attributes\Session;
  * from the `:data` array on `<x-filament-widgets::widgets>`. State partials
  * pass overrides like:
  *
- *   :data="$this->getWidgetData() + ['readOnly' => true, 'showMarkerOnly' => true]"
+ *   :data="$this->getWidgetData() + ['readOnly' => true]"
  *
  * The keys map 1:1 to property names — they ARE NOT routed through an
  * explicit `mount(...)` method because Filament + Livewire hydrate public
  * properties directly. If you ever add a `mount()` signature here, include
- * `bool $readOnly = false` and `bool $showMarkerOnly = false` so the data
- * array continues to flow through.
+ * `bool $readOnly = false` so the data array continues to flow through.
  */
 class ServerConsole extends Widget
 {
@@ -45,11 +44,6 @@ class ServerConsole extends Widget
     /** hide the command-input row when true. set by state partials that
      *  render the console in read-only mode (stopped, transient, installing). */
     public bool $readOnly = false;
-
-    /** pre-write two dim marker lines to the xterm scrollback on mount.
-     *  matches design canvas Stopped artboard which shows
-     *  "Server marked as offline" + "Hit start" in the console. */
-    public bool $showMarkerOnly = false;
 
     /** @var string[] */
     #[Session(key: 'server.{server.id}.history')]
