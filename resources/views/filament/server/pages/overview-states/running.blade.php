@@ -11,20 +11,24 @@
 <div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-1 md:grid-cols-3 gap-3">
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Players</p>
-        @if ($playerCount !== null)
-            <p class="overview-stat-card__value">{{ $playerCount }} / {{ $playerLimit ?? '—' }}</p>
-        @else
-            <x-overview.stat-empty />
-        @endif
+        <p class="overview-stat-card__value">
+            @if ($playerCount !== null)
+                {{ $playerCount }} / {{ $playerLimit ?? '—' }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
     </div>
 
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Uptime</p>
-        @if ($uptime)
-            <p class="overview-stat-card__value">{{ $uptime }}</p>
-        @else
-            <x-overview.stat-empty />
-        @endif
+        <p class="overview-stat-card__value">
+            @if ($uptime)
+                {{ $uptime }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
     </div>
 
     <div class="overview-stat-card overview-stat-card--with-bar">
