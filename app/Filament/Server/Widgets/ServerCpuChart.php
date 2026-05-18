@@ -106,6 +106,13 @@ class ServerCpuChart extends Widget
     {
         $ticks = $this->getYAxisTicks();
 
+        // points() duplicates a single sample so the line renders flat;
+        // mirror that here so labels stays index-aligned with series.
+        $raw = $this->series;
+        if (count($raw) === 1) {
+            $raw = [$raw[0], $raw[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.cpu'),
@@ -119,6 +126,7 @@ class ServerCpuChart extends Widget
                 ],
                 'ticks' => array_map(fn (float $v) => number_format($v, 0) . '%', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
+                'labels' => array_map(fn (float $v) => number_format($v, 1) . '%', $raw),
                 'windowLabel' => $this->windowLabel,
             ],
         ];
