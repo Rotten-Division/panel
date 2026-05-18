@@ -67,6 +67,30 @@ test('Network chart emits in/out labels prefixed with direction arrows', functio
     expect($data['card']['labels2'][0])->toStartWith('↑ ');
 });
 
+test('network single-sample series duplicates in/out labels independently', function () {
+    // two cumulative samples produce a single delta sample after the
+    // refreshSeries diff. labels arrays must then mirror points()'s
+    // single-sample duplication so the tooltip index lookup stays safe.
+    cache()->put('servers.9005.network', [
+        1700000000 => (object) ['rx_bytes' => 0,    'tx_bytes' => 0],
+        1700000001 => (object) ['rx_bytes' => 4096, 'tx_bytes' => 2048],
+    ]);
+
+    $widget = new ServerNetworkChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9005;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect(count($data['card']['series']))->toBe(2);
+    expect(count($data['card']['series2']))->toBe(2);
+    expect(count($data['card']['labels']))->toBe(2);
+    expect(count($data['card']['labels2']))->toBe(2);
+    expect($data['card']['labels'][0])->toBe($data['card']['labels'][1]);
+    expect($data['card']['labels2'][0])->toBe($data['card']['labels2'][1]);
+});
+
 test('single-sample series duplicates the label so indexes stay aligned', function () {
     cache()->put('servers.9004.cpu_absolute', [1700000000 => 50.0]);
 
