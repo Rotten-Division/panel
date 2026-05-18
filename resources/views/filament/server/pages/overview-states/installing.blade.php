@@ -30,7 +30,7 @@
     <x-overview.progress-band variant="honey" />
 @endif
 
-<div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 overview-stat-grid--muted">
+<div wire:poll.1s="refreshLiveData" class="overview-stat-grid grid grid-cols-2 md:grid-cols-4 gap-3 overview-stat-grid--muted">
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Egg</p>
         <p class="overview-stat-card__value">{{ $server->egg?->name ?? '—' }}</p>
@@ -50,16 +50,6 @@
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">World</p>
         <p class="overview-stat-card__value font-mono">{{ $worldName }}</p>
-    </div>
-
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">CPU load</p>
-        <p class="overview-stat-card__value"><span class="overview-stat-card__placeholder">—</span></p>
-    </div>
-
-    <div class="overview-stat-card overview-stat-card--muted">
-        <p class="overview-stat-card__label">Memory</p>
-        <p class="overview-stat-card__value"><span class="overview-stat-card__placeholder">—</span></p>
     </div>
 
     <div class="overview-stat-card overview-stat-card--muted">
