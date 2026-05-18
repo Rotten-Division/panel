@@ -58,10 +58,13 @@ class Overview extends Page
         return '';
     }
 
-    // page-head owns the header chrome, no Filament default strip.
+    // returns an empty view so the panels::page template's @if branch
+    // short-circuits — the @else fallback would otherwise render
+    // getCachedHeaderActions() into a default Filament header strip
+    // even with $heading = ''.
     public function getHeader(): ?View
     {
-        return null;
+        return view('components.overview.empty-header');
     }
 
     public ContainerStatus $status = ContainerStatus::Offline;
