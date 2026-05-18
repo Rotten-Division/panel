@@ -104,6 +104,15 @@ class ServerNetworkChart extends Widget
         $topUnit = ResourceCard::formatRate($ticks[0]);
         $unit = $topUnit['unit'];
 
+        $inboundRaw = $this->inboundSeries;
+        $outboundRaw = $this->outboundSeries;
+        if (count($inboundRaw) === 1) {
+            $inboundRaw = [$inboundRaw[0], $inboundRaw[0]];
+        }
+        if (count($outboundRaw) === 1) {
+            $outboundRaw = [$outboundRaw[0], $outboundRaw[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.network'),
@@ -120,6 +129,14 @@ class ServerNetworkChart extends Widget
                     array_map('floatval', $this->outboundSeries),
                     (float) $ticks[0],
                     (float) $ticks[2],
+                ),
+                'labels' => array_map(
+                    fn (int $v) => '↓ ' . ResourceCard::formatRateInUnit($v, $unit),
+                    $inboundRaw,
+                ),
+                'labels2' => array_map(
+                    fn (int $v) => '↑ ' . ResourceCard::formatRateInUnit($v, $unit),
+                    $outboundRaw,
                 ),
                 'legend' => [
                     'in' => ResourceCard::formatRate($this->getCurrentInbound()),
