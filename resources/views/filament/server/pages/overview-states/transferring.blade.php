@@ -4,13 +4,20 @@
     $destinationName = $server->transfer?->newNode?->name ?? 'new node';
 @endphp
 
-<x-overview.state-banner
-    variant="transient"
-    title="Moving to a new home"
-    :subtitle="$sourceName . ' → ' . $destinationName"
-    icon="tabler-arrow-right"
-/>
+<div wire:poll.1s="refreshLiveData">
+    <x-overview.state-banner
+        variant="transient"
+        title="Moving to a new home"
+        :subtitle="$sourceName . ' → ' . $destinationName"
+        icon="tabler-arrow-right"
+    />
 
-<x-overview.progress-band />
+    <x-overview.progress-band />
 
-<x-overview.transfer-detail :server="$server" />
+    {{-- wings posts transfer progress to the panel server-side (phase 2,
+         approach B), so the websocket bridge never fires for byte updates.
+         the wrapper poll above triggers a livewire round trip which
+         re-renders the page body and re-reads $server->transferProgress
+         inside TransferDetail. --}}
+    <x-overview.transfer-detail :server="$server" />
+</div>
