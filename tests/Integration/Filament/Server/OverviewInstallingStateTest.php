@@ -82,5 +82,6 @@ test('installing Version card shows placeholder when egg has no version_var tag'
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
         ->assertSee('<p class="overview-stat-card__label">Version</p>', escape: false)
-        ->assertSee('<span class="overview-stat-card__placeholder">—</span>', escape: false);
+        ->assertSee('overview-stat-empty-bar', escape: false)
+        ->assertSee('overview-stat-empty-caption', escape: false);
 });
