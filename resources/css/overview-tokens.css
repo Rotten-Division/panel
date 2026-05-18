@@ -433,11 +433,11 @@
     background: var(--ink);
     border: 0.5px solid var(--graphite);
     border-radius: 7px;
-    padding: 12px 14px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    min-height: 70px;
+    gap: 10px;
+    min-height: 120px;
     color: var(--hearth);
 }
 .overview-spark--hearth { color: var(--hearth); }
