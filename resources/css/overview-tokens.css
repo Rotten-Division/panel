@@ -321,9 +321,10 @@
        ("0.6 GiB") get exactly what they need. trades cross-card uniformity
        for left-hugging — each chart fills the rest of the card width. */
     grid-template-columns: auto 1fr;
-    grid-template-rows: 1fr 18px;
+    grid-template-rows: 1fr;
     min-height: 140px;
     padding-top: 6px;
+    padding-bottom: 6px;
 }
 .overview-resource-card__y-axis {
     grid-column: 1;
@@ -354,24 +355,6 @@
     width: 100%;
     height: 100%;
     overflow: visible;
-}
-.overview-resource-card__x-axis {
-    grid-column: 2;
-    grid-row: 2;
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 6px 4px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--stone);
-    letter-spacing: -0.01em;
-    line-height: 1;
-}
-/* the middle of three space-between spans sits at the row centre but
-   its text reads left-flush by default; centre it so the visual middle
-   of the timestamp aligns with the chart's midpoint. */
-.overview-resource-card__x-axis > span:nth-child(2) {
-    text-align: center;
 }
 /* live-data dot at rightmost point of each series — matches design
    canvas .rc-dot (resource-cards.css:111-121). 5px circle with a
