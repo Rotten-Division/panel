@@ -38,11 +38,13 @@
 
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">Version</p>
-        @if ($server->version)
-            <p class="overview-stat-card__value">{{ $server->version }}</p>
-        @else
-            <x-overview.stat-empty caption="n/a" />
-        @endif
+        <p class="overview-stat-card__value">
+            @if ($server->version)
+                {{ $server->version }}
+            @else
+                <span class="overview-stat-card__placeholder">—</span>
+            @endif
+        </p>
     </div>
 
     <div class="overview-stat-card">
