@@ -494,6 +494,14 @@
     border-radius: 999px;
     animation: overview-stat-empty-pulse 3.2s ease-in-out infinite;
 }
+/* inline variant nudged up to sit on the typographic baseline used by
+   the spark title row (align-items: baseline). */
+.overview-stat-empty-bar--inline {
+    transform: translateY(-3px);
+    background: currentColor;
+    opacity: 0.4;
+    animation: none;
+}
 .overview-stat-empty-caption {
     font-family: var(--font-body);
     font-size: 9px;
