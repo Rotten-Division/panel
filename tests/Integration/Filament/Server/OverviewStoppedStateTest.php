@@ -31,24 +31,21 @@ test('stopped state shows the default banner', function () {
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
         ->assertSee(trans('server/overview.stopped.title'))
-        // "it's" apostrophe escapes to &#039; in html, so assert on the
-        // unambiguous "in the header" substring.
-        ->assertSee('Hit start in the header to bring it back', escape: false)
         ->assertSee('overview-banner--default', escape: false);
 });
 
-test('stopped state renders the 5-card grid with offline placeholders', function () {
+test('stopped state renders the 3-card grid with offline placeholders', function () {
     [$user, $server] = stoppedStateSeed();
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('lg:grid-cols-5', escape: false)
+        ->assertSee('md:grid-cols-3', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Players</p>', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Uptime</p>', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
         ->assertSee('<p class="overview-stat-card__label">Disk</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
         ->assertDontSee('<p class="overview-stat-card__label">World size</p>', escape: false)
         ->assertSee('overview-stat-card--muted', escape: false);
 });
