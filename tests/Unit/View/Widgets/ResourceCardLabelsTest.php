@@ -91,6 +91,95 @@ test('network single-sample series duplicates in/out labels independently', func
     expect($data['card']['labels2'][0])->toBe($data['card']['labels2'][1]);
 });
 
+test('CPU chart emits axisTicks and per-sample times in user timezone', function () {
+    cache()->put('servers.9101.cpu_absolute', [
+        1700000000 => 10.0,
+        1700000005 => 11.0,
+        1700000010 => 12.0,
+    ]);
+
+    $widget = new ServerCpuChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9101;
+        $s->cpu = 200;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect($data['card']['axisTicks'])->toBe(['22:13:20', '22:13:25', '22:13:30']);
+    expect($data['card']['times'])->toBe(['22:13:20', '22:13:25', '22:13:30']);
+});
+
+test('Memory chart emits axisTicks and per-sample times', function () {
+    cache()->put('servers.9102.memory_bytes', [
+        1700000000 => 1.5 * 1024 ** 3,
+        1700000005 => 1.7 * 1024 ** 3,
+    ]);
+
+    $widget = new ServerMemoryChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9102;
+        $s->memory = 4096;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect($data['card']['axisTicks'])->toBe(['22:13:20', '22:13:20', '22:13:25']);
+    expect($data['card']['times'])->toBe(['22:13:20', '22:13:25']);
+});
+
+test('Network chart aligns delta times to drop the first sample', function () {
+    // three raw samples → two deltas; times should be the timestamps
+    // of samples [1] and [2].
+    cache()->put('servers.9103.network', [
+        1700000000 => (object) ['rx_bytes' => 0,    'tx_bytes' => 0],
+        1700000005 => (object) ['rx_bytes' => 1024, 'tx_bytes' => 512],
+        1700000010 => (object) ['rx_bytes' => 2048, 'tx_bytes' => 768],
+    ]);
+
+    $widget = new ServerNetworkChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9103;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect($data['card']['times'])->toBe(['22:13:25', '22:13:30']);
+    expect($data['card']['axisTicks'])->toBe(['22:13:25', '22:13:25', '22:13:30']);
+});
+
+test('Network single-delta chart duplicates times in the axis ticks', function () {
+    cache()->put('servers.9104.network', [
+        1700000000 => (object) ['rx_bytes' => 0,    'tx_bytes' => 0],
+        1700000005 => (object) ['rx_bytes' => 1024, 'tx_bytes' => 512],
+    ]);
+
+    $widget = new ServerNetworkChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9104;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect($data['card']['times'])->toBe(['22:13:25', '22:13:25']);
+    expect($data['card']['axisTicks'])->toBe(['22:13:25', '22:13:25', '22:13:25']);
+});
+
+test('chart with empty cache emits em-dash axis and empty times', function () {
+    cache()->forget('servers.9105.cpu_absolute');
+
+    $widget = new ServerCpuChart();
+    $widget->server = tap(new Server(), function ($s) {
+        $s->id = 9105;
+        $s->cpu = 200;
+    });
+    $widget->mount();
+    $data = (fn () => $this->getViewData())->call($widget);
+
+    expect($data['card']['axisTicks'])->toBe(['—', '—', '—']);
+    expect($data['card']['times'])->toBe([]);
+});
+
 test('single-sample series duplicates the label so indexes stay aligned', function () {
     cache()->put('servers.9004.cpu_absolute', [1700000000 => 50.0]);
 
