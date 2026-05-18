@@ -301,6 +301,9 @@
     background: var(--graphite);
     border-radius: 999px;
     overflow: hidden;
+    /* shift the bar right so its left edge lines up with the chart
+       plot's left edge (which starts after the y-axis column). */
+    margin-left: var(--rc-yaxis-width);
 }
 .overview-resource-card__bar-fill {
     height: 100%;
@@ -311,43 +314,42 @@
    "3.0 GiB" reserves a wider one. flex:1 + min-height lets each card
    stretch its chart to the bottom even when neighbour cards in the row
    are taller (memory has a progress bar, network does not). */
-/* chart zone — single-column plot. y-axis labels are absolutely
-   positioned over the plot's left edge so the chart fills the full
-   content width and lines up with the utilisation bar above it.
-   matches design canvas .rc-chart-zone (resource-cards.css:82-90). */
+/* chart zone — grid: fixed y-axis col + plot col (1fr). y-axis sits
+   to the left of the plot; the utilisation bar above the chart gets
+   the same left offset (--rc-yaxis) so its left edge lines up with
+   the chart line. matches design canvas .rc-chart-zone
+   (resource-cards.css:82-90). */
+.overview-resource-card {
+    --rc-yaxis-width: 50px;
+}
 .overview-resource-card__chart-zone {
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: var(--rc-yaxis-width) 1fr;
     grid-template-rows: 1fr;
     min-height: 140px;
     padding-top: 6px;
     padding-bottom: 6px;
-    position: relative;
 }
 .overview-resource-card__y-axis {
-    position: absolute;
-    left: 0;
-    top: 8px;
-    bottom: 8px;
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-left: 2px;
+    padding: 2px 6px 2px 0;
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--stone);
-    text-align: left;
+    text-align: right;
     letter-spacing: -0.01em;
     line-height: 1;
     white-space: nowrap;
-    z-index: 2;
-    pointer-events: none;
 }
 .overview-resource-card__y-axis span:first-child { margin-top: -3px; }
 .overview-resource-card__y-axis span:last-child  { margin-bottom: -3px; }
 .overview-resource-card__plot {
-    grid-column: 1;
+    grid-column: 2;
     grid-row: 1;
     position: relative;
     min-width: 0;
