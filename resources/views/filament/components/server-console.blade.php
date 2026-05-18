@@ -92,16 +92,6 @@
 
         terminal.open(document.getElementById('terminal'));
 
-        @if ($showMarkerOnly ?? false)
-            // marker mode — pre-write dim italic-feel markers to the xterm
-            // scrollback so the console isn't visually empty when the server
-            // is offline. [2m is the ansi dim attribute, matches the
-            // design canvas's italic muted .marker treatment without needing
-            // a separate html element outside xterm's wire:ignore container.
-            terminal.writeln('[2m— Server marked as offline. —[0m');
-            terminal.writeln('[2m— Hit start to bring it back. —[0m');
-        @endif
-
         fitAddon.fit(); // Fixes SPA issues.
 
         window.addEventListener('load', () => {
