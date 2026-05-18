@@ -18,10 +18,17 @@ class ServerCpuChart extends Widget
     /** @var array<int, float> */
     public array $series = [];
 
-    /** rolling-window label for the left x-axis tick, e.g. "30s ago".
-     *  computed from the actual cache timestamps so the chart never lies
-     *  about how far back the data goes. */
-    public string $windowLabel = 'earlier';
+    /** per-sample HH:MM:SS strings in the user's timezone, one entry per
+     *  visible cache sample. populates the hover tooltip's time row and
+     *  drives the three x-axis ticks via pickAxisTicks(). */
+    /** @var array<int, string> */
+    public array $times = [];
+
+    /** three evenly spaced timestamp ticks (oldest, middle, newest)
+     *  rendered on the chart's x-axis. falls back to em-dashes when the
+     *  cache is empty. */
+    /** @var array{0: string, 1: string, 2: string} */
+    public array $axisTicks = ['—', '—', '—'];
 
     /** when true the mount snapshot is the final render — the
      *  refresh-overview event is ignored. used by stopped/stopping
@@ -61,13 +68,15 @@ class ServerCpuChart extends Widget
     private function pullSeries(): void
     {
         $period = (int) (user()?->getCustomization(CustomizationKey::ConsoleGraphPeriod) ?? 30);
+        $tz = user()?->timezone ?? config('app.timezone', 'UTC');
         $raw = cache()->get("servers.{$this->server?->id}.cpu_absolute") ?? [];
         $this->series = collect($raw)
             ->slice(-$period)
             ->map(fn ($value) => (float) round($value, 2))
             ->values()
             ->all();
-        $this->windowLabel = ResourceCard::formatTimeWindow($raw, $period);
+        $this->times = ResourceCard::formatSampleTimes($raw, $period, $tz);
+        $this->axisTicks = ResourceCard::pickAxisTicks($this->times);
     }
 
     public function getCurrentValue(): float
@@ -113,6 +122,13 @@ class ServerCpuChart extends Widget
             $raw = [$raw[0], $raw[0]];
         }
 
+        // align $times the same way labels/series are aligned — duplicate
+        // a single sample so tooltip index lookups stay safe.
+        $alignedTimes = $this->times;
+        if (count($alignedTimes) === 1) {
+            $alignedTimes = [$alignedTimes[0], $alignedTimes[0]];
+        }
+
         return [
             'card' => [
                 'label' => trans('server/console.labels.cpu'),
@@ -127,7 +143,8 @@ class ServerCpuChart extends Widget
                 'ticks' => array_map(fn (float $v) => number_format($v, 0) . '%', $ticks),
                 'series' => ResourceCard::points($this->series, $ticks[0], $ticks[2]),
                 'labels' => array_map(fn (float $v) => number_format($v, 1) . '%', $raw),
-                'windowLabel' => $this->windowLabel,
+                'times' => $alignedTimes,
+                'axisTicks' => $this->axisTicks,
             ],
         ];
     }
