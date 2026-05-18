@@ -383,6 +383,63 @@
 }
 .overview-resource-card__dot--out { background: var(--azure); }
 
+/* hover crosshair + value tooltip — vanilla js mutates these on
+   mousemove inside .overview-resource-card__plot. all positioning is
+   percent-based against the plot's bounding rect so it tracks across
+   viewport changes. */
+.overview-resource-card__hover {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+.overview-resource-card__hover-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--sand);
+    opacity: 0.25;
+    transform: translateX(-0.5px);
+}
+.overview-resource-card__hover-dot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hearth);
+    border: 1.5px solid var(--ink);
+    transform: translate(-50%, 50%);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+.overview-resource-card__hover-dot--out { background: var(--azure); }
+.overview-resource-card__tooltip {
+    position: absolute;
+    top: 6px;
+    transform: translateX(8px);
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--linen);
+    background: rgba(15, 17, 22, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 0.5px solid var(--graphite);
+    border-radius: 4px;
+    padding: 5px 9px;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+/* flip the tooltip to the left of the rail when the cursor is past the
+   70% mark so it doesn't escape the plot's right edge. the JS toggles
+   this class. */
+.overview-resource-card__tooltip--flip {
+    transform: translateX(calc(-100% - 8px));
+}
+.overview-resource-card__tooltip-row { color: var(--sand); }
+
 /* ============================================================ */
 /* overview-stat-grid + overview-stat-card: phase 5             */
 /* ============================================================ */
