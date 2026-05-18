@@ -1,5 +1,5 @@
 @php
-    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
+    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, times?: array<int, string>, axisTicks?: array{0: string, 1: string, 2: string}, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
     // the chart widgets listen for `refresh-overview` dispatched from the
     // page's refreshLiveData poll, so the card template itself doesn't poll.
     $width = 320;
@@ -111,6 +111,7 @@
             data-pts2="{{ json_encode($card['series2'] ?? []) }}"
             data-labels="{{ json_encode($card['labels'] ?? []) }}"
             data-labels2="{{ json_encode($card['labels2'] ?? []) }}"
+            data-times="{{ json_encode($card['times'] ?? []) }}"
             data-vb-w="{{ $width }}"
             data-vb-h="{{ $viewBoxH }}"
         >
@@ -172,13 +173,17 @@
                 <span class="overview-resource-card__tooltip" data-tooltip>
                     <span data-label></span>
                     <span class="overview-resource-card__tooltip-row" data-label2 style="display: none;"></span>
+                    <span class="overview-resource-card__tooltip-time" data-time style="display: none;"></span>
                 </span>
             </div>
         </div>
 
+        @php($axisTicks = $card['axisTicks'] ?? ['—', '—', '—'])
+
         <div class="overview-resource-card__x-axis" aria-hidden="true">
-            <span>{{ $card['windowLabel'] ?? 'earlier' }}</span>
-            <span>now</span>
+            <span>{{ $axisTicks[0] }}</span>
+            <span>{{ $axisTicks[1] }}</span>
+            <span>{{ $axisTicks[2] }}</span>
         </div>
     </div>
 </div>
@@ -211,10 +216,12 @@
             let pts2 = [];
             let labels = [];
             let labels2 = [];
+            let times = [];
             try { pts = JSON.parse(plot.dataset.pts || '[]'); } catch (_) {}
             try { pts2 = JSON.parse(plot.dataset.pts2 || '[]'); } catch (_) {}
             try { labels = JSON.parse(plot.dataset.labels || '[]'); } catch (_) {}
             try { labels2 = JSON.parse(plot.dataset.labels2 || '[]'); } catch (_) {}
+            try { times = JSON.parse(plot.dataset.times || '[]'); } catch (_) {}
 
             if (!pts.length) { overlay.style.display = 'none'; return; }
 
@@ -276,6 +283,17 @@
                     label2El.textContent = v;
                 } else {
                     label2El.style.display = 'none';
+                }
+            }
+
+            const timeEl = overlay.querySelector('[data-time]');
+            if (timeEl) {
+                const t = times[nearest];
+                if (t) {
+                    timeEl.style.display = '';
+                    timeEl.textContent = t;
+                } else {
+                    timeEl.style.display = 'none';
                 }
             }
         };
