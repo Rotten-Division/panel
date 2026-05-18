@@ -1,5 +1,5 @@
 @php
-    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, times?: array<int, string>, axisTicks?: array{0: string, 1: string, 2: string}, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
+    /** @var array{label: string, unit?: string, current: string, allocation?: ?string, progress?: ?array{value: float, max: float, colour: string}, ticks: array<int, string>, series: array<int, array{0: float, 1: float}>, series2?: ?array<int, array{0: float, 1: float}>, labels?: array<int, string>, labels2?: array<int, string>, times?: array<int, string>, legend?: ?array{in: array{value: string, unit: string}, out: array{value: string, unit: string}}} $card */
     // the chart widgets listen for `refresh-overview` dispatched from the
     // page's refreshLiveData poll, so the card template itself doesn't poll.
     $width = 320;
