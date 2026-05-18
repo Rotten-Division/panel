@@ -52,13 +52,14 @@ test('restarting status uses the dedicated copy', function () {
         ->assertSee('cycling the container', escape: false);
 });
 
-test('transient grid is 5 columns and drops world size per user lock', function () {
+test('transient grid is 3 columns and drops the resource-card duplicates', function () {
     [$user, $server] = transientStateSeed(ContainerStatus::Starting);
 
     $this->actingAs($user)
         ->get("/server/{$server->uuid_short}/overview")
         ->assertOk()
-        ->assertSee('lg:grid-cols-5', escape: false)
-        ->assertSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertSee('md:grid-cols-3', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">CPU load</p>', escape: false)
+        ->assertDontSee('<p class="overview-stat-card__label">Memory</p>', escape: false)
         ->assertDontSee('<p class="overview-stat-card__label">World size</p>', escape: false);
 });
