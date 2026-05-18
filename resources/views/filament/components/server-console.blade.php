@@ -99,7 +99,7 @@
             // design canvas's italic muted .marker treatment without needing
             // a separate html element outside xterm's wire:ignore container.
             terminal.writeln('[2m— Server marked as offline. —[0m');
-            terminal.writeln('[2m— Hit start in the header to bring it back. —[0m');
+            terminal.writeln('[2m— Hit start to bring it back. —[0m');
         @endif
 
         fitAddon.fit(); // Fixes SPA issues.
