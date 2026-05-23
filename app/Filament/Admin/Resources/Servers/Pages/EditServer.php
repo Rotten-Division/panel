@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Servers\Pages;
 
+use App\Enums\ServerState;
 use App\Enums\SuspendAction;
 use App\Enums\TablerIcon;
 use App\Filament\Admin\Resources\Servers\ServerResource;
@@ -59,7 +60,9 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use LogicException;
 use Random\RandomException;
 
@@ -1023,6 +1026,74 @@ class EditServer extends EditRecord
                 ->tooltip(trans('admin/server.console'))
                 ->icon(TablerIcon::Terminal)
                 ->url(fn (Server $server) => Overview::getUrl(panel: 'server', tenant: $server)),
+            Action::make('force_state_dev')
+                ->label('Force state')
+                ->tooltip('Dev only. Flips status (and node_id / NestServer side data) so the overview renders the chosen state. Local environment + root admin only.')
+                ->icon(TablerIcon::Bug)
+                ->color('warning')
+                ->visible(fn () => app()->environment('local') && (user()?->isRootAdmin() ?? false))
+                ->schema([
+                    Select::make('state')
+                        ->label('Target state')
+                        ->required()
+                        ->options([
+                            'clear' => 'Clear (status = null)',
+                            'suspended' => 'Suspended',
+                            'nest' => 'Nest (cold storage)',
+                            'hydrating' => 'Hydrating (restoring)',
+                            'capturing' => 'Capturing (evicting)',
+                        ])
+                        ->default('nest'),
+                    Toggle::make('seed_nest_row')
+                        ->label('Seed an osnm_servers row for nest/hydrating')
+                        ->helperText('Creates a placeholder NestServer record so the fact cards have data. Skipped when the row already exists or the target state does not need one.')
+                        ->default(true),
+                ])
+                ->action(function (array $data, Server $server): void {
+                    DB::transaction(function () use ($data, $server): void {
+                        $target = $data['state'];
+
+                        match ($target) {
+                            'clear' => $server->update(['status' => null]),
+                            'suspended' => $server->update(['status' => ServerState::Suspended]),
+                            'nest' => $server->update(['status' => ServerState::Nest, 'node_id' => null]),
+                            'hydrating' => $server->update(['status' => ServerState::Hydrating]),
+                            'capturing' => $server->update(['status' => ServerState::Capturing]),
+                            default => null,
+                        };
+
+                        // soft optional: a NestServer row makes the
+                        // nest fact cards renderable. direct table
+                        // insert keeps the dev tool plugin-agnostic,
+                        // panel core does not import the model.
+                        if (
+                            ($data['seed_nest_row'] ?? false)
+                            && in_array($target, ['nest', 'hydrating'], true)
+                            && DB::getSchemaBuilder()->hasTable('osnm_servers')
+                            && DB::table('osnm_servers')->where('server_id', $server->id)->doesntExist()
+                        ) {
+                            DB::table('osnm_servers')->insert([
+                                'server_id' => $server->id,
+                                'archive_uuid' => Str::uuid()->toString(),
+                                'archive_path' => "{$server->uuid}/dev-placeholder.tar.zst",
+                                'archive_size' => 256 * 1024 * 1024,
+                                'archive_sha256' => str_repeat('a', 64),
+                                'evicted_at' => now()->subDays(3),
+                                'reclaim_due_at' => now()->addDays(87),
+                                'source_node_id' => null,
+                                'warning_emails_sent' => '[]',
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    });
+
+                    Notification::make()
+                        ->title('Server state flipped')
+                        ->body('Reload the overview page to see the new render.')
+                        ->success()
+                        ->send();
+                }),
             Action::make('save')
                 ->hiddenLabel()
                 ->action('save')
