@@ -2,6 +2,7 @@
 
 namespace App\Filament\Server\Pages;
 
+use App\Contracts\Servers\OverviewStateHandler;
 use App\Contracts\Servers\PlayerCountProvider;
 use App\Contracts\Servers\ServerStartGate;
 use App\Enums\ConsoleWidgetPosition;
@@ -134,6 +135,23 @@ class Overview extends Page
         foreach ($featureService->getActiveSchemas($server->egg->features) as $feature) {
             $this->cacheAction($feature->getAction());
         }
+
+        $this->bootStateHandlerActions($server);
+    }
+
+    // wire plugin state-handler actions into filament's action plumbing
+    // so blade views can dispatch them via wire:click="mountAction(...)".
+    // called from boot() so the cache is populated before any livewire
+    // round trip that needs to resolve a mounted action.
+    private function bootStateHandlerActions(Server $server): void
+    {
+        $handler = $this->resolveStateHandler($server);
+        if ($handler === null) {
+            return;
+        }
+        foreach ($handler->actions($server) as $action) {
+            $this->cacheAction($action);
+        }
     }
 
     #[On('mount-feature')]
@@ -251,14 +269,30 @@ class Overview extends Page
         $this->headerActions($this->getHeaderActions());
     }
 
-    /**
-     * resolve a plugin state handler that owns the entire body render
-     * for the current server. phase 7 nest manager registers a handler
-     * here; until then the contract returns null so the dispatcher
-     * falls through to the built-in state switch.
-     */
-    public function resolveStateHandler(Server $server): ?object
+    /** @var array<class-string<OverviewStateHandler>> */
+    protected static array $stateHandlers = [];
+
+    // plugins call this from their service provider boot() to claim
+    // certain server states. first registered handler whose handles()
+    // returns true wins per request.
+    public static function registerStateHandler(string $handler): void
     {
+        static::$stateHandlers[] = $handler;
+    }
+
+    // resolve a plugin state handler that owns the entire body render
+    // for the current server. returns null when no plugin claims the
+    // state, the dispatcher then falls through to the built-in switch.
+    public function resolveStateHandler(Server $server): ?OverviewStateHandler
+    {
+        foreach (static::$stateHandlers as $class) {
+            /** @var OverviewStateHandler $handler */
+            $handler = app($class);
+            if ($handler->handles($server)) {
+                return $handler;
+            }
+        }
+
         return null;
     }
 
