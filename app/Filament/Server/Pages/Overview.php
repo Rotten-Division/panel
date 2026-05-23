@@ -194,23 +194,17 @@ class Overview extends Page
      */
     public function getWidgets(): array
     {
-        // nest evicted servers have node_id=null so the panel-core widgets
-        // (ServerConsole, *Chart) crash on $server->node->X.
-        // Hydrating and Capturing servers do have a node but wings has
-        // nothing to serve through the websocket while the volume transfer
-        // is in flight, the console widget surfaces a websocket connect
-        // failure that obscures the NestNotice's progress card. for all
-        // three nest-related states, return only the Top-slot plugin
-        // widgets, which is where the nest manager plugin registers
-        // NestNotice. AboveConsole / BelowConsole / Bottom plugin widgets
-        // are skipped because they typically depend on a live wings node.
-        //
-        // a server with no node assignment also gets the short-circuit
-        // regardless of status. that state is invalid in normal flow but
-        // can be hit transiently if a force-evict failed mid-rollback or
-        // an admin nulls the column manually. without this guard the
-        // strings plugin's overridden console blade would 500 on
-        // $server->node->getConnectionAddress().
+        // a server with no node assignment short-circuits to Top-slot
+        // plugin widgets only. panel-core widgets (ServerConsole, *Chart)
+        // dereference $server->node and would 500 the page. this guard
+        // is the safety net for two cases:
+        //   1. nest-family states (Nest, Hydrating, Capturing). these
+        //      are now claimed by a state handler (phase 7) that owns
+        //      the whole body and ignores getWidgets entirely, so the
+        //      nest-state arm of the condition is effectively vestigial.
+        //      kept until phase 8 confirms no path still relies on it.
+        //   2. transient null node_id from a failed force-evict mid
+        //      rollback or an admin nulling the column manually.
         /** @var Server $server */
         $server = Filament::getTenant();
         if (
