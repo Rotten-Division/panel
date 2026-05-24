@@ -35,12 +35,12 @@ class ServerPolicy
             }
         }
 
-        // nest evicted servers carry node_id=null, the canTarget gate below
+        // stashed servers carry node_id=null, the canTarget gate below
         // requires a Node instance. owners and subusers already short
-        // circuited above, so a caller reaching this branch on a nest
+        // circuited above, so a caller reaching this branch on a stashed
         // server is an admin. without a node to anchor on, only root
         // admins are permitted, otherwise a region restricted admin would
-        // gain access to every nest server in the system.
+        // gain access to every stashed server in the system.
         if ($server->node === null) {
             return $user->isRootAdmin() ? null : false;
         }

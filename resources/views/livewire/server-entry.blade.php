@@ -6,9 +6,9 @@
     $backgroundImage = $server->icon ?? $server->egg->icon;
 
     $serverEntryColumn = $column ?? \App\Filament\Components\Tables\Columns\ServerEntryColumn::make('server_entry');
-    // nest servers have node_id=null while their volume sits on the backup
+    // stashed servers have node_id=null while their volume sits on the backup
     // pool, the resource bars fall back to the per-server caps when the node
-    // is absent so the dashboard tile still renders for evicted servers.
+    // is absent so the dashboard tile still renders for stashed servers.
     $serverNodeStatistics = $server->node?->statistics() ?? ['memory_total' => 0, 'disk_total' => 0];
     $serverNodeSystemInfo = $server->node?->systemInformation() ?? ['cpu_count' => 0];
 

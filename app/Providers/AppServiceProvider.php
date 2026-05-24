@@ -164,9 +164,9 @@ class AppServiceProvider extends ServiceProvider
         // the OAuth first time sign in flow.
         $this->app->singleton(SelfServiceRegistrationPolicy::class, AlwaysAllowRegistrationPolicy::class);
 
-        // default port hold gate is empty, the nest manager plugin rebinds
-        // this to a reader against osnm_port_holds so the wizard's allocation
-        // resolver skips ports reserved for nest restores.
+        // default port hold gate is empty, the stash manager plugin rebinds
+        // this to a reader against osm_port_holds so the wizard's allocation
+        // resolver skips ports reserved for stash retrievals.
         $this->app->singleton(PortHoldGate::class, NoPortHoldsGate::class);
 
         // default node selector returns the first viable node by id. stash

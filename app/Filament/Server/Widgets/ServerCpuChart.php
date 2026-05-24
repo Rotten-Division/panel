@@ -36,7 +36,7 @@ class ServerCpuChart extends Widget
 
         // visible across running, starting, stopped, stopping. the chart
         // renders empty samples gracefully when the container is offline.
-        // conflict states (nest, installing, transfer, suspended) still
+        // conflict states (stashed, installing, transfer, suspended) still
         // hide because the server has nothing to graph against.
         return !$server->isInConflictState();
     }

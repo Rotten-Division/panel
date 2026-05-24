@@ -101,7 +101,7 @@ class Overview extends Page
         } catch (ServerStateConflictException $exception) {
             // every conflict state now renders its own inline state-banner
             // through the overview-states partials (installing, transferring,
-            // suspended, nest, restoring-backup), all carrying brand-voice
+            // suspended, stashed, restoring-backup), all carrying brand-voice
             // copy and the right action. the legacy session-scoped
             // AlertBanner duplicates that and stacks above the new layout.
             // suppress it for any state we know has a dedicated partial.

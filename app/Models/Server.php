@@ -465,7 +465,7 @@ class Server extends Model implements HasAvatar, Validatable
 
     public function retrieveStatus(): ContainerStatus
     {
-        // nest evicted servers have no node to ask. the daemon repository's
+        // stashed servers have no node to ask. the daemon repository's
         // setNode is type strict so the call below would TypeError otherwise.
         if ($this->node_id === null) {
             return ContainerStatus::Missing;

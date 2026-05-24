@@ -157,7 +157,7 @@ class ServerConsole extends Widget
     public function websocketError(): void
     {
         // suppress the websocket failure banner whenever the server is in a
-        // conflict state (install failed, transferring, suspended, nest).
+        // conflict state (install failed, transferring, suspended, stashed).
         // wings has nothing to serve over the socket in those cases and the
         // state partial already tells the user what's going on. raising a
         // second red banner on top of the inline state copy is noise.

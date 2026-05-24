@@ -6,9 +6,9 @@ use App\Models\Node;
 use App\Models\Server;
 
 /**
- * picks a destination wings node for a server about to be placed or restored.
+ * picks a destination wings node for a server about to be placed or retrieved.
  * default binding walks healthy viable nodes in id order and returns the
- * first. the nest manager plugin rebinds to a least loaded scorer that
+ * first. the stash manager plugin rebinds to a least loaded scorer that
  * compares free resource fractions across the three dimensions.
  */
 interface NodeSelector
