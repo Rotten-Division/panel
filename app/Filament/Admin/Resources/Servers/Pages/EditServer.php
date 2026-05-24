@@ -1069,10 +1069,10 @@ class EditServer extends EditRecord
                         if (
                             ($data['seed_stash_row'] ?? false)
                             && in_array($target, ['stashed', 'retrieving'], true)
-                            && DB::getSchemaBuilder()->hasTable('osnm_servers')
-                            && DB::table('osnm_servers')->where('server_id', $server->id)->doesntExist()
+                            && DB::getSchemaBuilder()->hasTable('osm_servers')
+                            && DB::table('osm_servers')->where('server_id', $server->id)->doesntExist()
                         ) {
-                            DB::table('osnm_servers')->insert([
+                            DB::table('osm_servers')->insert([
                                 'server_id' => $server->id,
                                 'archive_uuid' => Str::uuid()->toString(),
                                 'archive_path' => "{$server->uuid}/dev-placeholder.tar.zst",
