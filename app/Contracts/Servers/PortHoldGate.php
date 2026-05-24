@@ -10,7 +10,7 @@ namespace App\Contracts\Servers;
  * meantime.
  *
  * default binding returns an empty list, the stash manager plugin rebinds
- * to a real implementation that reads osnm_port_holds.
+ * to a real implementation that reads osm_port_holds.
  */
 interface PortHoldGate
 {
