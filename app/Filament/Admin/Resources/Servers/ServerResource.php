@@ -110,11 +110,11 @@ class ServerResource extends Resource
 
         $accessibleNodeIds = user()?->accessibleNodes()->pluck('id') ?? collect();
 
-        // nest evicted servers have node_id=null while the volume sits on s3.
+        // stashed servers have node_id=null while the volume sits on s3.
         // include them unconditionally so admins can see the full inventory,
         // they belong to no single node so accessibility cannot gate them.
         return $query->where(fn (Builder $q) => $q
             ->whereIn('node_id', $accessibleNodeIds)
-            ->orWhere('status', ServerState::Nest));
+            ->orWhere('status', ServerState::Stashed));
     }
 }

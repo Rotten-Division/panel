@@ -4,9 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// servers.node_id becomes nullable so a nest evicted server can sit without
+// servers.node_id becomes nullable so a stashed server can sit without
 // a host while it lives in cold storage. one way migration, narrowing back
-// to NOT NULL after the nest plugin ships would corrupt every roosting row.
+// to NOT NULL after the stash manager plugin ships would corrupt every
+// stashed row.
 return new class extends Migration
 {
     public function up(): void

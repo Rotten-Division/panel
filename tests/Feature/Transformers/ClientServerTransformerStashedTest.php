@@ -7,12 +7,12 @@ use App\Models\Server;
 // then resolves StartupCommandService, egg variables, subuser permission
 // checks. covering all of that for a three line null guard balloons the
 // fixture cost. these tests cover the part of the transformer behaviour
-// that nest forced us to change, the rest of the transform path stays
-// covered by the broader integration tests for the client api.
+// that the stash flow forced us to change, the rest of the transform path
+// stays covered by the broader integration tests for the client api.
 
 test('server with null node returns null on relationship access', function () {
     $server = Server::factory()->create([
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
         'node_id' => null,
     ]);
 
@@ -21,7 +21,7 @@ test('server with null node returns null on relationship access', function () {
 
 test('null safe operator chain on node mirrors transformer guard', function () {
     $server = Server::factory()->create([
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
         'node_id' => null,
     ]);
 

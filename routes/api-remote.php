@@ -23,9 +23,9 @@ Route::prefix('/servers/{server:uuid}')->group(function () {
 
     Route::post('/container/status', [Remote\Servers\ServerContainersController::class, 'status']);
 
-    Route::post('/nest/captured', [Remote\Servers\NestRemoteController::class, 'captured'])
+    Route::post('/nest/captured', [Remote\Servers\StashRemoteController::class, 'captured'])
         ->name('api.remote.servers.nest.captured');
-    Route::post('/nest/restored', [Remote\Servers\NestRemoteController::class, 'restored'])
+    Route::post('/nest/restored', [Remote\Servers\StashRemoteController::class, 'restored'])
         ->name('api.remote.servers.nest.restored');
 });
 

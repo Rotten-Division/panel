@@ -409,9 +409,9 @@ class Server extends Model implements HasAvatar, Validatable
     public function isInConflictState(): bool
     {
         return $this->isSuspended()
-            || $this->status === ServerState::Nest
-            || $this->status === ServerState::Hydrating
-            || $this->status === ServerState::Capturing
+            || $this->status === ServerState::Stashed
+            || $this->status === ServerState::Retrieving
+            || $this->status === ServerState::Stashing
             || $this->node?->isUnderMaintenance()
             || !$this->isInstalled()
             || $this->status === ServerState::RestoringBackup

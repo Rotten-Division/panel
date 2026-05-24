@@ -1028,7 +1028,7 @@ class EditServer extends EditRecord
                 ->url(fn (Server $server) => Overview::getUrl(panel: 'server', tenant: $server)),
             Action::make('force_state_dev')
                 ->label('Force state')
-                ->tooltip('Dev only. Flips status (and node_id / NestServer side data) so the overview renders the chosen state. Local environment + root admin only.')
+                ->tooltip('Dev only. Flips status (and node_id / StashedServer side data) so the overview renders the chosen state. Local environment + root admin only.')
                 ->icon(TablerIcon::Bug)
                 ->color('warning')
                 ->visible(fn () => app()->environment('local') && (user()?->isRootAdmin() ?? false))
@@ -1039,14 +1039,14 @@ class EditServer extends EditRecord
                         ->options([
                             'clear' => 'Clear (status = null)',
                             'suspended' => 'Suspended',
-                            'nest' => 'Nest (cold storage)',
-                            'hydrating' => 'Hydrating (restoring)',
-                            'capturing' => 'Capturing (evicting)',
+                            'stashed' => 'Stashed (cold storage)',
+                            'retrieving' => 'Retrieving (restoring)',
+                            'stashing' => 'Stashing (capturing to cold storage)',
                         ])
-                        ->default('nest'),
-                    Toggle::make('seed_nest_row')
-                        ->label('Seed an osnm_servers row for nest/hydrating')
-                        ->helperText('Creates a placeholder NestServer record so the fact cards have data. Skipped when the row already exists or the target state does not need one.')
+                        ->default('stashed'),
+                    Toggle::make('seed_stash_row')
+                        ->label('Seed a stash record for stashed/retrieving')
+                        ->helperText('Creates a placeholder StashedServer record so the fact cards have data. Skipped when the row already exists or the target state does not need one.')
                         ->default(true),
                 ])
                 ->action(function (array $data, Server $server): void {
@@ -1056,19 +1056,19 @@ class EditServer extends EditRecord
                         match ($target) {
                             'clear' => $server->update(['status' => null]),
                             'suspended' => $server->update(['status' => ServerState::Suspended]),
-                            'nest' => $server->update(['status' => ServerState::Nest, 'node_id' => null]),
-                            'hydrating' => $server->update(['status' => ServerState::Hydrating]),
-                            'capturing' => $server->update(['status' => ServerState::Capturing]),
+                            'stashed' => $server->update(['status' => ServerState::Stashed, 'node_id' => null]),
+                            'retrieving' => $server->update(['status' => ServerState::Retrieving]),
+                            'stashing' => $server->update(['status' => ServerState::Stashing]),
                             default => null,
                         };
 
-                        // soft optional: a NestServer row makes the
-                        // nest fact cards renderable. direct table
+                        // soft optional: a StashedServer row makes the
+                        // stash fact cards renderable. direct table
                         // insert keeps the dev tool plugin-agnostic,
                         // panel core does not import the model.
                         if (
-                            ($data['seed_nest_row'] ?? false)
-                            && in_array($target, ['nest', 'hydrating'], true)
+                            ($data['seed_stash_row'] ?? false)
+                            && in_array($target, ['stashed', 'retrieving'], true)
                             && DB::getSchemaBuilder()->hasTable('osnm_servers')
                             && DB::table('osnm_servers')->where('server_id', $server->id)->doesntExist()
                         ) {

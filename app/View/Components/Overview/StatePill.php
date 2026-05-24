@@ -29,9 +29,9 @@ class StatePill extends Component
                 ServerState::ReinstallFailed => 'suspended',
                 ServerState::Installing,
                 ServerState::RestoringBackup => 'installing',
-                ServerState::Nest,
-                ServerState::Hydrating,
-                ServerState::Capturing => 'nest',
+                ServerState::Stashed,
+                ServerState::Retrieving,
+                ServerState::Stashing => 'stashed',
             };
         }
 

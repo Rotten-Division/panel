@@ -31,7 +31,7 @@ class ListServers extends ListRecords
             ->searchable(false)
             ->defaultGroup('node.name')
             ->groups([
-                // nest servers have node_id=null while roosting on s3, the
+                // stashed servers have node_id=null while parked on s3, the
                 // group description must tolerate the missing relation.
                 Group::make('node.name')->getDescriptionFromRecordUsing(fn (Server $server): string => str($server->node?->description ?? '')->limit(150)),
                 Group::make('user.username')->getDescriptionFromRecordUsing(fn (Server $server): string => $server->user?->email ?? ''),

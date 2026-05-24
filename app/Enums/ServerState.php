@@ -14,9 +14,9 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
     case ReinstallFailed = 'reinstall_failed';
     case Suspended = 'suspended';
     case RestoringBackup = 'restoring_backup';
-    case Nest = 'nest';
-    case Hydrating = 'hydrating';
-    case Capturing = 'capturing';
+    case Stashed = 'stashed';
+    case Retrieving = 'retrieving';
+    case Stashing = 'stashing';
 
     public function getIcon(): BackedEnum
     {
@@ -25,9 +25,9 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
             self::InstallFailed, self::ReinstallFailed => TablerIcon::HeartX,
             self::Suspended => TablerIcon::HeartCancel,
             self::RestoringBackup => TablerIcon::HeartUp,
-            self::Nest => TablerIcon::Snowflake,
-            self::Hydrating => TablerIcon::HeartBolt,
-            self::Capturing => TablerIcon::PackageExport,
+            self::Stashed => TablerIcon::Snowflake,
+            self::Retrieving => TablerIcon::HeartBolt,
+            self::Stashing => TablerIcon::PackageExport,
         };
     }
 
@@ -39,9 +39,9 @@ enum ServerState: string implements HasColor, HasIcon, HasLabel
             self::ReinstallFailed => 'danger',
             self::Suspended => 'warning',
             self::RestoringBackup => 'primary',
-            self::Nest => 'info',
-            self::Hydrating => 'primary',
-            self::Capturing => 'primary',
+            self::Stashed => 'info',
+            self::Retrieving => 'primary',
+            self::Stashing => 'primary',
         };
     }
 

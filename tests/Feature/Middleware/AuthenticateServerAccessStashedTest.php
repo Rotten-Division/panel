@@ -4,12 +4,12 @@ use App\Enums\ServerState;
 use App\Models\Server;
 use App\Models\User;
 
-test('client api refuses nest server with 409', function () {
+test('client api refuses stashed server with 409', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
         'node_id' => null,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     $this->actingAs($user)
@@ -17,11 +17,11 @@ test('client api refuses nest server with 409', function () {
         ->assertStatus(409);
 });
 
-test('client api permits server.view on hydrating', function () {
+test('client api permits server.view on retrieving', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
-        'status' => ServerState::Hydrating,
+        'status' => ServerState::Retrieving,
     ]);
 
     $this->actingAs($user)
@@ -29,11 +29,11 @@ test('client api permits server.view on hydrating', function () {
         ->assertOk();
 });
 
-test('client api permits server.resources on hydrating', function () {
+test('client api permits server.resources on retrieving', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
-        'status' => ServerState::Hydrating,
+        'status' => ServerState::Retrieving,
     ]);
 
     $this->actingAs($user)
@@ -41,11 +41,11 @@ test('client api permits server.resources on hydrating', function () {
         ->assertOk();
 });
 
-test('client api refuses other paths on hydrating with 409', function () {
+test('client api refuses other paths on retrieving with 409', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
-        'status' => ServerState::Hydrating,
+        'status' => ServerState::Retrieving,
     ]);
 
     $this->actingAs($user)
@@ -53,11 +53,11 @@ test('client api refuses other paths on hydrating with 409', function () {
         ->assertStatus(409);
 });
 
-test('client api permits server.view on capturing so the front end can poll', function () {
+test('client api permits server.view on stashing so the front end can poll', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
-        'status' => ServerState::Capturing,
+        'status' => ServerState::Stashing,
     ]);
 
     $this->actingAs($user)
@@ -65,11 +65,11 @@ test('client api permits server.view on capturing so the front end can poll', fu
         ->assertOk();
 });
 
-test('client api refuses power and file actions on capturing with 409', function () {
+test('client api refuses power and file actions on stashing with 409', function () {
     $user = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $user->id,
-        'status' => ServerState::Capturing,
+        'status' => ServerState::Stashing,
     ]);
 
     $this->actingAs($user)

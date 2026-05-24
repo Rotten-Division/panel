@@ -49,7 +49,7 @@
                     <x-overview.stage-hero :variant="$h['variant']">
                         <x-slot:title>{{ $h['title'] }}</x-slot:title>
                         <x-slot:body>{{ $h['body'] }}</x-slot:body>
-                        @if ($h['variant'] === 'rouse')
+                        @if ($h['variant'] === 'retrieve')
                             <x-slot:cta>
                                 <button class="overview-power-button overview-power-button--start" type="button">
                                     <x-filament::icon icon="tabler-bolt" class="size-3.5" />

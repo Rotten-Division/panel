@@ -47,7 +47,7 @@
                 @include('filament.server.pages.overview-states.stopped', compact('server'))
         @endswitch
     @else
-        {{-- no-node fallback. reachable when a nest-family server has no
+        {{-- no-node fallback. reachable when a stash-family server has no
              registered phase 7 handler. cannot render the stopped partial
              here, it hardcodes ServerConsole which dereferences
              $server->node and crashes on null. minimal inline placeholder
@@ -59,13 +59,13 @@
                 <div class="overview-banner__content">
                     <p class="overview-banner__title">
                         @switch($server->status)
-                            @case (\App\Enums\ServerState::Nest)
+                            @case (\App\Enums\ServerState::Stashed)
                                 This server is in cold storage.
                                 @break
-                            @case (\App\Enums\ServerState::Hydrating)
-                                Restoring from cold storage.
+                            @case (\App\Enums\ServerState::Retrieving)
+                                Retrieving from cold storage.
                                 @break
-                            @case (\App\Enums\ServerState::Capturing)
+                            @case (\App\Enums\ServerState::Stashing)
                                 Moving to cold storage.
                                 @break
                             @default

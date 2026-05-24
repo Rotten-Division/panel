@@ -16,11 +16,11 @@ class ServerStateConflictException extends ConflictHttpException
     public function __construct(Server $server, ?Throwable $previous = null)
     {
         $message = 'This server is currently in an unsupported state, please try again later.';
-        if ($server->status === ServerState::Nest) {
-            $message = 'This server is roosting in cold storage. Hit wake to bring it back.';
-        } elseif ($server->status === ServerState::Hydrating) {
-            $message = 'This server is waking from cold storage. Hold tight, this takes about a minute.';
-        } elseif ($server->status === ServerState::Capturing) {
+        if ($server->status === ServerState::Stashed) {
+            $message = 'This server is in cold storage. Hit wake to bring it back.';
+        } elseif ($server->status === ServerState::Retrieving) {
+            $message = 'This server is being retrieved from cold storage. Hold tight, this takes about a minute.';
+        } elseif ($server->status === ServerState::Stashing) {
             $message = 'This server is being moved to cold storage. Hold tight, this takes about a minute.';
         } elseif ($server->isSuspended()) {
             $message = 'This server is currently suspended and the functionality requested is unavailable.';

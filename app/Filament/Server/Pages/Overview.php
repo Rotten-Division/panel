@@ -111,9 +111,9 @@ class Overview extends Page
                 ServerState::ReinstallFailed,
                 ServerState::RestoringBackup,
                 ServerState::Suspended,
-                ServerState::Nest,
-                ServerState::Hydrating,
-                ServerState::Capturing,
+                ServerState::Stashed,
+                ServerState::Retrieving,
+                ServerState::Stashing,
             ], true) || ($server->transfer !== null && $server->transfer->successful === null);
             if ($stateHasOwnBanner) {
                 return;
@@ -198,18 +198,18 @@ class Overview extends Page
         // plugin widgets only. panel-core widgets (ServerConsole, *Chart)
         // dereference $server->node and would 500 the page. this guard
         // is the safety net for two cases:
-        //   1. nest-family states (Nest, Hydrating, Capturing). these
+        //   1. stash-family states (Stashed, Retrieving, Stashing). these
         //      are now claimed by a state handler (phase 7) that owns
         //      the whole body and ignores getWidgets entirely, so the
-        //      nest-state arm of the condition is effectively vestigial.
+        //      stash-state arm of the condition is effectively vestigial.
         //      kept until phase 8 confirms no path still relies on it.
-        //   2. transient null node_id from a failed force-evict mid
+        //   2. transient null node_id from a failed force-stash mid
         //      rollback or an admin nulling the column manually.
         /** @var Server $server */
         $server = Filament::getTenant();
         if (
             $server->node_id === null
-            || in_array($server->status, [ServerState::Nest, ServerState::Hydrating, ServerState::Capturing], true)
+            || in_array($server->status, [ServerState::Stashed, ServerState::Retrieving, ServerState::Stashing], true)
         ) {
             return static::$customWidgets[ConsoleWidgetPosition::Top->value] ?? [];
         }

@@ -31,10 +31,10 @@ test('shouldHide returns false when a transfer has completed', function () {
     expect((new PowerButtons($server))->shouldHide())->toBeFalse();
 });
 
-test('shouldHide returns true for nest, hydrating, capturing', function () {
-    expect((new PowerButtons(buildServerStub(ServerState::Nest)))->shouldHide())->toBeTrue();
-    expect((new PowerButtons(buildServerStub(ServerState::Hydrating)))->shouldHide())->toBeTrue();
-    expect((new PowerButtons(buildServerStub(ServerState::Capturing)))->shouldHide())->toBeTrue();
+test('shouldHide returns true for stashed, retrieving, stashing', function () {
+    expect((new PowerButtons(buildServerStub(ServerState::Stashed)))->shouldHide())->toBeTrue();
+    expect((new PowerButtons(buildServerStub(ServerState::Retrieving)))->shouldHide())->toBeTrue();
+    expect((new PowerButtons(buildServerStub(ServerState::Stashing)))->shouldHide())->toBeTrue();
 });
 
 test('shouldHide returns true for installing, suspended, install_failed', function () {

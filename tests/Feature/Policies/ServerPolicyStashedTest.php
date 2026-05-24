@@ -6,12 +6,12 @@ use App\Models\Role;
 use App\Models\Server;
 use App\Models\User;
 
-test('owner can use subuser permission abilities on nest server with null node', function () {
+test('owner can use subuser permission abilities on stashed server with null node', function () {
     $owner = User::factory()->create();
     $server = Server::factory()->create([
         'owner_id' => $owner->id,
         'node_id' => null,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     expect($owner->can(SubuserPermission::FileRead, $server))->toBeTrue();
@@ -24,7 +24,7 @@ test('non owner non subuser stranger cannot use subuser permissions', function (
     $server = Server::factory()->create([
         'owner_id' => $owner->id,
         'node_id' => null,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     expect($stranger->can(SubuserPermission::FileRead, $server))->toBeFalse();
@@ -37,13 +37,13 @@ test('policy does not throw on null node access', function () {
     $server = Server::factory()->create([
         'owner_id' => $owner->id,
         'node_id' => null,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     expect(fn () => $stranger->can(SubuserPermission::FileRead, $server))->not->toThrow(Throwable::class);
 });
 
-test('root admin can target a nest server with no node', function () {
+test('root admin can target a stashed server with no node', function () {
     $rootAdmin = User::factory()->create();
     $rootAdmin->assignRole(Role::getRootAdmin());
 
@@ -52,7 +52,7 @@ test('root admin can target a nest server with no node', function () {
     $server = Server::factory()->create([
         'owner_id' => $owner->id,
         'node_id' => null,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     // root admin's before() returns null on the null node branch, default

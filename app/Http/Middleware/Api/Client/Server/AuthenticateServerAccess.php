@@ -49,22 +49,22 @@ class AuthenticateServerAccess
             }
         }
 
-        // nest evicted servers have no node and refuse every client api path
+        // stashed servers have no node and refuse every client api path
         // including the server.view introspection one. there is nothing for
-        // wings to answer with while the volume is roosting on s3.
-        if ($server->status === ServerState::Nest) {
+        // wings to answer with while the volume is parked on s3.
+        if ($server->status === ServerState::Stashed) {
             throw new ServerStateConflictException($server);
         }
 
-        // hydrating means wings is mid restore, the server is taking shape
-        // again on a node. capturing means wings is mid eviction, the
+        // retrieving means wings is mid restore, the server is taking shape
+        // again on a node. stashing means wings is mid capture, the
         // volume is being read out and the container/volume teardown is
         // imminent. for both, let the dashboard poll server.view and
         // server.resources so the front end can watch progress, refuse
         // every other path because power and file access would race the
         // in flight transfer. short circuit past validateCurrentState
         // below for these two routes.
-        if ($server->status === ServerState::Hydrating || $server->status === ServerState::Capturing) {
+        if ($server->status === ServerState::Retrieving || $server->status === ServerState::Stashing) {
             if (!$request->routeIs('api:client:server.view')
                 && !$request->routeIs('api:client:server.resources')) {
                 throw new ServerStateConflictException($server);

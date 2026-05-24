@@ -22,9 +22,9 @@ class PowerButtons extends Component
         }
 
         return in_array($this->server->status, [
-            ServerState::Nest,
-            ServerState::Hydrating,
-            ServerState::Capturing,
+            ServerState::Stashed,
+            ServerState::Retrieving,
+            ServerState::Stashing,
             ServerState::Installing,
             ServerState::InstallFailed,
             ServerState::ReinstallFailed,

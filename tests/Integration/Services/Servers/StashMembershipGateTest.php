@@ -2,18 +2,18 @@
 
 namespace App\Tests\Integration\Services\Servers;
 
-use App\Contracts\Servers\NestMembershipGate;
+use App\Contracts\Servers\StashMembershipGate;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\Servers\NoNestMembershipGate;
+use App\Services\Servers\NoStashMembershipGate;
 use App\Tests\Integration\IntegrationTestCase;
 
-class NestMembershipGateTest extends IntegrationTestCase
+class StashMembershipGateTest extends IntegrationTestCase
 {
     public function test_default_returns_null_blocking_server(): void
     {
         $user = User::factory()->create();
-        $gate = new NoNestMembershipGate();
+        $gate = new NoStashMembershipGate();
 
         $this->assertNull($gate->blockingServerFor($user));
         $this->assertNull($gate->blockingServerFor($user, Server::factory()->make()));
@@ -21,6 +21,6 @@ class NestMembershipGateTest extends IntegrationTestCase
 
     public function test_default_binding_implements_contract(): void
     {
-        $this->assertInstanceOf(NestMembershipGate::class, new NoNestMembershipGate());
+        $this->assertInstanceOf(StashMembershipGate::class, new NoStashMembershipGate());
     }
 }

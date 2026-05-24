@@ -18,11 +18,11 @@ test('full sidebar shows node-gated pages when server has a node', function () {
     $response->assertSee('Activity', escape: false);
 });
 
-test('bare sidebar omits node-gated pages when server is in Nest state', function () {
+test('bare sidebar omits node-gated pages when server is in Stashed state', function () {
     $egg = Egg::factory()->withGameTag('minecraft')->create(['name' => 'Forge']);
     [$user, $server] = sidebarSeed([
         'egg_id' => $egg->id,
-        'status' => ServerState::Nest,
+        'status' => ServerState::Stashed,
     ]);
 
     $response = $this->actingAs($user)->get("/server/{$server->uuid_short}/overview");

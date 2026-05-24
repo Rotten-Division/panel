@@ -1,4 +1,4 @@
-@props(['variant' => 'nest'])
+@props(['variant' => 'stashed'])
 
 <section class="overview-stage-hero overview-stage-hero--{{ $variant }}">
     <div class="overview-stage-hero__prose">
