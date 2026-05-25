@@ -48,10 +48,12 @@
         @endswitch
     @else
         {{-- no-node fallback. reachable when a stash-family server has no
-             registered phase 7 handler. cannot render the stopped partial
+             registered state handler, i.e. the stash-manager plugin is
+             missing or disabled (when installed, its StashStateHandler owns
+             the body via the @if above). cannot render the stopped partial
              here, it hardcodes ServerConsole which dereferences
-             $server->node and crashes on null. minimal inline placeholder
-             until phase 7 lands the proper stage hero. --}}
+             $server->node and crashes on null, so this stays a minimal
+             inline placeholder. --}}
         <div class="overview-banner overview-banner--default">
             <div class="overview-banner__accent"></div>
             <div class="overview-banner__body">
@@ -73,7 +75,17 @@
                         @endswitch
                     </p>
                     <p class="overview-banner__subtitle">
-                        Reload in a moment, the panel is still wiring this server up. If this persists, contact support.
+                        @switch($server->status)
+                            @case (\App\Enums\ServerState::Stashed)
+                                This server is in long-term storage. Reload to load the full view, or contact support if it keeps landing here.
+                                @break
+                            @case (\App\Enums\ServerState::Retrieving)
+                            @case (\App\Enums\ServerState::Stashing)
+                                This usually takes about a minute. Reload shortly.
+                                @break
+                            @default
+                                Reload in a moment, the panel is still wiring this server up. If this persists, contact support.
+                        @endswitch
                     </p>
                 </div>
             </div>
