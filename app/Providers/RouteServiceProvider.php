@@ -110,6 +110,12 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(300)->by($serverUuid);
         });
 
+        RateLimiter::for('nest-progress', function (Request $request) {
+            $serverUuid = $request->route('server')?->uuid ?? 'unknown';
+
+            return Limit::perMinute(300)->by($serverUuid);
+        });
+
         ResourceLimit::boot();
     }
 }

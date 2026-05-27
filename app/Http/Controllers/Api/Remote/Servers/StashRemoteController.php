@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Remote\Servers;
 
+use App\Exceptions\Http\HttpForbiddenException;
 use App\Http\Controllers\Controller;
+use App\Models\Node;
 use App\Models\Server;
+use App\Services\Servers\RetrieveProgressCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -28,5 +31,25 @@ class StashRemoteController extends Controller
         return new JsonResponse([
             'error' => 'stash manager plugin is not installed',
         ], 503);
+    }
+
+    public function progress(Request $request, Server $server): JsonResponse
+    {
+        // the retrieve destination is the server's current node during
+        // Retrieving; only that node may report progress for it.
+        $node = $request->attributes->get('node');
+        if ($server->node_id !== null && (!$node instanceof Node || $node->id !== $server->node_id)) {
+            throw new HttpForbiddenException('Requesting node does not own this server.');
+        }
+
+        $payload = $request->validate([
+            'step' => ['required', 'string', 'in:downloading,extracting'],
+            'bytes' => ['required', 'integer', 'min:0'],
+            'total_bytes' => ['required', 'integer', 'min:0'],
+        ]);
+
+        app(RetrieveProgressCache::class)->mergeProgress($server, $payload);
+
+        return new JsonResponse([], 204);
     }
 }

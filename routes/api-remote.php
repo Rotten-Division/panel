@@ -27,6 +27,9 @@ Route::prefix('/servers/{server:uuid}')->group(function () {
         ->name('api.remote.servers.nest.captured');
     Route::post('/nest/restored', [Remote\Servers\StashRemoteController::class, 'restored'])
         ->name('api.remote.servers.nest.restored');
+    Route::post('/nest-progress', [Remote\Servers\StashRemoteController::class, 'progress'])
+        ->middleware('throttle:nest-progress')
+        ->name('api.remote.servers.nest-progress');
 });
 
 Route::prefix('/backups')->group(function () {
