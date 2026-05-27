@@ -61,7 +61,7 @@ class Overview extends Page
     }
 
     // returns an empty view so the panels::page template's @if branch
-    // short-circuits — the @else fallback would otherwise render
+    // short-circuits. the @else fallback would otherwise render
     // getCachedHeaderActions() into a default Filament header strip
     // even with $heading = ''.
     public function getHeader(): ?View
@@ -346,10 +346,7 @@ class Overview extends Page
             ->forHumans(['short' => true, 'parts' => 2]);
     }
 
-    /**
-     * tone for the disk utilisation bar across every state partial. 60%
-     * switches to warning, 85% to danger.
-     */
+    /** disk-bar tone, shared by every state partial. */
     public function diskBarTone(): string
     {
         $pct = $this->diskUsedPercent();
@@ -361,10 +358,7 @@ class Overview extends Page
         };
     }
 
-    /**
-     * disk used percentage clamped to 0..100. partials use this for the
-     * bar width and the tone helper above.
-     */
+    /** disk used %, clamped to 0..100, drives the bar width and diskBarTone. */
     public function diskUsedPercent(): float
     {
         /** @var Server $server */
@@ -478,7 +472,7 @@ class Overview extends Page
 
                     return $tenant?->status === ServerState::Suspended;
                 })
-                // resolve the server from the tenant, not closure injection — a
+                // resolve the server from the tenant, not closure injection. a
                 // standalone header action has no record context, so a typed
                 // `Server $server` arg is unresolvable and throws on mount.
                 ->authorize(fn () => ($s = Filament::getTenant()) instanceof Server && (user()?->can('view', $s) ?? false)),

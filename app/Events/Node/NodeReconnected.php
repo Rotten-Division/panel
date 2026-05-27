@@ -11,8 +11,5 @@ class NodeReconnected extends Event
 {
     use SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(public Node $node, public ?Carbon $previousLastSeen) {}
 }

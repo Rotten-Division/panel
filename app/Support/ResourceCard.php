@@ -7,9 +7,8 @@ use Carbon\Carbon;
 class ResourceCard
 {
     /**
-     * Y-axis ticks for a normalised series. Returns [top, mid, bot].
-     * Top expands the max by 15% so the line never touches the top edge,
-     * bot drops the min by 20% so the line never grazes the bottom either.
+     * top pads the max by 15% and bot drops the min by 20% so the plotted
+     * line never touches either edge.
      *
      * @param  array<int, float|int>  $series
      * @return array<int, float>
@@ -35,9 +34,8 @@ class ResourceCard
     }
 
     /**
-     * Map raw samples to (x, y) coordinates inside the chart drawing area.
-     * Width and height are the canonical numbers the blade view uses, so
-     * paths look identical regardless of the actual rendered size.
+     * width and height are the canonical numbers the blade view uses, so the
+     * generated paths look identical regardless of the rendered size.
      *
      * @param  array<int, float|int>  $series
      * @return array<int, array{0: float, 1: float}>
@@ -70,10 +68,6 @@ class ResourceCard
         return $points;
     }
 
-    /**
-     * Threshold colour for the utilisation bar. 60% switches to honey,
-     * 85% to brick.
-     */
     public static function progressColour(float $percent): string
     {
         return match (true) {
@@ -84,10 +78,6 @@ class ResourceCard
     }
 
     /**
-     * Format the timestamps of the last $period samples from a Unix-second
-     * keyed cache as HH:MM:SS strings in the supplied timezone. Returns an
-     * empty array when the cache is empty.
-     *
      * @param  array<int|string, mixed>  $rawCache  cache keyed by unix timestamp
      * @return array<int, string> ordered HH:MM:SS strings
      */
@@ -107,9 +97,6 @@ class ResourceCard
     }
 
     /**
-     * Auto-scale a bytes-per-second rate to the right unit. Returns the
-     * formatted value (one decimal place) and the unit string.
-     *
      * @return array{value: string, unit: string}
      */
     public static function formatRate(int $bytesPerSecond): array
@@ -128,9 +115,8 @@ class ResourceCard
     }
 
     /**
-     * Render a byte rate using a fixed unit so the y-axis labels stay
-     * consistent across the three ticks. The top tick picks the unit,
-     * mid and bot use the same one.
+     * fixed unit instead of auto-scaling, so the three y-axis ticks all read
+     * in the same unit. the top tick picks it, mid and bot follow.
      */
     public static function formatRateInUnit(int $bytesPerSecond, string $unit): string
     {

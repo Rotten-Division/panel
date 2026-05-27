@@ -16,18 +16,12 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Session;
 
 /**
- * State-aware server console widget.
- *
- * Public typed properties below are hydrated by Filament's widget container
- * from the `:data` array on `<x-filament-widgets::widgets>`. State partials
- * pass overrides like:
- *
- *   :data="$this->getWidgetData() + ['readOnly' => true]"
- *
- * The keys map 1:1 to property names — they ARE NOT routed through an
- * explicit `mount(...)` method because Filament + Livewire hydrate public
- * properties directly. If you ever add a `mount()` signature here, include
- * `bool $readOnly = false` so the data array continues to flow through.
+ * the public typed properties below are hydrated by filament's widget
+ * container from the `:data` array on `<x-filament-widgets::widgets>`. state
+ * partials pass overrides like `:data="$this->getWidgetData() + ['readOnly' => true]"`.
+ * the keys map 1:1 to property names, not routed through a `mount()` method
+ * because filament + livewire hydrate public properties directly. if you add a
+ * `mount()` here, include `bool $readOnly = false` so the data array keeps flowing.
  */
 class ServerConsole extends Widget
 {
@@ -41,8 +35,7 @@ class ServerConsole extends Widget
 
     public ?User $user = null;
 
-    /** hide the command-input row when true. set by state partials that
-     *  render the console in read-only mode (stopped, transient, installing). */
+    /** hides the command-input row. set by the stopped/transient/installing partials. */
     public bool $readOnly = false;
 
     /** @var string[] */
@@ -144,11 +137,10 @@ class ServerConsole extends Widget
 
             $cachedStats[$timestamp] = $value;
 
-            // preserve_keys is critical — the cached entries are keyed by
-            // Unix timestamp, and array_slice's default behavior reindexes
-            // integer keys to 0..N, which would replace the timestamps with
-            // sample indexes and break every downstream consumer that reads
-            // array_keys() to recover sample times.
+            // preserve_keys is critical. the entries are keyed by unix
+            // timestamp, and array_slice without it reindexes integer keys to
+            // 0..N, replacing the timestamps with sample indexes and breaking
+            // every consumer that reads array_keys() to recover sample times.
             cache()->put($cacheKey, array_slice($cachedStats, -120, null, preserve_keys: true), now()->addMinute());
         }
     }

@@ -1,5 +1,5 @@
 /* ============================================================ */
-/* overview-stat-grid + overview-stat-card: phase 5             */
+/* overview-stat-grid + overview-stat-card                      */
 /* ============================================================ */
 .overview-stat-grid { margin-bottom: 14px; }
 .overview-stat-card {
@@ -42,7 +42,7 @@
 }
 
 /* ============================================================ */
-/* overview-spark — small flat chart card for non-Running states */
+/* overview-spark, small flat chart card for non-Running states  */
 /* matches design canvas .fs-chart (overview.css:337-360)        */
 /* colour via currentColor: parent sets `color`, svg paths inherit */
 /* ============================================================ */
@@ -113,7 +113,7 @@
     height: 100%;
     display: flex;
     /* match the card surface that lives here when the server is running
-       so the offline state doesn't read as a washed-out variant — the
+       so the offline state doesn't read as a washed-out variant. the
        inner content's opacity only dims the data, not the card shell. */
     background: var(--ink);
     border: 0.5px solid var(--graphite);
