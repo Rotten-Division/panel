@@ -1,0 +1,32 @@
+.fi-tabs,
+.fi-sc-tabs.fi-contained,
+.fi-sc-wizard.fi-contained {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+}
+
+/* the inner nav nested in fi-sc-tabs would stamp sharp top corners over
+   the rounded outer card. */
+.fi-sc-tabs.fi-contained > .fi-tabs.fi-contained {
+    background-color: transparent;
+}
+
+/* filament v4 marks active tabs via aria-selected on horizontal strips
+   and via .fi-active on schema and form tabs. */
+.fi-tabs-item[aria-selected='true'],
+.fi-tabs-item.fi-active {
+    background-color: rgb(var(--ospite-surface-elevated));
+    color: rgb(var(--ospite-accent));
+}
+
+/* fi-sc-tabs-tab is the content panel, not a button. it is sized to the
+   parent so any fill paints sharp corners over the rounded outer card. */
+.fi-sc-tabs-tab.fi-active {
+    background-color: transparent;
+    color: inherit;
+}
+
+.fi-tabs-item .fi-tabs-item-label,
+.fi-sc-tabs-tab .fi-tabs-item-label {
+    color: inherit;
+}

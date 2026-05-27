@@ -1,0 +1,42 @@
+/* alertbanner ships the text status class but no surface, anchor by id
+   and tint per status. outline so we do not clobber the shadow-lg and
+   ring-1 stack from the blade. */
+#alert-banner-container > div.text-danger-600 {
+    background-color: rgb(var(--state-danger) / 0.1);
+    outline: 1px solid rgb(var(--state-danger) / 0.3);
+    outline-offset: -1px;
+}
+.dark #alert-banner-container > div.text-danger-600 {
+    background-color: rgb(var(--state-danger) / 0.18);
+    outline-color: rgb(var(--state-danger) / 0.4);
+}
+
+#alert-banner-container > div.text-warning-600 {
+    background-color: rgb(var(--state-warning) / 0.1);
+    outline: 1px solid rgb(var(--state-warning) / 0.3);
+    outline-offset: -1px;
+}
+.dark #alert-banner-container > div.text-warning-600 {
+    background-color: rgb(var(--state-warning) / 0.18);
+    outline-color: rgb(var(--state-warning) / 0.4);
+}
+
+#alert-banner-container > div.text-success-600 {
+    background-color: rgb(var(--state-success) / 0.1);
+    outline: 1px solid rgb(var(--state-success) / 0.3);
+    outline-offset: -1px;
+}
+.dark #alert-banner-container > div.text-success-600 {
+    background-color: rgb(var(--state-success) / 0.18);
+    outline-color: rgb(var(--state-success) / 0.4);
+}
+
+#alert-banner-container > div.text-info-600 {
+    background-color: rgb(var(--state-info) / 0.1);
+    outline: 1px solid rgb(var(--state-info) / 0.3);
+    outline-offset: -1px;
+}
+.dark #alert-banner-container > div.text-info-600 {
+    background-color: rgb(var(--state-info) / 0.18);
+    outline-color: rgb(var(--state-info) / 0.4);
+}

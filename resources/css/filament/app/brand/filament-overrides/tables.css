@@ -1,0 +1,94 @@
+.dark .fi-ta-record {
+    background-color: rgb(var(--ospite-surface-elevated));
+}
+
+/* demote row and header action icons, danger is preserved so trash
+   icons keep destructive meaning. */
+.fi-ta-actions .fi-icon-btn:not(.fi-color-danger),
+.fi-header-actions-ctn .fi-icon-btn:not(.fi-color-danger) {
+    color: rgb(var(--ospite-text-secondary));
+}
+.fi-ta-actions .fi-icon-btn:not(.fi-color-danger):hover,
+.fi-header-actions-ctn .fi-icon-btn:not(.fi-color-danger):hover {
+    color: rgb(var(--ospite-accent));
+}
+
+/* dashboard server list header layout, scoped to the user facing panel
+   list records page. lays out the table header as filter on the left,
+   search centered, header actions on the right, all on one row. the
+   grid is on .fi-ta-header-ctn because filaments table header structure
+   is two siblings inside that container, .fi-ta-header holds the header
+   actions slot where the create server button lands and
+   .fi-ta-header-toolbar holds the search field and filter dropdown. both
+   are flattened via display contents so each leaf control becomes a
+   direct grid item. all items pinned to row 1 because css grid auto
+   placement otherwise stacks them into separate rows when only the
+   column is explicit. */
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto;
+    align-items: center;
+    gap: 1.4rem;
+    /* the inner .fi-ta-header and .fi-ta-header-toolbar each had their
+       own padding plus border-bottom from filaments default styles, both
+       are flattened via display contents above so the box decoration is
+       lifted up to the new grid container instead. */
+    padding: 0.875rem 1.5rem;
+    border-bottom: 1px solid rgb(var(--ospite-surface-border));
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header,
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar,
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar > div:not(.fi-ta-actions) {
+    display: contents;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-filters-dropdown {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: end;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-search-field {
+    grid-row: 1;
+    grid-column: 2;
+    width: 17rem;
+}
+
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header > .fi-ta-actions,
+body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar > .fi-ta-actions {
+    grid-row: 1;
+    grid-column: 3;
+    justify-self: end;
+}
+
+@media (max-width: 768px) {
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 1.125rem;
+        padding: 0.75rem 1rem;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-filters-dropdown {
+        justify-self: start;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-search-field {
+        width: auto;
+        min-width: 0;
+        justify-self: stretch;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-search-field input {
+        width: 100%;
+    }
+
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header .fi-btn,
+    body.fi-panel-app .fi-resource-list-records-page .fi-ta-header-ctn .fi-ta-header-toolbar .fi-btn {
+        font-size: 0;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        gap: 0;
+    }
+}

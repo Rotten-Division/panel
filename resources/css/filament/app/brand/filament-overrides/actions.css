@@ -1,0 +1,95 @@
+/* dim active toggle button to a tint, full primary fill on every active
+   pill blows past the 3 percent accent rule. */
+.fi-fo-toggle-buttons-input:checked + label {
+    background-color: rgb(var(--ospite-accent) / 0.16);
+    color: rgb(var(--ospite-accent));
+}
+
+/* boolean toggle pill is small so 0.16 reads as off, 0.5 lands. */
+[role='switch'][aria-checked='true'].fi-toggle {
+    background-color: rgb(var(--ospite-accent) / 0.5) !important; /* !important class 2: beats Filament's inline :root */
+}
+
+/* design system 6.4 wants linen on solid ember and brick. scoped to
+   button and a so togglebutton labels keep their default text. */
+button.fi-btn.fi-color-primary,
+a.fi-btn.fi-color-primary,
+button.fi-btn.fi-color-primary svg,
+a.fi-btn.fi-color-primary svg {
+    color: rgb(198 73 22);
+}
+
+button.fi-btn.fi-color-danger,
+a.fi-btn.fi-color-danger {
+    color: rgb(250 247 242);
+}
+
+.dark button.fi-btn.fi-color-primary,
+.dark a.fi-btn.fi-color-primary {
+    color: rgb(250 247 242);
+}
+
+.dark button.fi-btn.fi-color-primary svg,
+.dark a.fi-btn.fi-color-primary svg {
+    color: rgb(250 247 242);
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: rgb(var(--ospite-accent) / 0.12);
+}
+
+/* demote solid action buttons in section content to outline so the 3
+   percent accent rule holds, keep semantic colour through border + text. */
+.fi-section-content .fi-ac-btn-action,
+.fi-fieldset .fi-ac-btn-action,
+.fi-section-header .fi-sc-action > a,
+.fi-section-header .fi-sc-action > button {
+    background-color: transparent !important; /* !important class 1: beats app.css .fi-ac-btn-action chrome */
+    border: 1px solid;
+    box-shadow: none;
+}
+.fi-section-content .fi-ac-btn-action.fi-color-primary,
+.fi-fieldset .fi-ac-btn-action.fi-color-primary,
+.fi-section-header .fi-sc-action > a.fi-color-primary,
+.fi-section-header .fi-sc-action > button.fi-color-primary {
+    color: rgb(var(--ospite-accent));
+    border-color: rgb(var(--ospite-accent) / 0.5);
+}
+.fi-section-content .fi-ac-btn-action.fi-color-success,
+.fi-fieldset .fi-ac-btn-action.fi-color-success,
+.fi-section-header .fi-sc-action > a.fi-color-success,
+.fi-section-header .fi-sc-action > button.fi-color-success {
+    color: rgb(var(--state-success));
+    border-color: rgb(var(--state-success) / 0.5);
+}
+.fi-section-content .fi-ac-btn-action.fi-color-warning,
+.fi-fieldset .fi-ac-btn-action.fi-color-warning,
+.fi-section-header .fi-sc-action > a.fi-color-warning,
+.fi-section-header .fi-sc-action > button.fi-color-warning {
+    color: rgb(var(--state-warning));
+    border-color: rgb(var(--state-warning) / 0.5);
+}
+.fi-section-content .fi-ac-btn-action.fi-color-danger,
+.fi-fieldset .fi-ac-btn-action.fi-color-danger,
+.fi-section-header .fi-sc-action > a.fi-color-danger,
+.fi-section-header .fi-sc-action > button.fi-color-danger {
+    color: rgb(var(--state-danger));
+    border-color: rgb(var(--state-danger) / 0.5);
+}
+
+/* filament does not emit fi-color-gray, gray buttons render with no
+   colour anchor and inherit white text. catch them by excluding the
+   named colour classes. */
+.fi-section-content
+    .fi-ac-btn-action:not(.fi-color-primary):not(.fi-color-success):not(.fi-color-warning):not(.fi-color-danger),
+.fi-fieldset
+    .fi-ac-btn-action:not(.fi-color-primary):not(.fi-color-success):not(.fi-color-warning):not(.fi-color-danger),
+.fi-section-header
+    .fi-sc-action
+    > a:not(.fi-color-primary):not(.fi-color-success):not(.fi-color-warning):not(.fi-color-danger),
+.fi-section-header
+    .fi-sc-action
+    > button:not(.fi-color-primary):not(.fi-color-success):not(.fi-color-warning):not(.fi-color-danger) {
+    color: rgb(var(--ospite-text-secondary)) !important; /* !important class 1: beats app.css .fi-ac-btn-action color chrome */
+    border-color: rgb(var(--ospite-text-tertiary) / 0.5) !important; /* !important class 1: beats app.css .fi-ac-btn-action border chrome */
+}

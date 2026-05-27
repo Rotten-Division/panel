@@ -1,0 +1,43 @@
+/* filament inlines height as a style attribute on the logo element,
+   important is required to win against the inline rule. */
+.fi-simple-page .fi-logo {
+    height: 5rem !important; /* !important class 3: beats Filament's inline style= on .fi-logo */
+    margin-bottom: 2.5rem;
+}
+
+/* pelican widgets use raw tailwind utilities instead of fi-section. */
+.dark .dark\:bg-gray-900 {
+    background-color: rgb(var(--ospite-surface-card));
+}
+
+.dark .dark\:bg-gray-800 {
+    background-color: rgb(var(--ospite-surface-elevated));
+}
+
+/* discord preview widget injects an inline style block setting
+   .container with !important. */
+.fi-wi-widget .container {
+    background-color: transparent !important; /* !important class 3: beats discord widget's inline style= on .container */
+}
+
+.fi-small-stat-block,
+.dark .fi-small-stat-block {
+    background-color: rgb(var(--ospite-surface-elevated));
+    border-radius: 0.4375rem;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-color: transparent;
+    border: 0;
+}
+
+/* sticky form footer pulls a stock filament gray, swap to surface card so
+   it sits flush with the panel chrome in both light and dark mode. */
+.fi-sc-actions.fi-sticky .fi-ac {
+    background-color: rgb(var(--ospite-surface-card)) !important; /* !important class 1: beats app.css .fi-ac sticky chrome */
+    border: 1px solid rgb(var(--ospite-surface-border));
+}
+
+.fi-sc-actions.fi-sticky .fi-ac:where(.dark, .dark *) {
+    background-color: rgb(var(--ospite-surface-card)) !important; /* !important class 1: beats app.css .fi-ac sticky dark chrome */
+    border-color: rgb(var(--ospite-surface-border));
+}

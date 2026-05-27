@@ -1,0 +1,129 @@
+.fi-body {
+    background-color: rgb(var(--ospite-surface-base));
+    font-family:
+        'Inter',
+        system-ui,
+        -apple-system,
+        sans-serif;
+}
+
+.fi-body code,
+.fi-body kbd,
+.fi-body pre,
+.fi-body samp,
+.fi-body .fi-mono,
+.fi-body [class*='font-mono'] {
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* inline code chips, only inline code and kbd elements pick up the chip
+   backing. pre code is excluded so multi line blocks stay borderless. */
+.fi-body :not(pre) > code,
+.fi-body kbd {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgb(var(--ospite-text-primary) / 0.07);
+    font-size: 0.875em;
+}
+
+/* design system caps weight at 500. */
+.fi-body h1,
+.fi-body h2,
+.fi-body h3,
+.fi-body h4,
+.fi-body h5,
+.fi-body h6,
+.fi-body strong,
+.fi-body b,
+.fi-body [class*='font-bold'],
+.fi-body [class*='font-semibold'] {
+    font-weight: 500;
+}
+
+.fi-section:not(.fi-section-not-contained),
+.fi-fo-component-ctn,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+}
+
+/* fi-aside wraps a column of nested sections, the global section fill
+   stacks a redundant outer card around the inner ones. */
+.fi-section.fi-aside,
+.fi-section.fi-aside > .fi-section-content-ctn {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.fi-sidebar {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+    border-right: 0.5px solid var(--graphite);
+}
+
+/* modal window picks up the same surface-card tone as its header so the
+   body and header read as one continuous panel rather than two stacked
+   tones, dropdown panel keeps the elevated tone since it floats above
+   the page chrome and benefits from sitting one shade lighter. */
+.fi-modal-window {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+}
+
+.fi-dropdown-panel {
+    background-color: rgb(var(--ospite-surface-elevated));
+    border-color: rgb(var(--ospite-surface-border));
+}
+
+/* select dropdown search input ships a translucent fill that reads grey
+   over the elevated surface, anchor it back to the surface tone. */
+.fi-select-input-search-ctn .fi-input {
+    background-color: rgb(var(--ospite-surface-elevated));
+}
+
+/* radius inherit lets the modal-window radius cascade. filament ships
+   zero padding-bottom assuming a transparent header, the surface-card
+   fill needs symmetric padding to read as vertically centred. */
+.fi-modal-header {
+    background-color: rgb(var(--ospite-surface-card));
+    border-radius: inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* slide-over headers use flex-direction column with stacked icon and
+   heading, so the close button stays absolute in the top right. */
+.fi-modal-slide-over .fi-modal-header .fi-modal-close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+/* centered modals use flex-direction row with heading + close button.
+   drop absolute positioning so the X aligns vertically with the
+   heading text. dom order is close-btn first, use order to swap. */
+.fi-modal:not(.fi-modal-slide-over) .fi-modal-header .fi-modal-close-btn {
+    position: static;
+    order: 1;
+    margin-left: auto;
+    align-self: center;
+}
+
+.fi-topbar,
+.fi-topbar > nav {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+}
+
+/* simple layouts sit outside panel chrome and miss the panel colors
+   override. */
+.fi-simple-layout {
+    background-color: rgb(var(--ospite-surface-base));
+}
+
+.fi-simple-main {
+    background-color: rgb(var(--ospite-surface-card));
+    border-color: rgb(var(--ospite-surface-border));
+}
