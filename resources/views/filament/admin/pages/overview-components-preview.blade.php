@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    {{-- per-feature CSS: renders overview components in isolation. --}}
+    @vite(['resources/css/components/overview/overview.css'])
     <div class="space-y-10">
         <section>
             <h2 class="text-lg font-semibold mb-3">StatePill</h2>

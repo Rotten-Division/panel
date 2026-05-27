@@ -35,6 +35,7 @@ abstract class PanelProvider extends BasePanelProvider
             // bundle so theme changes survive container recreates without a
             // separate plugin asset publish step.
             ->viteTheme('resources/css/filament/app/theme.css')
+            // overview is SPA-excluded so its per-feature @vite re-fires on every load.
             ->spa(fn () => !request()->routeIs('filament.server.pages.overview'))
             ->spaUrlExceptions([
                 '*/oauth/redirect/*',
