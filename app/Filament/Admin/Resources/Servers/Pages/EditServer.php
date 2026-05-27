@@ -60,6 +60,7 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -1031,7 +1032,7 @@ class EditServer extends EditRecord
                 ->tooltip('Dev only. Flips status (and node_id / StashedServer side data) so the overview renders the chosen state. Local environment + root admin only.')
                 ->icon(TablerIcon::Bug)
                 ->color('warning')
-                ->visible(fn () => app()->environment('local') && (user()?->isRootAdmin() ?? false))
+                ->visible(fn () => App::environment('local') && (user()?->isRootAdmin() ?? false))
                 ->schema([
                     Select::make('state')
                         ->label('Target state')

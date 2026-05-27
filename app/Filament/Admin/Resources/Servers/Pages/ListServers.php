@@ -34,8 +34,8 @@ class ListServers extends ListRecords
                 // stashed servers have node_id=null while parked on s3, the
                 // group description must tolerate the missing relation.
                 Group::make('node.name')->getDescriptionFromRecordUsing(fn (Server $server): string => str($server->node?->description ?? '')->limit(150)),
-                Group::make('user.username')->getDescriptionFromRecordUsing(fn (Server $server): string => $server->user?->email ?? ''),
-                Group::make('egg.name')->getDescriptionFromRecordUsing(fn (Server $server): string => str($server->egg?->description ?? '')->limit(150)),
+                Group::make('user.username')->getDescriptionFromRecordUsing(fn (Server $server): string => $server->user->email ?? ''),
+                Group::make('egg.name')->getDescriptionFromRecordUsing(fn (Server $server): string => str($server->egg->description ?? '')->limit(150)),
             ])
             ->columns([
                 TextColumn::make('condition')

@@ -23,12 +23,14 @@ interface OverviewStateHandler
     // x-filament-panels::page wrapper, otherwise has full control.
     public function render(Server $server): View;
 
-    // actions this handler contributes for the current server state.
-    // wake, swap-confirm, manual-trigger, etc. cached on the page via
-    // cacheAction() at mount so blade views can call
-    // wire:click="mountAction('wake')" without dispatching events the
-    // panel does not know about.
-    //
-    // @return array<Action>
+    /**
+     * actions this handler contributes for the current server state.
+     * wake, swap-confirm, manual-trigger, etc. cached on the page via
+     * cacheAction() at mount so blade views can call
+     * wire:click="mountAction('wake')" without dispatching events the
+     * panel does not know about.
+     *
+     * @return array<Action>
+     */
     public function actions(Server $server): array;
 }

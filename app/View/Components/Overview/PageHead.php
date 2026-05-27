@@ -65,7 +65,7 @@ class PageHead extends Component
 
     public function flavour(): ?string
     {
-        return $this->server->egg?->name;
+        return $this->server->egg->name;
     }
 
     public function version(): ?string

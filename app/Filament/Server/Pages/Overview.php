@@ -365,7 +365,7 @@ class Overview extends Page
     {
         /** @var Server $server */
         $server = Filament::getTenant();
-        $limit = (int) ($server?->disk ?? 0) * 1024 * 1024;
+        $limit = (int) ($server->disk ?? 0) * 1024 * 1024;
         if ($limit <= 0) {
             return 0.0;
         }
@@ -468,7 +468,12 @@ class Overview extends Page
                 ))
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Close')
-                ->visible(fn () => Filament::getTenant()?->status === ServerState::Suspended)
+                ->visible(function (): bool {
+                    /** @var ?Server $tenant */
+                    $tenant = Filament::getTenant();
+
+                    return $tenant?->status === ServerState::Suspended;
+                })
                 // resolve the server from the tenant, not closure injection — a
                 // standalone header action has no record context, so a typed
                 // `Server $server` arg is unresolvable and throws on mount.
