@@ -7,7 +7,11 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                ...globSync('resources/css/**/*.css'),
+                'resources/css/app.css',
+                'resources/css/console.css',
+                'resources/css/monaco-editor.css',
+                'resources/css/filament/app/theme.css',
+                'resources/css/components/overview/overview.css',
                 ...globSync('resources/js/**/*.js'),
 
                 ...globSync('plugins/*/resources/css/**/*.css'),
