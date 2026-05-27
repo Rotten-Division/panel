@@ -16,22 +16,22 @@ button.fi-btn.fi-color-primary,
 a.fi-btn.fi-color-primary,
 button.fi-btn.fi-color-primary svg,
 a.fi-btn.fi-color-primary svg {
-    color: rgb(198 73 22);
+    color: var(--ember);
 }
 
 button.fi-btn.fi-color-danger,
 a.fi-btn.fi-color-danger {
-    color: rgb(250 247 242);
+    color: var(--cream);
 }
 
 .dark button.fi-btn.fi-color-primary,
 .dark a.fi-btn.fi-color-primary {
-    color: rgb(250 247 242);
+    color: var(--cream);
 }
 
 .dark button.fi-btn.fi-color-primary svg,
 .dark a.fi-btn.fi-color-primary svg {
-    color: rgb(250 247 242);
+    color: var(--cream);
 }
 
 /* demote solid action buttons in section content to outline so the 3

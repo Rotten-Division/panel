@@ -7,6 +7,9 @@
     --ember: #C64916;
     --bark: #A03A0F;
     --walnut: #2A1F14;
+    /* fixed off-white for text on solid ember/brick fills — stays light in
+       both modes, unlike --linen (text-primary) which flips with the theme. */
+    --cream: #FAF7F2;
 
     /* surface + text aliases — derived from the ospite triplets in themes.css
        so overview components flip with light/dark mode automatically. */
