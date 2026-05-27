@@ -41,7 +41,7 @@ use Psr\Http\Message\ResponseInterface;
  * @property int $id
  * @property string $uuid
  * @property string $uuid_short
- * @property int $node_id
+ * @property ?int $node_id
  * @property string $name
  * @property int $owner_id
  * @property int $memory
@@ -82,7 +82,8 @@ use Psr\Http\Message\ResponseInterface;
  * @property-read string|null $icon
  * @property-read Collection<int, Mount> $mounts
  * @property-read int|null $mounts_count
- * @property-read Node $node
+ * @property-read ?Node $node
+ * @property-read ?Allocation $allocation
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read Collection<int, Schedule> $schedules
@@ -541,7 +542,7 @@ class Server extends Model implements HasAvatar, Validatable
     protected function game(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->egg?->game,
+            get: fn () => $this->egg->game,
         );
     }
 
@@ -549,7 +550,7 @@ class Server extends Model implements HasAvatar, Validatable
     protected function flavour(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->egg?->name,
+            get: fn () => $this->egg->name,
         );
     }
 
@@ -557,7 +558,7 @@ class Server extends Model implements HasAvatar, Validatable
     protected function version(): Attribute
     {
         return Attribute::make(get: function () {
-            $varName = $this->egg?->versionVar;
+            $varName = $this->egg->versionVar;
             if ($varName === null) {
                 return null;
             }
