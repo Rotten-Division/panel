@@ -26,3 +26,30 @@ parameters:
                 - app/Extensions/Captcha/Schemas/*.php
                 - app/Extensions/OAuth/Schemas/*.php
                 - app/Filament/Admin/Pages/Settings.php
+
+        # larastan types a belongsTo access ($server->node, $server->allocation)
+        # as non-null and, with treatPhpDocTypesAsCertain:false, ignores the
+        # nullable-FK @property-read for this check; it also calls a nullsafe
+        # property read on the left of ?? redundant. both are true for the
+        # *result*, but node/allocation are genuinely null on no-node servers
+        # and the ?-> suppresses a "read property on null" runtime warning on
+        # every stashed/suspended page. the guards are kept on purpose.
+        -
+            identifier: nullsafe.neverNull
+            paths:
+                - app/Filament/Admin/Resources/Servers/Pages/ListServers.php
+                - app/Filament/App/Resources/Servers/Pages/ListServers.php
+                - app/Filament/Server/Widgets/ServerCpuChart.php
+                - app/Filament/Server/Widgets/ServerMemoryChart.php
+                - app/Filament/Server/Widgets/ServerNetworkChart.php
+                - app/Providers/RouteServiceProvider.php
+                - app/View/Components/Overview/PageHead.php
+                - app/View/Components/Overview/StatePill.php
+
+        # the transferProgress/retrieveProgress accessors resolve a cache
+        # service from the container; a model accessor can't constructor-inject.
+        # count:2 is deliberate — a third app() call in the model still fails.
+        -
+            identifier: myCustomRules.forbiddenGlobalFunctions
+            path: app/Models/Server.php
+            count: 2
