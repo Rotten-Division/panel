@@ -458,6 +458,18 @@ class Overview extends Page
                     return $server;
                 })
                 ->buttonGroup(),
+            Action::make('reviewSuspensionNotice')
+                ->label('Review suspension notice')
+                ->modalHeading('Suspension notice')
+                ->modalIcon(TablerIcon::HeartCancel)
+                ->modalContent(fn () => view(
+                    'filament.server.pages.overview-states.partials.suspension-notice',
+                    ['server' => Filament::getTenant()],
+                ))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->visible(fn () => Filament::getTenant()?->status === ServerState::Suspended)
+                ->authorize(fn (Server $server) => user()?->can('view', $server) ?? false),
         ];
     }
 
