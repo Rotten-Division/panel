@@ -13,12 +13,13 @@
     letter-spacing: 0.10em;
     text-transform: uppercase;
 }
-.overview-state-pill--online { background: rgba(45, 167, 109, 0.12); color: var(--moss-fg); }
-.overview-state-pill--stopped { background: rgba(92, 104, 120, 0.14); color: var(--stone); }
-.overview-state-pill--transient { background: rgba(238, 96, 10, 0.12); color: var(--hearth); }
-.overview-state-pill--stashed { background: rgba(111, 168, 224, 0.13); color: #9CC2EA; }
-.overview-state-pill--installing { background: rgba(216, 144, 32, 0.12); color: #E2B05E; }
-.overview-state-pill--suspended { background: rgba(180, 60, 60, 0.12); color: var(--brick-fg); }
+.overview-state-pill--online { background: rgb(var(--state-success) / 0.12); color: var(--moss-fg); }
+.overview-state-pill--stopped { background: rgb(var(--state-info) / 0.14); color: var(--stone); }
+.overview-state-pill--transient { background: color-mix(in srgb, var(--hearth) 12%, transparent); color: var(--hearth); }
+/* stashed text is a lighter azure than the --azure token, derived from it. */
+.overview-state-pill--stashed { background: color-mix(in srgb, var(--azure) 13%, transparent); color: color-mix(in srgb, var(--azure) 70%, white); }
+.overview-state-pill--installing { background: rgb(var(--state-warning) / 0.12); color: var(--honey-fg); }
+.overview-state-pill--suspended { background: rgb(var(--state-danger) / 0.12); color: var(--brick-fg); }
 .overview-state-pill__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .overview-state-pill__dot--pulse { animation: overview-pulse 1.4s ease-in-out infinite; }
 @keyframes overview-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
@@ -55,7 +56,8 @@
 .overview-power-button--start { background: var(--hearth); border-color: var(--hearth); color: var(--linen); }
 .overview-power-button--start:hover:not(:disabled) { background: var(--ember); border-color: var(--ember); }
 .overview-power-button--stop { background: var(--brick); border-color: var(--brick); color: var(--linen); }
-.overview-power-button--stop:hover:not(:disabled) { background: #983131; border-color: #983131; }
+/* hover darkens the brick rest state, derived from --brick so it tracks the token. */
+.overview-power-button--stop:hover:not(:disabled) { background: color-mix(in srgb, var(--brick) 85%, black); border-color: color-mix(in srgb, var(--brick) 85%, black); }
 
 /* ============================================================ */
 /* overview-page-head: layout via Tailwind utilities (page-head.blade.php),

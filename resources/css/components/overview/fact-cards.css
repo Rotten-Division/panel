@@ -10,7 +10,7 @@
     border-radius: 5px;
     padding: 12px 14px;
 }
-.overview-fact-card--warn { border-color: var(--honey); background: rgba(216, 144, 32, 0.05); }
+.overview-fact-card--warn { border-color: var(--honey); background: rgb(var(--state-warning) / 0.05); }
 .overview-fact-card__icon {
     display: inline-flex;
     align-items: center;
@@ -18,11 +18,11 @@
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    background: rgba(238, 96, 10, 0.10);
+    background: color-mix(in srgb, var(--hearth) 10%, transparent);
     color: var(--hearth);
     flex-shrink: 0;
 }
-.overview-fact-card--warn .overview-fact-card__icon { background: rgba(216, 144, 32, 0.12); color: var(--honey); }
+.overview-fact-card--warn .overview-fact-card__icon { background: rgb(var(--state-warning) / 0.12); color: var(--honey); }
 .overview-fact-card__content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .overview-fact-card__label {
     font-family: var(--font-body);
