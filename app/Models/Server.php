@@ -9,6 +9,7 @@ use App\Enums\ServerState;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Models\Traits\HasIcon;
 use App\Repositories\Daemon\DaemonServerRepository;
+use App\Services\Servers\RetrieveProgressCache;
 use App\Services\Servers\TransferProgressCache;
 use App\Services\Subusers\SubuserDeletionService;
 use App\Traits\HasValidation;
@@ -579,6 +580,14 @@ class Server extends Model implements HasAvatar, Validatable
     {
         return Attribute::make(
             get: fn () => app(TransferProgressCache::class)->get($this),
+        );
+    }
+
+    /** @return Attribute<?array, never> */
+    protected function retrieveProgress(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => app(RetrieveProgressCache::class)->get($this),
         );
     }
 }
