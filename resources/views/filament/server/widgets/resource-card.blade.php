@@ -17,7 +17,7 @@
 
         return implode(' ', $segments);
     };
-    // closed area path for the gradient fill — same coords as the stroke
+    // closed area path for the gradient fill, same coords as the stroke
     // path, then drop to chartBottom on the last x and return to chartBottom
     // on the first x before closing.
     $areaFor = static function (array $samples) use ($pathFor, $chartBottom): string {
@@ -35,7 +35,7 @@
     // don't share defs and the right gradient picks for each card.
     $gradId = 'overview-area-'.bin2hex(random_bytes(4));
     // dashed horizontal gridline positions at 0 / 50 / 100% of the
-    // chart height. y-axis labels were dropped — the hover tooltip
+    // chart height. y-axis labels were dropped. the hover tooltip
     // surfaces precise values so the labels added noise without value.
     $gridlinePercents = [0, 50, 100];
 @endphp
@@ -157,7 +157,7 @@
 
             {{-- hover overlay: mutated by the script at the bottom of this
                  view in response to mousemove on the plot. kept as static
-                 html so livewire morphs don't fight us — style mutations
+                 html so livewire morphs don't fight us. style mutations
                  happen at runtime only. --}}
             <div class="overview-resource-card__hover" data-overlay aria-hidden="true" style="display: none;">
                 <span class="overview-resource-card__hover-rail" data-rail></span>
@@ -171,7 +171,7 @@
             </div>
         </div>
 
-        {{-- x-axis timestamp row removed — the chart's sub-minute scale
+        {{-- x-axis timestamp row removed. the chart's sub-minute scale
              makes per-tick HH:MM:SS labels noisier than informative. the
              per-sample timestamp lives on the hover tooltip instead. --}}
     </div>
@@ -293,7 +293,7 @@
         }, true);
 
         // mouseleave doesn't bubble, but capture-phase listeners on
-        // document still receive it when the target is a descendant —
+        // document still receive it when the target is a descendant,
         // so this one handler covers exits from any of the three plots.
         document.addEventListener('mouseleave', (event) => {
             const plot = findPlot(event.target);

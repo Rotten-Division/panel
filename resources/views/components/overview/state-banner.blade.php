@@ -6,7 +6,7 @@
 ])
 
 {{-- progress band is now a separate <x-overview.progress-band /> sibling
-     element — see design canvas which renders the shuttle as a strip below
+     element, see design canvas which renders the shuttle as a strip below
      the banner, not inside it. --}}
 <div class="overview-banner overview-banner--{{ $variant }}">
     <div class="overview-banner__accent"></div>

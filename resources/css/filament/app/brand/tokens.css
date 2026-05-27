@@ -7,11 +7,11 @@
     --ember: #C64916;
     --bark: #A03A0F;
     --walnut: #2A1F14;
-    /* fixed off-white for text on solid ember/brick fills — stays light in
+    /* fixed off-white for text on solid ember/brick fills, stays light in
        both modes, unlike --linen (text-primary) which flips with the theme. */
     --cream: #FAF7F2;
 
-    /* surface + text aliases — derived from the ospite triplets in themes.css
+    /* surface + text aliases, derived from the ospite triplets in themes.css
        so overview components flip with light/dark mode automatically. */
     --pitch: rgb(var(--ospite-surface-base));
     --ink: rgb(var(--ospite-surface-card));
@@ -21,7 +21,7 @@
     --sand: rgb(var(--ospite-text-secondary));
     --stone: rgb(var(--ospite-text-tertiary));
 
-    /* semantic state aliases — derived, not restated as hex */
+    /* semantic state aliases, derived, not restated as hex */
     --brick: rgb(var(--state-danger));
     --moss: rgb(var(--state-success));
     --honey: rgb(var(--state-warning));

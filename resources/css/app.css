@@ -7,7 +7,7 @@
    makes app.css the single, complete chrome build; the brand overlay
    (theme.css) carries no chrome. previously app.css listed only the eight
    sub-packages and relied on theme.css's vendor theme import for the panels
-   layer — which broke when that import was removed. */
+   layer, which broke when that import was removed. */
 @import '../../vendor/filament/filament/resources/css/index.css';
 
 @source '../../vendor/gboquizosanchez/filament-log-viewer/resources/views/**/*.blade.php';

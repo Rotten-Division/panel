@@ -37,7 +37,6 @@
     </div>
 </div>
 
-{{-- console: read-only --}}
 <x-filament-widgets::widgets
     :columns="1"
     :data="$this->getWidgetData() + ['readOnly' => true]"

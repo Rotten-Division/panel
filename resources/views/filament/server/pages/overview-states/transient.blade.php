@@ -46,7 +46,6 @@
     </div>
 </div>
 
-{{-- console: read-only (live stream, no input) --}}
 <x-filament-widgets::widgets
     :columns="1"
     :data="$this->getWidgetData() + ['readOnly' => true]"
@@ -54,7 +53,7 @@
 />
 
 @php
-    // freeze the charts when the container is on its way down — wings has
+    // freeze the charts when the container is on its way down. wings has
     // already cut the stats stream so the same cached values would just
     // re-render on every poll, making the chart look "live" when it isn't.
     $frozen = ($containerStatus ?? null) === \App\Enums\ContainerStatus::Stopping;

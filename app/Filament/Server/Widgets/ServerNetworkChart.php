@@ -74,7 +74,7 @@ class ServerNetworkChart extends Widget
         $this->inboundSeries = $inbound;
         $this->outboundSeries = $outbound;
 
-        // align timestamps with the deltas — drop the first sample's
+        // align timestamps with the deltas, drop the first sample's
         // time since no delta exists for index 0.
         $allTimes = ResourceCard::formatSampleTimes($raw, $period, $tz);
         $this->times = array_values(array_slice($allTimes, 1));

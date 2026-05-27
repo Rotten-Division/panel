@@ -17,7 +17,7 @@
         $areaPath = '';
     } else {
         if ($count === 1) {
-            // single point can't draw a line — duplicate so it renders as
+            // single point can't draw a line, duplicate so it renders as
             // a flat segment at that value.
             $series = [$series[0], $series[0]];
             $count = 2;

@@ -14,8 +14,7 @@
 
     <x-overview.progress-band />
 
-    {{-- wings posts transfer progress to the panel server-side (phase 2,
-         approach B), so the websocket bridge never fires for byte updates.
+    {{-- wings posts transfer progress to the panel server-side, so the websocket bridge never fires for byte updates.
          the wrapper poll above triggers a livewire round trip which
          re-renders the page body and re-reads $server->transferProgress
          inside TransferDetail. --}}

@@ -1,6 +1,5 @@
-/* overview component partials — loaded per-feature via @vite on the
-   overview page and the admin component-preview page. preserves the
-   component order from the original overview-tokens.css. */
+/* overview component partials, loaded per-feature via @vite on the
+   overview page and the admin component-preview page. */
 @import './page-chrome.css';
 @import './stage-hero.css';
 @import './step-card.css';

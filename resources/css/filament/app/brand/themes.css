@@ -1,4 +1,4 @@
-/* brand themes — per-mode token value sets. a theme is a scoped override of
+/* brand themes, per-mode token value sets. a theme is a scoped override of
    the canonical tokens (tokens.css). light = :root, dark = .dark. future
    themes drop in as [data-theme="x"] with no other change. */
 :root {
@@ -19,7 +19,7 @@
     --state-info: 92 104 120;
 
     /* intentional: pale light primary. solid primary buttons are painted ember in
-       the filament overrides. keeps !important — fights filament's inline :root,
+       the filament overrides. keeps !important, fights filament's inline :root,
        not a stylesheet link. see DESIGN_SYSTEM. */
     --primary-400: rgb(251 226 204) !important;
     --primary-500: rgb(251 226 204) !important;

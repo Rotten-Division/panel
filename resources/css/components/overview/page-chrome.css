@@ -1,5 +1,5 @@
 /* ============================================================ */
-/* overview-state-pill: phase 4 task 1                          */
+/* overview-state-pill                                          */
 /* ============================================================ */
 .overview-state-pill {
     display: inline-flex;
@@ -25,7 +25,7 @@
 @keyframes overview-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 /* ============================================================ */
-/* overview-power-buttons: phase 4 task 2                       */
+/* overview-power-buttons                                       */
 /* ============================================================ */
 .overview-power-buttons { display: inline-flex; align-items: center; gap: 8px; }
 .overview-power-button {
@@ -69,7 +69,7 @@
 }
 
 /* ============================================================ */
-/* overview-banner: phase 4 task 5                              */
+/* overview-banner                                              */
 /* ============================================================ */
 .overview-banner {
     position: relative;
@@ -88,7 +88,7 @@
 .overview-banner__body { display: flex; align-items: center; gap: 10px; }
 .overview-banner__title { font-size: 13px; font-weight: 500; color: var(--linen); }
 .overview-banner__subtitle { font-size: 12px; color: var(--sand); }
-/* indeterminate progress shuttle — matches design canvas .fs-progress.
+/* indeterminate progress shuttle, matches design canvas .fs-progress.
    standalone sibling under state-banner, not nested inside it. */
 .overview-progress-band {
     height: 2px;

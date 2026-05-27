@@ -76,7 +76,7 @@ class PageHead extends Component
     public function render()
     {
         return view('components.overview.page-head', [
-            // address removed from the payload — the copy button that
+            // address removed from the payload. the copy button that
             // consumed it is gone. host + port still render the value.
             // PageHead::address() stays public; port() / hostBeforePort()
             // depend on it internally.

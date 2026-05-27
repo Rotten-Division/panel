@@ -1,5 +1,5 @@
 /* ============================================================ */
-/* overview-resource-card: phase 4 task 8                       */
+/* overview-resource-card                                       */
 /* ============================================================ */
 .overview-resource-card {
     display: flex;
@@ -76,7 +76,7 @@
    "3.0 GiB" reserves a wider one. flex:1 + min-height lets each card
    stretch its chart to the bottom even when neighbour cards in the row
    are taller (memory has a progress bar, network does not). */
-/* chart zone — single-column plot. y-axis labels were dropped; the
+/* chart zone, single-column plot. y-axis labels were dropped; the
    hover tooltip surfaces precise values so labels added noise without
    value. dashed gridlines inside the SVG keep the visual reference.
    matches design canvas .rc-chart-zone (resource-cards.css:82-90). */
@@ -101,7 +101,7 @@
     height: 100%;
     overflow: visible;
 }
-/* live-data dot at rightmost point of each series — matches design
+/* live-data dot at rightmost point of each series, matches design
    canvas .rc-dot (resource-cards.css:111-121). 5px circle with a
    1.5px --ink ring so it reads against the gradient fill. */
 .overview-resource-card__dot {
@@ -117,7 +117,7 @@
 }
 .overview-resource-card__dot--out { background: var(--azure); }
 
-/* hover crosshair + value tooltip — vanilla js mutates these on
+/* hover crosshair + value tooltip, vanilla js mutates these on
    mousemove inside .overview-resource-card__plot. all positioning is
    percent-based against the plot's bounding rect so it tracks across
    viewport changes. */

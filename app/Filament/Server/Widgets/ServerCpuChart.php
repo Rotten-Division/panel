@@ -23,7 +23,7 @@ class ServerCpuChart extends Widget
     /** @var array<int, string> */
     public array $times = [];
 
-    /** when true the mount snapshot is the final render — the
+    /** when true the mount snapshot is the final render, the
      *  refresh-overview event is ignored. used by stopped/stopping
      *  states to pin the chart at the last running value instead of
      *  re-polling against an idle cache. */
@@ -43,7 +43,7 @@ class ServerCpuChart extends Widget
 
     public function mount(): void
     {
-        // always pull the initial snapshot, even when frozen — the freeze
+        // always pull the initial snapshot, even when frozen. the freeze
         // gate only applies to subsequent poll-driven refreshes.
         $this->pullSeries();
     }
@@ -114,7 +114,7 @@ class ServerCpuChart extends Widget
             $raw = [$raw[0], $raw[0]];
         }
 
-        // align $times the same way labels/series are aligned — duplicate
+        // align $times the same way labels/series are aligned, duplicate
         // a single sample so tooltip index lookups stay safe.
         $alignedTimes = $this->times;
         if (count($alignedTimes) === 1) {

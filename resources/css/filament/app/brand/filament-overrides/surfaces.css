@@ -62,7 +62,7 @@
     border-right: 0.5px solid var(--graphite);
 }
 
-/* active nav item highlight — a sidebar surface tint, not an action button. */
+/* active nav item highlight, a sidebar surface tint, not an action button. */
 .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
     background-color: rgb(var(--ospite-accent) / 0.12);
 }
