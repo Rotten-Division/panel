@@ -1,0 +1,183 @@
+/* ============================================================ */
+/* overview-resource-card: phase 4 task 8                       */
+/* ============================================================ */
+.overview-resource-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 7px;
+    padding: 18px 20px;
+    min-height: 200px;
+}
+.overview-resource-card__stat { display: flex; flex-direction: column; gap: 6px; }
+.overview-resource-card__row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.overview-resource-card__label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--stone);
+}
+.overview-resource-card__value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--linen);
+}
+.overview-resource-card__allocation {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--sand);
+}
+.overview-resource-card__legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--sand);
+}
+.overview-resource-card__legend-separator { color: var(--graphite); }
+.overview-resource-card__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+/* solid / dashed line swatches mirror the SVG stroke styles so the user
+   doesn't have to learn the colour mapping by inference. */
+.overview-resource-card__legend-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 0;
+    border-top-width: 1.5px;
+    border-top-style: solid;
+}
+.overview-resource-card__legend-swatch--in { border-top-color: var(--hearth); }
+.overview-resource-card__legend-swatch--out {
+    border-top-color: var(--azure);
+    border-top-style: dashed;
+}
+.overview-resource-card__bar {
+    height: 3px;
+    background: var(--graphite);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.overview-resource-card__bar-fill {
+    height: 100%;
+    transition: width 600ms ease;
+}
+/* chart row: SVG fills the remaining width, label column auto-sizes to
+   its widest tick so cpu "200%" reserves a narrow gutter while memory
+   "3.0 GiB" reserves a wider one. flex:1 + min-height lets each card
+   stretch its chart to the bottom even when neighbour cards in the row
+   are taller (memory has a progress bar, network does not). */
+/* chart zone — single-column plot. y-axis labels were dropped; the
+   hover tooltip surfaces precise values so labels added noise without
+   value. dashed gridlines inside the SVG keep the visual reference.
+   matches design canvas .rc-chart-zone (resource-cards.css:82-90). */
+.overview-resource-card__chart-zone {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    min-height: 140px;
+    padding-top: 6px;
+}
+.overview-resource-card__plot {
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    min-width: 0;
+}
+.overview-resource-card__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+/* live-data dot at rightmost point of each series — matches design
+   canvas .rc-dot (resource-cards.css:111-121). 5px circle with a
+   1.5px --ink ring so it reads against the gradient fill. */
+.overview-resource-card__dot {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--hearth);
+    border: 1.5px solid var(--ink);
+    transform: translate(-50%, 50%);
+    pointer-events: none;
+    z-index: 2;
+}
+.overview-resource-card__dot--out { background: var(--azure); }
+
+/* hover crosshair + value tooltip — vanilla js mutates these on
+   mousemove inside .overview-resource-card__plot. all positioning is
+   percent-based against the plot's bounding rect so it tracks across
+   viewport changes. */
+.overview-resource-card__hover {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+.overview-resource-card__hover-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--sand);
+    opacity: 0.25;
+    transform: translateX(-0.5px);
+}
+.overview-resource-card__hover-dot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hearth);
+    border: 1.5px solid var(--ink);
+    transform: translate(-50%, 50%);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+.overview-resource-card__hover-dot--out { background: var(--azure); }
+.overview-resource-card__tooltip {
+    position: absolute;
+    top: 6px;
+    transform: translateX(8px);
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--linen);
+    background: rgba(15, 17, 22, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 0.5px solid var(--graphite);
+    border-radius: 4px;
+    padding: 5px 9px;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+/* flip the tooltip to the left of the rail when the cursor is past the
+   70% mark so it doesn't escape the plot's right edge. the JS toggles
+   this class. */
+.overview-resource-card__tooltip--flip {
+    transform: translateX(calc(-100% - 8px));
+}
+.overview-resource-card__tooltip-row { color: var(--sand); }
+.overview-resource-card__tooltip-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--stone);
+    margin-top: 1px;
+    padding-top: 3px;
+    border-top: 0.5px solid var(--graphite);
+}

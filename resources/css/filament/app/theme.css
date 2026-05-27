@@ -1,4 +1,3 @@
 @import './brand/themes.css';
 @import './brand/tokens.css';
 @import './brand/filament-overrides/index.css';
-@import '../../overview-tokens.css';

@@ -1,0 +1,9 @@
+/* overview component partials — loaded per-feature via @vite on the
+   overview page and the admin component-preview page. preserves the
+   component order from the original overview-tokens.css. */
+@import './page-chrome.css';
+@import './stage-hero.css';
+@import './fact-cards.css';
+@import './resource-card.css';
+@import './stat.css';
+@import './transfer-detail.css';
