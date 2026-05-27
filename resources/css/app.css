@@ -13,7 +13,7 @@
 @source '../../vendor/gboquizosanchez/filament-log-viewer/resources/views/**/*.blade.php';
 @source '../../app/Filament/**/*';
 @source '../../resources/views/filament/**/*';
-@source '../../plugins/*/src/**/*';
-@source '../../plugins/*/resources/**/*';
+@source '../../../ospite-plugins/plugins/*/src/**/*';
+@source '../../../ospite-plugins/plugins/*/resources/**/*';
 
 @variant dark (&:where(.dark, .dark *));
