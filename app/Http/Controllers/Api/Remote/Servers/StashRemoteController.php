@@ -33,7 +33,7 @@ class StashRemoteController extends Controller
         ], 503);
     }
 
-    public function progress(Request $request, Server $server): JsonResponse
+    public function progress(Request $request, Server $server, RetrieveProgressCache $cache): JsonResponse
     {
         // the retrieve destination is the server's current node during
         // Retrieving; only that node may report progress for it.
@@ -48,7 +48,7 @@ class StashRemoteController extends Controller
             'total_bytes' => ['required', 'integer', 'min:0'],
         ]);
 
-        app(RetrieveProgressCache::class)->mergeProgress($server, $payload);
+        $cache->mergeProgress($server, $payload);
 
         return new JsonResponse([], 204);
     }

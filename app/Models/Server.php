@@ -583,7 +583,7 @@ class Server extends Model implements HasAvatar, Validatable
         );
     }
 
-    /** @return Attribute<?array, never> */
+    /** @return Attribute<?array<string, mixed>, never> */
     protected function retrieveProgress(): Attribute
     {
         return Attribute::make(
