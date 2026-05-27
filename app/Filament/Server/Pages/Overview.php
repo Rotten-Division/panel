@@ -469,7 +469,10 @@ class Overview extends Page
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Close')
                 ->visible(fn () => Filament::getTenant()?->status === ServerState::Suspended)
-                ->authorize(fn (Server $server) => user()?->can('view', $server) ?? false),
+                // resolve the server from the tenant, not closure injection — a
+                // standalone header action has no record context, so a typed
+                // `Server $server` arg is unresolvable and throws on mount.
+                ->authorize(fn () => ($s = Filament::getTenant()) instanceof Server && (user()?->can('view', $s) ?? false)),
         ];
     }
 
