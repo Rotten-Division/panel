@@ -1,54 +1,12 @@
 /*
- * overview redesign design tokens.
- * canonical source: docs/DESIGN_SYSTEM.md sections 2 and 3, mirrored in the
- * design handoff bundle. brand css tokens already live in theme.css as rgb
- * triplets for filament alpha compatibility, this file adds hex tokens the
- * new overview components consume directly.
+ * overview redesign component rules.
+ * token definitions have moved to resources/css/filament/app/brand/tokens.css
+ * (canonical aliases) and brand/themes.css (per-mode values).
+ * this file retains only the .overview-* component rules.
  *
  * fonts (Inter + JetBrains Mono) are loaded by the ospite-theme plugin's
  * render hook so no @import is needed here.
  */
-
-:root {
-    /* brand anchors (mode-agnostic) */
-    --hearth: #EE600A;
-    --ember: #C64916;
-    --bark: #A03A0F;
-    --walnut: #2A1F14;
-    --bark-light: #6B5942;
-    --sand-light: #9C8B71;
-
-    /* surface + text tokens are aliased to the ospite triplets in theme.css
-       so the overview components flip with light/dark mode automatically.
-       names are kept for backwards compatibility — read them as "surface" or
-       "ink", not as literal dark navy. */
-    --pitch: rgb(var(--ospite-surface-base));
-    --ink: rgb(var(--ospite-surface-card));
-    --slate: rgb(var(--ospite-surface-elevated));
-    --graphite: rgb(var(--ospite-surface-border));
-    --linen: rgb(var(--ospite-text-primary));
-    --sand: rgb(var(--ospite-text-secondary));
-    --stone: rgb(var(--ospite-text-tertiary));
-
-    /* network "out" accent, paired with --hearth for the "in" series */
-    --azure: #6FA8E0;
-
-    /* semantic state */
-    --moss: #2DA76D;
-    --moss-fg: #5DCAA5;
-    --moss-bg: rgba(45, 167, 109, 0.12);
-    --brick: #B43C3C;
-    --brick-fg: #E89090;
-    --brick-bg: rgba(180, 60, 60, 0.12);
-    --idle-bg: rgba(92, 104, 120, 0.14);
-    --idle-fg: #8B95A8;
-    --honey: #D89020;
-
-    /* type families */
-    --font-display: 'Instrument Sans', 'Inter', system-ui, -apple-system, sans-serif;
-    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
-}
 
 /* ============================================================ */
 /* overview-state-pill: phase 4 task 1                          */

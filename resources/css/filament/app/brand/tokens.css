@@ -1,0 +1,42 @@
+/* canonical brand tokens. per-mode values live in themes.css; this file
+   derives the aliases components consume, so every value is defined once.
+   brand tokens stay runtime CSS custom properties (no @theme). */
+:root {
+    /* brand anchors (mode-agnostic) */
+    --hearth: #EE600A;
+    --ember: #C64916;
+    --bark: #A03A0F;
+    --walnut: #2A1F14;
+
+    /* surface + text aliases — derived from the ospite triplets in themes.css
+       so overview components flip with light/dark mode automatically. */
+    --pitch: rgb(var(--ospite-surface-base));
+    --ink: rgb(var(--ospite-surface-card));
+    --slate: rgb(var(--ospite-surface-elevated));
+    --graphite: rgb(var(--ospite-surface-border));
+    --linen: rgb(var(--ospite-text-primary));
+    --sand: rgb(var(--ospite-text-secondary));
+    --stone: rgb(var(--ospite-text-tertiary));
+
+    /* semantic state aliases — derived, not restated as hex */
+    --brick: rgb(var(--state-danger));
+    --moss: rgb(var(--state-success));
+    --honey: rgb(var(--state-warning));
+
+    /* foreground variants for use on dark surfaces */
+    --moss-fg: #5DCAA5;
+    --brick-fg: #E89090;
+    --honey-fg: #E2B05E;
+    --idle-fg: #8B95A8;
+
+    /* network "out" accent, paired with --hearth for the "in" series */
+    --azure: #6FA8E0;
+
+    /* panel is Inter throughout; fraunces is marketing-only and NOT loaded here. */
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: var(--font-body);
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+    /* game-category accents — populated in a later phase from the wizard badges */
+    /* --category-<name>: …; --category-<name>-fg: …; */
+}
