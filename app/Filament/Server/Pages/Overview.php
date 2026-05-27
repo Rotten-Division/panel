@@ -33,6 +33,7 @@ use Filament\Schemas\Components\Concerns\HasHeaderActions;
 use Filament\Support\Enums\Size;
 use Filament\Widgets\Widget;
 use Filament\Widgets\WidgetConfiguration;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\App;
 use Livewire\Attributes\On;
@@ -79,6 +80,8 @@ class Overview extends Page
     public int $uptimeMs = 0;
 
     protected FeatureService $featureService;
+
+    protected Container $container;
 
     public function mount(): void
     {
@@ -127,9 +130,10 @@ class Overview extends Page
         }
     }
 
-    public function boot(FeatureService $featureService): void
+    public function boot(FeatureService $featureService, Container $container): void
     {
         $this->featureService = $featureService;
+        $this->container = $container;
         /** @var Server $server */
         $server = Filament::getTenant();
         foreach ($featureService->getActiveSchemas($server->egg->features) as $feature) {
@@ -281,7 +285,7 @@ class Overview extends Page
     {
         foreach (static::$stateHandlers as $class) {
             /** @var OverviewStateHandler $handler */
-            $handler = app($class);
+            $handler = $this->container->make($class);
             if ($handler->handles($server)) {
                 return $handler;
             }
