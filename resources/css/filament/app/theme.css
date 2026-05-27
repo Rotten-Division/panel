@@ -1,12 +1,6 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
 @import './brand/themes.css';
 @import './brand/tokens.css';
 @import '../../overview-tokens.css';
-
-@source '../../../../app/Filament/**/*';
-@source '../../../../resources/views/filament/**/*';
-@source '../../../../plugins/*/src/**/*';
-@source '../../../../plugins/*/resources/**/*';
 
 /*
  * ospite hosting filament theme.
