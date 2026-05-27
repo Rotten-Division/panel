@@ -1,38 +1,105 @@
 /* ============================================================ */
-/* overview-stage-hero: phase 4 task 6                          */
+/* overview-stage-hero: family B single-column composition      */
 /* ============================================================ */
 .overview-stage-hero {
-    display: grid;
-    grid-template-columns: 1fr 220px;
-    gap: 32px;
-    align-items: center;
+    position: relative;
+    overflow: hidden;
     background: var(--ink);
     border: 0.5px solid var(--graphite);
     border-radius: 9px;
     padding: 32px;
 }
-.overview-stage-hero--stashed { background: linear-gradient(to bottom right, var(--ink), color-mix(in srgb, var(--azure) 8%, transparent)); }
-.overview-stage-hero--retrieve { background: linear-gradient(to bottom right, var(--ink), color-mix(in srgb, var(--hearth) 10%, transparent)); }
-.overview-stage-hero--stash { background: linear-gradient(to bottom right, color-mix(in srgb, var(--azure) 6%, transparent), color-mix(in srgb, var(--hearth) 8%, transparent)); }
-.overview-stage-hero--suspended { background: linear-gradient(to bottom right, var(--ink), rgb(var(--state-danger) / 0.10)); }
-.overview-stage-hero__title { font-family: var(--font-display); font-weight: 500; font-size: 28px; letter-spacing: -0.01em; color: var(--linen); max-width: 540px; }
-.overview-stage-hero__body { font-size: 14px; color: var(--sand); line-height: 1.65; max-width: 480px; margin-top: 8px; }
-.overview-stage-hero__cta { margin-top: 18px; }
+/* single-hue diagonal tint overlay; --ink stays underneath so the three
+   stash states read as one family. all three stash tones share the same
+   blue at the same opacity (non-negotiable). */
+.overview-stage-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.overview-stage-hero--stashed::before,
+.overview-stage-hero--retrieve::before,
+.overview-stage-hero--stash::before {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--azure) 8%, transparent), transparent);
+}
+.overview-stage-hero--suspended::before {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--brick) 8%, transparent), transparent);
+}
+.overview-stage-hero__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 6px 0;
+}
 .overview-stage-hero__illustration {
-    width: 220px;
-    height: 220px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .overview-stage-hero__illustration img,
 .overview-stage-hero__illustration svg {
+    display: block;
+    height: 200px;
+    width: auto;
+}
+.overview-stage-hero__illustration--mirror img,
+.overview-stage-hero__illustration--mirror svg {
+    transform: scaleX(-1);
+}
+.overview-stage-hero__prose { max-width: 500px; }
+.overview-stage-hero__title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--linen);
+}
+.overview-stage-hero__body {
+    font-size: 13px;
+    color: var(--sand);
+    line-height: 1.6;
+    margin-top: 10px;
+}
+.overview-stage-hero__progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+.overview-stage-hero__progress .overview-progress-band {
+    width: 320px;
     max-width: 100%;
-    max-height: 100%;
+}
+.overview-stage-hero__progress-caption {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--sand);
+}
+.overview-stage-hero__cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+/* family B body footnote — policy copy under the stashed / suspended bodies */
+.overview-footnote {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--stone);
+    max-width: 720px;
+    margin-top: 14px;
 }
 @media (max-width: 640px) {
-    .overview-stage-hero { grid-template-columns: 1fr; }
-    .overview-stage-hero__illustration { display: none; }
+    .overview-stage-hero { padding: 24px 18px; }
+    .overview-stage-hero__illustration img,
+    .overview-stage-hero__illustration svg { height: 150px; }
 }
 
 .overview-btn {

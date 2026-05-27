@@ -18,8 +18,8 @@
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    background: color-mix(in srgb, var(--hearth) 10%, transparent);
-    color: var(--hearth);
+    background: color-mix(in srgb, var(--azure) 10%, transparent);
+    color: var(--azure-fg);
     flex-shrink: 0;
 }
 .overview-fact-card--warn .overview-fact-card__icon { background: rgb(var(--state-warning) / 0.12); color: var(--honey); }
