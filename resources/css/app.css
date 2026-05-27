@@ -1,28 +1,14 @@
 @import 'tailwindcss';
 
-/* Required by all components */
-@import '../../vendor/filament/support/resources/css/index.css';
-
-/* Required by actions and tables */
-@import '../../vendor/filament/actions/resources/css/index.css';
-
-/* Required by actions, forms and tables */
-@import '../../vendor/filament/forms/resources/css/index.css';
-
-/* Required by actions and infolists */
-@import '../../vendor/filament/infolists/resources/css/index.css';
-
-/* Required by notifications */
-@import '../../vendor/filament/notifications/resources/css/index.css';
-
-/* Required by actions, infolists, forms, schemas and tables */
-@import '../../vendor/filament/schemas/resources/css/index.css';
-
-/* Required by tables */
-@import '../../vendor/filament/tables/resources/css/index.css';
-
-/* Required by widgets */
-@import '../../vendor/filament/widgets/resources/css/index.css';
+/* the complete filament chrome. the panels package index pulls every
+   sub-package (support / actions / forms / infolists / notifications /
+   schemas / tables / widgets) AND the panels layout (sidebar, topbar, page,
+   layout, global-search, …) plus the font @theme. importing this umbrella
+   makes app.css the single, complete chrome build; the brand overlay
+   (theme.css) carries no chrome. previously app.css listed only the eight
+   sub-packages and relied on theme.css's vendor theme import for the panels
+   layer — which broke when that import was removed. */
+@import '../../vendor/filament/filament/resources/css/index.css';
 
 @source '../../vendor/gboquizosanchez/filament-log-viewer/resources/views/**/*.blade.php';
 @source '../../app/Filament/**/*';
