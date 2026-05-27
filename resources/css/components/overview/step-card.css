@@ -1,0 +1,35 @@
+/* ============================================================ */
+/* overview-step-card: family B transient step list             */
+/* ============================================================ */
+.overview-step-card {
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 7px;
+    padding: 14px;
+    margin-top: 14px;
+}
+.overview-step-card__header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.overview-step-card__title { font-size: 13px; font-weight: 500; color: var(--linen); }
+.overview-step-card__sub { font-size: 11px; color: var(--sand); margin-left: auto; }
+.overview-step-card__list { display: flex; flex-direction: column; gap: 10px; }
+.overview-step { display: flex; align-items: center; gap: 10px; }
+.overview-step__dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex: none;
+    background: var(--slate);
+    color: var(--stone);
+}
+.overview-step__dot svg { width: 12px; height: 12px; }
+.overview-step--done .overview-step__dot { background: rgb(var(--state-success) / 0.18); color: var(--moss-fg); }
+.overview-step--active .overview-step__dot { background: color-mix(in srgb, var(--hearth) 18%, transparent); color: var(--hearth); }
+.overview-step__spinner { animation: overview-pulse 1.6s ease-in-out infinite; }
+.overview-step__label { flex: 1; font-size: 13px; color: var(--stone); }
+.overview-step--done .overview-step__label,
+.overview-step--active .overview-step__label { color: var(--linen); }
+.overview-step--active .overview-step__label { font-weight: 500; }
+.overview-step__detail { font-family: var(--font-mono); font-size: 11px; color: var(--sand); text-align: right; }
