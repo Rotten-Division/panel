@@ -1,0 +1,24 @@
+/* ============================================================ */
+/* overview-reason-card: suspended-state policy notice          */
+/* ============================================================ */
+.overview-reason-card {
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 7px;
+    padding: 14px;
+    margin-top: 14px;
+}
+.overview-reason-card__header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.overview-reason-card__title { font-size: 13px; font-weight: 500; color: var(--linen); }
+.overview-reason-card__sub { font-size: 11px; color: var(--sand); margin-left: auto; }
+.overview-reason-card__body {
+    background: var(--slate);
+    border: 0.5px solid var(--graphite);
+    border-left: 2px solid var(--brick);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--sand);
+    line-height: 1.65;
+}
+.overview-reason-card__note { margin-top: 10px; font-size: 12px; color: var(--stone); }
