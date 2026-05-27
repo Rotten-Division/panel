@@ -37,6 +37,4 @@
     --font-display: var(--font-body);
     --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
-    /* game-category accents — populated in a later phase from the wizard badges */
-    /* --category-<name>: …; --category-<name>-fg: …; */
 }
