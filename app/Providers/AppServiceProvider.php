@@ -15,6 +15,7 @@ use App\Contracts\Servers\NodeSelector;
 use App\Contracts\Servers\PlayerCountProvider;
 use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
+use App\Contracts\Servers\StashedArchiveLocator;
 use App\Contracts\Servers\StashMembershipGate;
 use App\Http\Responses\LoginResponse;
 use App\Models\Allocation;
@@ -36,6 +37,7 @@ use App\Services\Servers\FirstAvailableNodeSelector;
 use App\Services\Servers\NoPortHoldsGate;
 use App\Services\Servers\NoStashMembershipGate;
 use App\Services\Servers\NullPlayerCountProvider;
+use App\Services\Servers\NullStashedArchiveLocator;
 use App\Services\Servers\UnrestrictedServerStartGate;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -179,6 +181,12 @@ class AppServiceProvider extends ServiceProvider
         // returns the one that needs to go to cold storage before another
         // can come out.
         $this->app->singleton(StashMembershipGate::class, NoStashMembershipGate::class);
+
+        // default archive locator returns null. the stash manager plugin
+        // rebinds this to read osm_servers.archive_size so the suspended
+        // state can show real stored bytes without importing plugin models
+        // in panel core.
+        $this->app->singleton(StashedArchiveLocator::class, NullStashedArchiveLocator::class);
 
         // default player count provider returns null. a future live player
         // stats plugin will rebind this to query wings or scrape the game
