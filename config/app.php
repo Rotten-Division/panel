@@ -24,4 +24,8 @@ return [
 
     'fallback_locale' => 'en',
 
+    // surfaced by the suspended-state "Contact support" CTA and any future
+    // support entry point. defaults to the brand discord invite.
+    'support_url' => env('OSPITE_SUPPORT_URL', 'https://discord.gg/ospite'),
+
 ];
