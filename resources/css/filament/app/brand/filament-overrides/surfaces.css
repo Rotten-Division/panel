@@ -62,6 +62,11 @@
     border-right: 0.5px solid var(--graphite);
 }
 
+/* active nav item highlight — a sidebar surface tint, not an action button. */
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: rgb(var(--ospite-accent) / 0.12);
+}
+
 /* modal window picks up the same surface-card tone as its header so the
    body and header read as one continuous panel rather than two stacked
    tones, dropdown panel keeps the elevated tone since it floats above
