@@ -6,6 +6,7 @@ use App\Http\Middleware\Api\Daemon\DaemonAuthenticate;
 use App\Models\Node;
 use App\Tests\Unit\Http\Middleware\MiddlewareTestCase;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DaemonAuthenticateTest extends MiddlewareTestCase
 {
+    use RefreshDatabase;
+
     /**
      * Test that if we are accessing the daemon configuration route this middleware is not
      * applied in order to allow an unauthenticated request to use a token to grab data.
