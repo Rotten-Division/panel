@@ -127,6 +127,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e): Response
     {
         $connections = $this->container->make(Connection::class);
+        $app = $this->container->make(Application::class);
 
         // If we are currently wrapped up inside a transaction, we will roll all the way
         // back to the beginning. This needs to happen, otherwise session data does not
@@ -135,7 +136,13 @@ class Handler extends ExceptionHandler
         // This is kind of a hack, and ideally things like this should be handled as
         // much as possible at the code level, but there are a lot of spots that do a
         // ton of actions and were written before this bug discovery was made.
-        if ($connections->transactionLevel()) {
+        //
+        // runningUnitTests() only checks APP_ENV, so it pairs with runningInConsole() here:
+        // render() is an HTTP entry point, and a real worker always rolls back even if it
+        // runs with APP_ENV=testing. The skip only fires under the CLI test suite, where it
+        // leaves RefreshDatabase's isolation transaction (the outermost level, not request
+        // work) for teardown, instead of wiping seeded rows out from under a thrown response.
+        if ($connections->transactionLevel() && !($app->runningInConsole() && $app->runningUnitTests())) {
             $connections->rollBack(0);
         }
 
