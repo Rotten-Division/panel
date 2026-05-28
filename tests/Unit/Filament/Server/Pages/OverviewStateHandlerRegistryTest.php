@@ -68,6 +68,9 @@ test('resolveStateHandler returns the first handler whose handles returns true',
     Overview::registerStateHandler(AcceptingStateHandler::class);
 
     $page = new Overview();
+    // resolveStateHandler resolves handlers through the container boot() injects;
+    // bypassing the filament lifecycle here means setting it ourselves.
+    (fn () => $this->container = app())->call($page);
     $resolved = $page->resolveStateHandler(new Server());
 
     expect($resolved)->toBeInstanceOf(AcceptingStateHandler::class);
