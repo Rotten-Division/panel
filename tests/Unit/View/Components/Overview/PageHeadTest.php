@@ -13,6 +13,13 @@ uses(TestCase::class);
 function pageHeadServer(?string $address, ?string $city = null, ?string $cc = null): Server
 {
     $server = new Server();
+    // every server has an egg (egg_id is non-nullable), so the eyebrow
+    // accessors deref it directly. attach an empty one here; flavour/version
+    // tests that need real egg data use pageHeadServerWithEgg().
+    $egg = new Egg();
+    $egg->tags = [];
+    $egg->name = null;
+    $server->setRelation('egg', $egg);
     // stdClass stub bypasses the Allocation address accessor (ip + port
     // concat) so the parser can be tested against opaque address strings.
     $server->setRelation('allocation', $address === null ? null : (object) ['address' => $address]);
