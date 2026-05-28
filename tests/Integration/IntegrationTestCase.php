@@ -34,6 +34,13 @@ abstract class IntegrationTestCase extends TestCase
     {
         parent::setUp();
 
+        // CI never builds frontend assets, so any page that renders @vite
+        // (the overview state pages, the filament chrome) 500s on the missing
+        // manifest. these tests assert on rendered html, not asset urls, so
+        // stub vite out. the Build workflow still compiles assets for real and
+        // catches a broken manifest.
+        $this->withoutVite();
+
         Event::fake(ActivityLogged::class);
     }
 
