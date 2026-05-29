@@ -43,7 +43,7 @@ class StashRemoteController extends Controller
         }
 
         $payload = $request->validate([
-            'step' => ['required', 'string', 'in:downloading,extracting'],
+            'step' => ['required', 'string', 'in:downloading,extracting,starting'],
             'bytes' => ['required', 'integer', 'min:0'],
             'total_bytes' => ['required', 'integer', 'min:0'],
         ]);

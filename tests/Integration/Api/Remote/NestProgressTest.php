@@ -61,6 +61,22 @@ class NestProgressTest extends IntegrationTestCase
         $this->assertNull(app(RetrieveProgressCache::class)->get($server));
     }
 
+    public function test_owning_node_can_post_starting_progress(): void
+    {
+        $server = $this->createServerModel(['status' => ServerState::Retrieving]);
+        $node = Node::find($server->node_id);
+
+        $this->withHeader('Authorization', "Bearer $node->daemon_token_id.$node->daemon_token")
+            ->postJson("/api/remote/servers/{$server->uuid}/nest-progress", [
+                'step' => 'starting',
+                'bytes' => 0,
+                'total_bytes' => 0,
+            ])
+            ->assertNoContent();
+
+        $this->assertSame('starting', app(RetrieveProgressCache::class)->get($server)['step']);
+    }
+
     public function test_invalid_step_is_rejected(): void
     {
         $server = $this->createServerModel(['status' => ServerState::Retrieving]);
