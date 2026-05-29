@@ -67,13 +67,13 @@ test('seed does not clobber existing wings fields on second call', function () {
 
 test('starting step keeps streamed totals and stamps finished', function () {
     $server = $this->createServerModel(['status' => ServerState::Retrieving]);
-    $cache = app(RetrieveProgressCache::class);
+    $cache = new RetrieveProgressCache();
 
     $cache->mergeProgress($server, ['step' => 'downloading', 'bytes' => 500, 'total_bytes' => 1000]);
     $cache->mergeProgress($server, ['step' => 'starting', 'bytes' => 0, 'total_bytes' => 0]);
 
     $p = $cache->get($server);
-    $this->assertSame('starting', $p['step']);
-    $this->assertSame(1000, $p['total_bytes']);
-    $this->assertIsInt($p['streaming_finished_at']);
+    expect($p['step'])->toBe('starting')
+        ->and($p['total_bytes'])->toBe(1000)
+        ->and($p['streaming_finished_at'])->toBeInt();
 });

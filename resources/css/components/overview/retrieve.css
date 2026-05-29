@@ -1,4 +1,4 @@
-/* unified retrieve panel: hero essence on top, steps integrated below, one surface */
+/* retrieve overview */
 .overview-retrieve {
     position: relative;
     overflow: hidden;
@@ -71,10 +71,11 @@
 .overview-retrieve__steps .overview-step:not(:last-child)::before {
     content: "";
     position: absolute;
-    left: 8px;
+    left: 9px;
     top: 21px;
     bottom: -17px;
     width: 1.5px;
+    transform: translateX(-50%);
     background: var(--graphite);
 }
 .overview-retrieve__steps .overview-step--done::before {
