@@ -115,7 +115,7 @@
     0%   { transform: translateX(-100%); }
     100% { transform: translateX(250%); }
 }
-.overview-progress-band--determinate > i {
+.overview-progress-band.overview-progress-band--determinate > i {
     animation: none;
     width: 0;
     background: var(--azure);
