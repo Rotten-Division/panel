@@ -7,6 +7,14 @@
     padding: 36px 28px 28px;
     margin: 14px auto 0;
     max-width: 680px;
+    /* rises in when the body morphs from stashed to retrieving. a keyframe, not
+       @starting-style, because livewire's morph patches the DOM in a way that
+       skips the starting-style transition. the section is created once and
+       persists across retrieving polls, so this runs once and does not re-fire. */
+    animation: overview-retrieve-in 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes overview-retrieve-in {
+    from { opacity: 0; transform: translateY(6px); }
 }
 .overview-retrieve::before {
     content: "";
@@ -76,9 +84,18 @@
     width: 1.5px;
     transform: translateX(-50%);
     background: var(--graphite);
+    transition: background-color 240ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .overview-retrieve__steps .overview-step--done::before {
     background: color-mix(in srgb, var(--moss) 50%, var(--graphite));
+}
+
+/* keep the fades and colour tweens (they carry meaning), drop the movement */
+@media (prefers-reduced-motion: reduce) {
+    .overview-retrieve { animation-name: overview-retrieve-fade; }
+}
+@keyframes overview-retrieve-fade {
+    from { opacity: 0; }
 }
 
 @media (max-width: 640px) {

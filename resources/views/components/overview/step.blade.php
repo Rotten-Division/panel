@@ -1,6 +1,6 @@
 @props(['done' => false, 'active' => false, 'label' => '', 'detail' => null, 'percent' => null])
 
-<div @class([
+<div {{ $attributes }} @class([
     'overview-step',
     'overview-step--done' => $done,
     'overview-step--active' => $active,
