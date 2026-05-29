@@ -6,6 +6,7 @@ use App\Enums\TablerIcon;
 use App\Filament\Admin\Resources\Servers\Pages\EditServer;
 use App\Filament\App\Resources\Servers\Pages\ListServers;
 use App\Http\Middleware\Activity\ServerSubject;
+use App\Http\Middleware\RedirectServerConflictToOverview;
 use App\Models\Server;
 use App\Services\Helpers\PluginService;
 use Filament\Actions\Action;
@@ -46,6 +47,7 @@ class ServerPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Server/Pages'), for: 'App\\Filament\\Server\\Pages')
             ->discoverWidgets(in: app_path('Filament/Server/Widgets'), for: 'App\\Filament\\Server\\Widgets')
             ->tenantMiddleware([
+                RedirectServerConflictToOverview::class,
                 ServerSubject::class,
             ]);
 
