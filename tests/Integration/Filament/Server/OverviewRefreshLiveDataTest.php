@@ -1,11 +1,13 @@
 <?php
 
 use App\Enums\ContainerStatus;
+use App\Enums\ServerState;
 use App\Filament\Server\Pages\Overview;
 use App\Models\Egg;
 use App\Models\Server;
 use App\Tests\Integration\IntegrationTestCase;
 use Filament\Facades\Filament;
+use Livewire\Livewire;
 
 uses(IntegrationTestCase::class);
 
@@ -88,6 +90,34 @@ test('refreshLiveData falls back to zero when the cache is empty', function () {
 
     expect($page->diskUsedBytes)->toBe(0);
     expect($page->uptimeMs)->toBe(0);
+});
+
+test('refreshLiveData forces a full reload when the server leaves the stash family', function () {
+    $server = seedServerForLiveData();
+    $server->update(['status' => ServerState::Retrieving]);
+    Filament::setTenant($server);
+
+    $page = Livewire::test(Overview::class);
+    // landing on a retrieving server records family-b membership, no redirect
+    expect($page->get('wasStashFamily'))->toBeTrue();
+    $page->call('refreshLiveData')->assertNoRedirect();
+
+    // retrieve completes and status flips to operational. the operational body
+    // needs a full page load to boot the wings socket, so the poll redirects
+    // instead of letting livewire morph in a socketless stopped view.
+    $server->update(['status' => null]);
+    $page->call('refreshLiveData')
+        ->assertRedirect(Overview::getUrl(panel: 'server', tenant: $server));
+});
+
+test('refreshLiveData does not redirect while the server stays operational', function () {
+    $server = seedServerForLiveData();
+    Filament::setTenant($server);
+
+    Livewire::test(Overview::class)
+        ->assertSet('wasStashFamily', false)
+        ->call('refreshLiveData')
+        ->assertNoRedirect();
 });
 
 test('diskBarTone honours 60 and 85 thresholds against the server cap', function () {

@@ -79,6 +79,10 @@ class Overview extends Page
 
     public int $uptimeMs = 0;
 
+    // whether the previous render showed a stash family-b body, so the poll can
+    // force a full reload the moment the server leaves that family.
+    public bool $wasStashFamily = false;
+
     protected FeatureService $featureService;
 
     protected Container $container;
@@ -298,6 +302,26 @@ class Overview extends Page
     {
         /** @var Server $server */
         $server = Filament::getTenant();
+
+        // a stash family-b body (stashed/retrieving/stashing) renders without the
+        // wings websocket, so $this->status goes stale while it shows. when a
+        // finished retrieve flips status to null with the container running, a
+        // livewire morph swaps in the operational body but leaves it socketless on
+        // the stale Offline view until a manual reload. force a full page load on
+        // that edge so mount() re-hydrates status and ServerConsole reopens the
+        // socket. the route is spa-excluded, so this redirect is a hard navigation.
+        $isStashFamily = in_array($server->status, [
+            ServerState::Stashed,
+            ServerState::Retrieving,
+            ServerState::Stashing,
+        ], true);
+        if ($this->wasStashFamily && !$isStashFamily) {
+            $this->wasStashFamily = false;
+            $this->redirect(self::getUrl(panel: 'server', tenant: $server));
+
+            return;
+        }
+        $this->wasStashFamily = $isStashFamily;
 
         // wings stats are cached per field at `servers.{id}.{field}` by the
         // ServerConsole widget's store-stats handler. each value is a time
