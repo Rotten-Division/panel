@@ -144,27 +144,23 @@
     transform: translateX(-50%) translateY(3px);
     z-index: 20;
     width: max-content;
-    max-width: 260px;
-    padding: 8px 11px;
+    max-width: 240px;
+    padding: 7px 10px;
     border-radius: 6px;
-    background: var(--slate);
+    /* fixed frosted-dark surface, same recipe as the chart crosshair tooltip,
+       so it reads dark over its own content in both modes (rule 2 exception). */
+    background: rgba(15, 17, 22, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 0.5px solid var(--graphite);
-    color: var(--sand);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    color: var(--linen);
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.45;
     text-align: center;
     opacity: 0;
     pointer-events: none;
     transition: opacity 140ms cubic-bezier(0.23, 1, 0.32, 1), transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.overview-btn-tip__bubble::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: var(--slate);
 }
 .overview-btn-tip:hover .overview-btn-tip__bubble,
 .overview-btn-tip:focus-within .overview-btn-tip__bubble {
