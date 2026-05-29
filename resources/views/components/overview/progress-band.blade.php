@@ -1,9 +1,13 @@
-@props(['variant' => 'default'])
+@props(['variant' => 'default', 'percent' => null])
 
-{{-- indeterminate progress shuttle. matches design canvas .fs-progress
-     (overview.css:398-419). standalone sibling under the banner, do
-     NOT nest inside state-banner; the canvas places this as a
-     separate strip and the banner stays compact. --}}
-<div class="overview-progress-band overview-progress-band--{{ $variant }}" aria-hidden="true">
-    <i></i>
+{{-- indeterminate shuttle by default; a determinate fill when a percent is
+     given (the streaming leg). do NOT nest inside state-banner, the canvas
+     places this as a separate strip. --}}
+@php($determinate = $percent !== null)
+<div @class([
+        'overview-progress-band',
+        "overview-progress-band--{$variant}",
+        'overview-progress-band--determinate' => $determinate,
+    ]) aria-hidden="true">
+    <i @if($determinate) style="width: {{ $percent }}%" @endif></i>
 </div>
