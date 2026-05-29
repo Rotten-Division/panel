@@ -24,9 +24,19 @@ class RetrieveProgressCache
     public function mergeProgress(Server $server, array $progress): void
     {
         $existing = $this->get($server) ?? [];
-        if (($progress['step'] ?? null) === 'downloading' && !isset($existing['streaming_started_at'])) {
+        $step = $progress['step'] ?? null;
+
+        if ($step === 'downloading' && !isset($existing['streaming_started_at'])) {
             $existing['streaming_started_at'] = now()->getTimestamp();
         }
+
+        if ($step === 'starting') {
+            // the boot tick carries no byte counts; keep the streamed totals and
+            // stamp when streaming finished so the done step can report duration.
+            $existing['streaming_finished_at'] ??= now()->getTimestamp();
+            unset($progress['bytes'], $progress['total_bytes']);
+        }
+
         Cache::put($this->key($server), array_merge($existing, $progress), self::TTL_SECONDS);
     }
 

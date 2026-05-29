@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ServerState;
 use App\Services\Servers\RetrieveProgressCache;
 use App\Tests\Integration\IntegrationTestCase;
 
@@ -62,4 +63,17 @@ test('seed does not clobber existing wings fields on second call', function () {
     expect($got['step'])->toBe('downloading')
         ->and($got['bytes'])->toBe(50)
         ->and($got['requested_by'])->toBe('late@seed.com');
+});
+
+test('starting step keeps streamed totals and stamps finished', function () {
+    $server = $this->createServerModel(['status' => ServerState::Retrieving]);
+    $cache = app(RetrieveProgressCache::class);
+
+    $cache->mergeProgress($server, ['step' => 'downloading', 'bytes' => 500, 'total_bytes' => 1000]);
+    $cache->mergeProgress($server, ['step' => 'starting', 'bytes' => 0, 'total_bytes' => 0]);
+
+    $p = $cache->get($server);
+    $this->assertSame('starting', $p['step']);
+    $this->assertSame(1000, $p['total_bytes']);
+    $this->assertIsInt($p['streaming_finished_at']);
 });
