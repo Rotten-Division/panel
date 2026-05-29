@@ -77,3 +77,16 @@ test('starting step keeps streamed totals and stamps finished', function () {
         ->and($p['total_bytes'])->toBe(1000)
         ->and($p['streaming_finished_at'])->toBeInt();
 });
+
+test('failure flag is null until flagged, then clears', function () {
+    $server = $this->createServerModel(['status' => ServerState::Stashed]);
+    $cache = new RetrieveProgressCache();
+
+    expect($cache->failure($server))->toBeNull();
+
+    $cache->flagFailure($server, 'boot timed out');
+    expect($cache->failure($server))->toBe('boot timed out');
+
+    $cache->clearFailure($server);
+    expect($cache->failure($server))->toBeNull();
+});

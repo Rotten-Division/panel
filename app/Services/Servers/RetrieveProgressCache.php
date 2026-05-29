@@ -55,4 +55,26 @@ class RetrieveProgressCache
     {
         return "server:{$server->uuid}:retrieve-progress";
     }
+
+    private const FAILURE_TTL_SECONDS = 300;
+
+    public function flagFailure(Server $server, string $reason): void
+    {
+        Cache::put($this->failureKey($server), $reason, self::FAILURE_TTL_SECONDS);
+    }
+
+    public function failure(Server $server): ?string
+    {
+        return Cache::get($this->failureKey($server));
+    }
+
+    public function clearFailure(Server $server): void
+    {
+        Cache::forget($this->failureKey($server));
+    }
+
+    private function failureKey(Server $server): string
+    {
+        return "server:{$server->uuid}:retrieve-failed";
+    }
 }
