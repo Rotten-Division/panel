@@ -88,6 +88,14 @@
     flex-wrap: wrap;
     justify-content: center;
 }
+/* notices (blocked, failed retrieve) sit inside the cta flow but break onto
+   their own full-width line below the button row rather than wedging between
+   the buttons. */
+.overview-stage-hero__cta .overview-footnote {
+    flex-basis: 100%;
+    margin-top: 0;
+    text-align: center;
+}
 /* family B body footnote, policy copy under the stashed / suspended bodies */
 .overview-footnote {
     font-size: 12px;
@@ -122,6 +130,7 @@
 }
 .overview-btn svg.fi-icon { width: 16px; height: 16px; flex: none; }
 .overview-btn:hover:not(:disabled) { border-color: var(--hearth); }
+.overview-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .overview-btn--primary { background: var(--hearth); border-color: var(--hearth); }
 .overview-btn--primary:hover:not(:disabled) { background: var(--ember); border-color: var(--ember); }
 .overview-btn--lg { height: 42px; padding: 0 20px; font-size: 14px; gap: 10px; }
