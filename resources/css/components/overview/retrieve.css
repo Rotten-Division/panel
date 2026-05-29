@@ -7,14 +7,12 @@
     padding: 36px 28px 28px;
     margin: 14px auto 0;
     max-width: 680px;
-    /* rises in when the body morphs from stashed to retrieving. a keyframe, not
-       @starting-style, because livewire's morph patches the DOM in a way that
-       skips the starting-style transition. the section is created once and
-       persists across retrieving polls, so this runs once and does not re-fire. */
-    animation: overview-retrieve-in 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    /* keyframe, not @starting-style: livewire's morph skips the starting-style
+       transition. created once and persists across polls, so this runs once. */
+    animation: overview-retrieve-in 480ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 @keyframes overview-retrieve-in {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(12px) scale(0.985); filter: blur(6px); }
 }
 .overview-retrieve::before {
     content: "";
@@ -74,6 +72,15 @@
 .overview-retrieve__steps { display: flex; flex-direction: column; gap: 16px; }
 
 .overview-retrieve__steps .overview-step { position: relative; }
+/* runs once on entry; the rows persist across polls via wire:key, not per poll. */
+.overview-retrieve__steps .overview-step {
+    animation: overview-step-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.overview-retrieve__steps .overview-step:nth-child(1) { animation-delay: 140ms; }
+.overview-retrieve__steps .overview-step:nth-child(2) { animation-delay: 190ms; }
+.overview-retrieve__steps .overview-step:nth-child(3) { animation-delay: 240ms; }
+.overview-retrieve__steps .overview-step:nth-child(4) { animation-delay: 290ms; }
+@keyframes overview-step-in { from { opacity: 0; transform: translateY(8px); } }
 .overview-retrieve__steps .overview-step__row { align-items: flex-start; }
 .overview-retrieve__steps .overview-step:not(:last-child)::before {
     content: "";
@@ -83,9 +90,8 @@
     bottom: -17px;
     width: 1.5px;
     transform: translateX(-50%);
-    /* the moss fill grows top-to-bottom as a step completes, so the progress
-       front visibly travels down the rail to the next step instead of the
-       segment snapping to colour. graphite shows where it hasn't reached. */
+    /* the live download % is on the node ring (step-card.css); this rail only
+       tracks step completion. */
     background-color: var(--graphite);
     background-image: linear-gradient(color-mix(in srgb, var(--moss) 55%, var(--graphite)), color-mix(in srgb, var(--moss) 55%, var(--graphite)));
     background-repeat: no-repeat;
@@ -94,14 +100,15 @@
     transition: background-size 450ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 /* :not(:last-child) matches the base rule's specificity so this override wins
-   on source order; without it the base (higher specificity) pins the fill at 0. */
+   on source order; without it the base pins the fill at 0. */
 .overview-retrieve__steps .overview-step--done:not(:last-child)::before {
     background-size: 100% 100%;
 }
 
-/* keep the fades and colour tweens (they carry meaning), drop the movement */
+/* keep the fades and colour tweens, drop the movement */
 @media (prefers-reduced-motion: reduce) {
     .overview-retrieve { animation-name: overview-retrieve-fade; }
+    .overview-retrieve__steps .overview-step { animation: none; }
     .overview-retrieve__steps .overview-step:not(:last-child)::before { transition: none; }
 }
 @keyframes overview-retrieve-fade {

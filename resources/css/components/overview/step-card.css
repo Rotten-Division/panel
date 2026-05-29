@@ -14,11 +14,6 @@
 .overview-step-card__list { display: flex; flex-direction: column; gap: 10px; }
 .overview-step { display: flex; flex-direction: column; gap: 8px; }
 .overview-step__row { display: flex; align-items: center; gap: 10px; }
-.overview-step__progress { margin-left: 28px; margin-top: 2px; }
-.overview-step__progress .overview-progress-band {
-    height: 4px;
-    background: color-mix(in srgb, var(--azure) 16%, transparent);
-}
 .overview-step__dot {
     display: inline-flex;
     align-items: center;
@@ -29,25 +24,41 @@
     flex: none;
     background: var(--slate);
     color: var(--stone);
-    /* the dot and label below tween between pending/active/done as the 1s poll
-       flips state classes. transitions are morph-safe; a keyframe pop would
-       re-fire on every poll while the step sits done. */
+    /* transitions, not a keyframe: a keyframe would re-fire every poll while the
+       step sits done. */
     transition: background-color 200ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .overview-step__dot svg { width: 12px; height: 12px; }
 .overview-step--done .overview-step__dot { background: rgb(var(--state-success) / 0.18); color: var(--moss-fg); }
 .overview-step--active .overview-step__dot { background: color-mix(in srgb, var(--hearth) 18%, transparent); color: var(--hearth); }
 .overview-step__spinner { animation: overview-spin 0.9s linear infinite; }
-.overview-step__label { flex: 1; font-size: 13px; color: var(--stone); transition: color 200ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* geometry matches tabler-loader-2 (r9, 2px stroke in the 24 viewbox) so the
+   line reads identically to the spinner. */
+.overview-step__ring { display: block; }
+.overview-step__ring circle { transform: rotate(-90deg); transform-origin: center; }
+.overview-step__ring-track { stroke: color-mix(in srgb, var(--hearth) 22%, transparent); }
+.overview-step__ring-fill {
+    stroke: currentColor;
+    stroke-linecap: round;
+    /* longer than the 1s poll so the arc is still mid-tween when the next %
+       lands and just retargets. */
+    transition: stroke-dashoffset 1100ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+    .overview-step__ring-fill { transition: none; }
+}
+/* line-height matches the 18px dot so the first text line centres on the dot
+   under the row's flex-start (the rail anchors to the dot top, not the row). */
+.overview-step__label { flex: 1; font-size: 13px; line-height: 18px; color: var(--stone); transition: color 200ms cubic-bezier(0.23, 1, 0.32, 1); }
 .overview-step--done .overview-step__label,
 .overview-step--active .overview-step__label { color: var(--linen); }
 .overview-step--active .overview-step__label { font-weight: 500; }
-.overview-step__detail { font-family: var(--font-mono); font-size: 11px; color: var(--sand); text-align: right; }
+.overview-step__detail { font-family: var(--font-mono); font-size: 11px; line-height: 18px; color: var(--sand); text-align: right; }
 @keyframes overview-spin { to { transform: rotate(360deg); } }
 
-/* the check grows into place when a step completes, instead of the glyph
-   snapping in. the done svg is a fresh element each completion (the icon
-   swaps from spinner), so this runs once on the transition, not per poll. */
+/* the done svg is a fresh element each completion (the icon swaps from the
+   spinner), so this runs once, not per poll. */
 .overview-step--done .overview-step__dot svg { animation: overview-step-check-in 280ms cubic-bezier(0.23, 1, 0.32, 1); }
 @keyframes overview-step-check-in { from { transform: scale(0.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
