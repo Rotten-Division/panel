@@ -9,6 +9,7 @@
     margin-top: 14px;
 }
 .overview-step-card__header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.overview-step-card__progress { margin-bottom: 12px; }
 .overview-step-card__title { font-size: 13px; font-weight: 500; color: var(--linen); }
 .overview-step-card__sub { font-size: 11px; color: var(--sand); margin-left: auto; }
 .overview-step-card__list { display: flex; flex-direction: column; gap: 10px; }
