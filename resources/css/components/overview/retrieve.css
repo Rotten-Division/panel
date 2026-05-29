@@ -1,0 +1,88 @@
+/* unified retrieve panel: hero essence on top, steps integrated below, one surface */
+.overview-retrieve {
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    border: 0.5px solid var(--graphite);
+    border-radius: 12px;
+    padding: 36px 28px 28px;
+    margin: 14px auto 0;
+    max-width: 680px;
+}
+.overview-retrieve::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--azure) 8%, transparent), transparent);
+}
+.overview-retrieve__hero,
+.overview-retrieve__activity {
+    position: relative;
+}
+.overview-retrieve__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+}
+.overview-retrieve__art { height: 200px; width: auto; }
+.overview-retrieve__title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--linen);
+}
+.overview-retrieve__body {
+    font-size: 13px;
+    color: var(--sand);
+    line-height: 1.6;
+    max-width: 500px;
+    margin-top: 10px;
+}
+.overview-retrieve__activity {
+    margin: 32px auto 0;
+    max-width: 600px;
+}
+.overview-retrieve__activity-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 0.5px solid var(--graphite);
+}
+.overview-retrieve__activity-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--stone);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.overview-retrieve__activity-sub { font-size: 11px; color: var(--sand); }
+.overview-retrieve__steps { display: flex; flex-direction: column; gap: 16px; }
+
+.overview-retrieve__steps .overview-step { position: relative; }
+.overview-retrieve__steps .overview-step__row { align-items: flex-start; }
+.overview-retrieve__steps .overview-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 21px;
+    bottom: -17px;
+    width: 1.5px;
+    background: var(--graphite);
+}
+.overview-retrieve__steps .overview-step--done::before {
+    background: color-mix(in srgb, var(--moss) 50%, var(--graphite));
+}
+
+@media (max-width: 640px) {
+    .overview-retrieve { padding: 24px 18px; }
+    .overview-retrieve__art { height: 150px; }
+    .overview-retrieve__activity { max-width: none; }
+}
