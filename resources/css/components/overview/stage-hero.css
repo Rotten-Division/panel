@@ -131,6 +131,51 @@
 .overview-btn svg.fi-icon { width: 16px; height: 16px; flex: none; }
 .overview-btn:hover:not(:disabled) { border-color: var(--hearth); }
 .overview-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* tooltip wrapper for a disabled action: chrome suppresses pointer events on a
+   disabled control so the button can't fire :hover itself. the wrapper carries
+   the hover and the button drops pointer events to let it through. */
+.overview-btn-tip { position: relative; display: inline-flex; cursor: not-allowed; }
+.overview-btn-tip .overview-btn:disabled { pointer-events: none; }
+.overview-btn-tip__bubble {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(3px);
+    z-index: 20;
+    width: max-content;
+    max-width: 260px;
+    padding: 8px 11px;
+    border-radius: 6px;
+    background: var(--slate);
+    border: 0.5px solid var(--graphite);
+    color: var(--sand);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms cubic-bezier(0.23, 1, 0.32, 1), transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.overview-btn-tip__bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--slate);
+}
+.overview-btn-tip:hover .overview-btn-tip__bubble,
+.overview-btn-tip:focus-within .overview-btn-tip__bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+    .overview-btn-tip__bubble { transition-property: opacity; transform: translateX(-50%); }
+    .overview-btn-tip:hover .overview-btn-tip__bubble,
+    .overview-btn-tip:focus-within .overview-btn-tip__bubble { transform: translateX(-50%); }
+}
 .overview-btn--primary { background: var(--hearth); border-color: var(--hearth); }
 .overview-btn--primary:hover:not(:disabled) { background: var(--ember); border-color: var(--ember); }
 .overview-btn--lg { height: 42px; padding: 0 20px; font-size: 14px; gap: 10px; }
