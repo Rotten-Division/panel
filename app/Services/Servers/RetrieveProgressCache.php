@@ -13,6 +13,8 @@ class RetrieveProgressCache
 {
     private const TTL_SECONDS = 600;
 
+    private const FAILURE_TTL_SECONDS = 300;
+
     /** @param array<string, mixed> $meta */
     public function seed(Server $server, array $meta): void
     {
@@ -55,8 +57,6 @@ class RetrieveProgressCache
     {
         return "server:{$server->uuid}:retrieve-progress";
     }
-
-    private const FAILURE_TTL_SECONDS = 300;
 
     public function flagFailure(Server $server, string $reason): void
     {
