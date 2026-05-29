@@ -96,6 +96,7 @@
     max-width: 720px;
     margin-top: 14px;
 }
+.overview-footnote--warn { color: var(--honey); }
 @media (max-width: 640px) {
     .overview-stage-hero { padding: 24px 18px; }
     .overview-stage-hero__illustration img,
