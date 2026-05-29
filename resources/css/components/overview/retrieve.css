@@ -83,16 +83,26 @@
     bottom: -17px;
     width: 1.5px;
     transform: translateX(-50%);
-    background: var(--graphite);
-    transition: background-color 240ms cubic-bezier(0.23, 1, 0.32, 1);
+    /* the moss fill grows top-to-bottom as a step completes, so the progress
+       front visibly travels down the rail to the next step instead of the
+       segment snapping to colour. graphite shows where it hasn't reached. */
+    background-color: var(--graphite);
+    background-image: linear-gradient(color-mix(in srgb, var(--moss) 55%, var(--graphite)), color-mix(in srgb, var(--moss) 55%, var(--graphite)));
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 100% 0%;
+    transition: background-size 450ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.overview-retrieve__steps .overview-step--done::before {
-    background: color-mix(in srgb, var(--moss) 50%, var(--graphite));
+/* :not(:last-child) matches the base rule's specificity so this override wins
+   on source order; without it the base (higher specificity) pins the fill at 0. */
+.overview-retrieve__steps .overview-step--done:not(:last-child)::before {
+    background-size: 100% 100%;
 }
 
 /* keep the fades and colour tweens (they carry meaning), drop the movement */
 @media (prefers-reduced-motion: reduce) {
     .overview-retrieve { animation-name: overview-retrieve-fade; }
+    .overview-retrieve__steps .overview-step:not(:last-child)::before { transition: none; }
 }
 @keyframes overview-retrieve-fade {
     from { opacity: 0; }

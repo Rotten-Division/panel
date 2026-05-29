@@ -44,3 +44,12 @@
 .overview-step--active .overview-step__label { font-weight: 500; }
 .overview-step__detail { font-family: var(--font-mono); font-size: 11px; color: var(--sand); text-align: right; }
 @keyframes overview-spin { to { transform: rotate(360deg); } }
+
+/* the check grows into place when a step completes, instead of the glyph
+   snapping in. the done svg is a fresh element each completion (the icon
+   swaps from spinner), so this runs once on the transition, not per poll. */
+.overview-step--done .overview-step__dot svg { animation: overview-step-check-in 280ms cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes overview-step-check-in { from { transform: scale(0.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .overview-step--done .overview-step__dot svg { animation: none; }
+}
