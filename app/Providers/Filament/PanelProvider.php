@@ -18,6 +18,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider as BasePanelProvider;
+use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -35,6 +36,17 @@ abstract class PanelProvider extends BasePanelProvider
             // bundle so theme changes survive container recreates without a
             // separate plugin asset publish step.
             ->viteTheme('resources/css/filament/app/theme.css')
+            // brand palette registered at source so filament populates every
+            // shade and picks accessible shades per component and mode. anchors
+            // are the DESIGN_SYSTEM swatches; shades are filament's pick.
+            ->colors([
+                'primary' => Color::hex('#EE600A'),
+                'danger' => Color::hex('#B43C3C'),
+                'success' => Color::hex('#2DA76D'),
+                'warning' => Color::hex('#D89020'),
+                'info' => Color::hex('#5C6878'),
+                'gray' => Color::hex('#8B7355'),
+            ])
             // overview is SPA-excluded so its per-feature @vite re-fires on every load.
             ->spa(fn () => !request()->routeIs('filament.server.pages.overview'))
             ->spaUrlExceptions([
