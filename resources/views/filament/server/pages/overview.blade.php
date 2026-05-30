@@ -31,18 +31,16 @@
             class="overview-body-spacer"
         />
 
-        @php
-            $stateView = match (true) {
-                $server->status === \App\Enums\ServerState::Installing,
-                $server->status === \App\Enums\ServerState::InstallFailed,
-                $server->status === \App\Enums\ServerState::ReinstallFailed => 'installing',
-                $server->status === \App\Enums\ServerState::RestoringBackup => 'transient',
-                $server->status === null && $containerStatus === \App\Enums\ContainerStatus::Running => 'running',
-                $server->status === null && in_array($containerStatus, [\App\Enums\ContainerStatus::Starting, \App\Enums\ContainerStatus::Stopping, \App\Enums\ContainerStatus::Restarting], true) => 'transient',
-                default => 'stopped',
-            };
-            $consoleReadOnly = $stateView !== 'running';
-        @endphp
+        @php($stateView = match (true) {
+            $server->status === \App\Enums\ServerState::Installing,
+            $server->status === \App\Enums\ServerState::InstallFailed,
+            $server->status === \App\Enums\ServerState::ReinstallFailed => 'installing',
+            $server->status === \App\Enums\ServerState::RestoringBackup => 'transient',
+            $server->status === null && $containerStatus === \App\Enums\ContainerStatus::Running => 'running',
+            $server->status === null && in_array($containerStatus, [\App\Enums\ContainerStatus::Starting, \App\Enums\ContainerStatus::Stopping, \App\Enums\ContainerStatus::Restarting], true) => 'transient',
+            default => 'stopped',
+        })
+        @php($consoleReadOnly = $stateView !== 'running')
 
         @include('filament.server.pages.overview-states.partials.' . $stateView . '-chrome', compact('server', 'containerStatus'))
 
