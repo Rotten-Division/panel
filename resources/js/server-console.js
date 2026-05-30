@@ -191,3 +191,6 @@ document.addEventListener('livewire:navigated', () => {
     const uuid = m ? m[1] : null;
     registry.disposeAllExcept(uuid || '__none__');
 });
+
+// let slots that initialized before this module loaded know they can attach now.
+window.dispatchEvent(new CustomEvent('osconsole:ready'));
