@@ -1,7 +1,9 @@
 <x-filament-panels::page class="fi-overview-page">
-    {{-- per-feature CSS: safe because this route is SPA-excluded (PanelProvider::spa()),
-         so @vite re-fires on every hard navigation to this page. --}}
-    @vite(['resources/css/components/overview/overview.css'])
+    {{-- @assets loads once and is preserved across wire:navigate, so the overview
+         styles survive SPA navigation onto this page. --}}
+    @assets
+        @vite(['resources/css/components/overview/overview.css'])
+    @endassets
     @php($server = \Filament\Facades\Filament::getTenant())
     @php($containerStatus = $this->status)
     @php($handler = $this->resolveStateHandler($server))
