@@ -26,6 +26,11 @@ class ListLogs extends BaseListLogs
         return trans('admin/log.navigation.panel_logs');
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Diagnostics';
+    }
+
     public static function table(Table $table): Table
     {
         return parent::table($table)

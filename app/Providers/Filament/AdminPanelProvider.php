@@ -34,6 +34,8 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsible(false),
                 NavigationGroup::make('Gameserver Creation')
                     ->icon(TablerIcon::DeviceGamepad),
+                NavigationGroup::make('Resource Management')
+                    ->icon(TablerIcon::Archive),
                 NavigationGroup::make(fn () => trans('admin/dashboard.user'))
                     ->icon(TablerIcon::Users)
                     ->collapsible(false),
@@ -43,6 +45,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon(TablerIcon::Shield),
                 NavigationGroup::make(fn () => trans('admin/dashboard.advanced'))
                     ->icon(TablerIcon::Settings),
+                NavigationGroup::make('Diagnostics')
+                    ->icon(TablerIcon::Flask2),
+                NavigationGroup::make('Development')
+                    ->icon(TablerIcon::Terminal2),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')

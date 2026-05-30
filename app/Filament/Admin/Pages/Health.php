@@ -36,7 +36,7 @@ class Health extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('admin/dashboard.advanced');
+        return 'Diagnostics';
     }
 
     public static function canAccess(): bool

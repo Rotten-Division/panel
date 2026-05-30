@@ -25,7 +25,7 @@ class OverviewComponentsPreview extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Diagnostics';
+        return 'Development';
     }
 
     public function getTitle(): string
