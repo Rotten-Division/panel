@@ -30,4 +30,11 @@
     --ospite-text-tertiary: 92 104 120;
 
     --ospite-accent: 238 96 10;
+
+    /* dark brand accent pinned to hearth/ember, the registered ramp's generated
+       hue reads a touch red on the dark accent. light isn't pinned, filament's
+       pick reads fine there. keeps !important, fights filament's inline :root. */
+    --primary-400: rgb(238 96 10) !important;
+    --primary-500: rgb(238 96 10) !important;
+    --primary-600: rgb(198 73 22) !important;
 }
