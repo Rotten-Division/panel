@@ -46,7 +46,6 @@
     --primary-500: rgb(238 96 10) !important;
     --primary-600: rgb(198 73 22) !important;
 
-    /* status-pill foregrounds, dark mode: light tints over the dark tinted pill. */
     --moss-fg: #5DCAA5;
     --brick-fg: #E89090;
     --honey-fg: #E2B05E;

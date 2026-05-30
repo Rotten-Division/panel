@@ -142,9 +142,8 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--sand);
-    /* mode-aware: a frosted elevated surface so the chip sits on the card in
-       both modes. dark keeps the deep frosted look below; the old fixed-dark
-       value read as a black blob on a cream card in light mode. */
+    /* the old fixed-dark value read as a black blob on a cream card in light
+       mode; dark keeps the deep frosted look below. */
     background: color-mix(in srgb, var(--slate) 85%, transparent);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
