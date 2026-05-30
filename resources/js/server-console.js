@@ -28,6 +28,8 @@ class Console {
         this.socket = null;
         this.token = null;
         this.opened = false;
+        this.disposed = false;
+        this.openRaf = null;
 
         const el = document.createElement('div');
         el.className = 'osconsole-terminal';
@@ -125,9 +127,11 @@ class Console {
         // given the slot a height. on a fresh load attach can fire before the
         // first layout pass, so retry on the next frame until there is a box.
         const open = () => {
+            if (this.disposed) { return; }
             // wait for layout to give the slot a width; xterm derives its own
-            // height from the row count once opened.
-            if (this.element.clientWidth === 0) { requestAnimationFrame(open); return; }
+            // height from the row count once opened. a detached element stays at
+            // width 0 forever, so the disposed guard above stops the loop spinning.
+            if (this.element.clientWidth === 0) { this.openRaf = requestAnimationFrame(open); return; }
             if (!this.opened) {
                 this.terminal.loadAddon(this.fitAddon);
                 this.terminal.loadAddon(new WebLinksAddon());
@@ -141,10 +145,12 @@ class Console {
                 window.Livewire?.dispatch('console-status', { state: this.status });
             }
         };
-        requestAnimationFrame(open);
+        this.openRaf = requestAnimationFrame(open);
     }
 
     dispose() {
+        this.disposed = true;
+        if (this.openRaf) { cancelAnimationFrame(this.openRaf); }
         try { this.socket?.close(); } catch (_) {}
         this.terminal.dispose();
         if (this.element.parentNode) { this.element.parentNode.removeChild(this.element); }
@@ -213,7 +219,6 @@ document.addEventListener('livewire:navigating', () => {
     if (registry.current) { registry.detach(registry.current); }
 });
 
-// after a soft navigation, dispose any console whose server we have left.
 document.addEventListener('livewire:navigated', () => {
     const m = window.location.pathname.match(/\/server\/([0-9a-f-]+)/i);
     const uuid = m ? m[1] : null;
@@ -221,5 +226,4 @@ document.addEventListener('livewire:navigated', () => {
     registry.mountCurrentSlot();
 });
 
-// initial load: attach to the slot already in the parsed DOM.
 registry.mountCurrentSlot();
