@@ -63,6 +63,7 @@ use Psr\Http\Message\ResponseInterface;
  * @property string|null $threads
  * @property int $backup_limit
  * @property ServerState|null $status
+ * @property Carbon|null $status_changed_at
  * @property Carbon|null $installed_at
  * @property bool $oom_killer
  * @property array<array-key, mixed>|null $docker_labels
@@ -209,6 +210,7 @@ class Server extends Model implements HasAvatar, Validatable
             self::CREATED_AT => 'datetime',
             self::UPDATED_AT => 'datetime',
             'installed_at' => 'datetime',
+            'status_changed_at' => 'datetime',
             'docker_labels' => 'array',
         ];
     }
