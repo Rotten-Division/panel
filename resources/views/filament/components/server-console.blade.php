@@ -11,7 +11,6 @@
         data-font-size="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFontSize) ?: 14) }}"
         data-font-family="{{ (string) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFont) ?: 'monospace') }}"
         data-rows="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleRows) ?: 30) }}"
-        style="min-height: 12rem;"
     ></div>
 
     @if ($this->authorizeSendCommand() && ! $readOnly)

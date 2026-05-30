@@ -85,7 +85,7 @@ class FilamentServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
             fn (): string => Filament::getCurrentPanel()?->getId() === 'server'
-                ? Blade::render('@persist(\'osconsole-holder\')<div id="osconsole-holder" style="display:none"></div>@endpersist')
+                ? Blade::render('filament.layouts.osconsole-holder')
                 : '',
         );
 

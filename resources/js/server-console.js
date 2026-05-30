@@ -19,7 +19,9 @@ const THEME = {
 class Console {
     constructor(uuid, opts) {
         this.uuid = uuid;
-        this.name = opts.name || '';
+        // strip control bytes so a crafted server name can't smuggle ansi escapes
+        // into the prelude and spoof the prompt line in the terminal.
+        this.name = (opts.name || '').replace(/\p{Cc}/gu, '');
         this.fontSize = opts.fontSize || 14;
         this.fontFamily = opts.fontFamily || 'monospace';
         this.rows = opts.rows || 30;
@@ -222,7 +224,7 @@ document.addEventListener('livewire:navigating', () => {
 document.addEventListener('livewire:navigated', () => {
     const m = window.location.pathname.match(/\/server\/([0-9a-f-]+)/i);
     const uuid = m ? m[1] : null;
-    registry.disposeAllExcept(uuid || '__none__');
+    registry.disposeAllExcept(uuid);
     registry.mountCurrentSlot();
 });
 
