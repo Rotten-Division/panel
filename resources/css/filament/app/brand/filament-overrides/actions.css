@@ -10,15 +10,9 @@
     background-color: rgb(var(--ospite-accent) / 0.5) !important; /* !important class 2: beats Filament's inline :root */
 }
 
-/* design system 6.4 wants linen on solid ember and brick. scoped to
-   button and a so togglebutton labels keep their default text. */
-button.fi-btn.fi-color-primary,
-a.fi-btn.fi-color-primary,
-button.fi-btn.fi-color-primary svg,
-a.fi-btn.fi-color-primary svg {
-    color: var(--ember);
-}
-
+/* cream text on the solid brick fill. light primary is a pale fill, so leave
+   its text to filament's dark pick (readable) instead of forcing ember on
+   ember. dark primary is solid hearth and takes cream below. */
 button.fi-btn.fi-color-danger,
 a.fi-btn.fi-color-danger {
     color: var(--cream);
