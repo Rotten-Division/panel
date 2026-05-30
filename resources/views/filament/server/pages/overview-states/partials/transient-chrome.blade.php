@@ -27,7 +27,7 @@
     <x-overview.offline-card label="Awaiting Server">
         <div class="overview-stat-card overview-stat-card--muted">
             <p class="overview-stat-card__label">Players</p>
-            <p class="overview-stat-card__value">0 / 20</p>
+            <p class="overview-stat-card__value">— / —</p>
         </div>
     </x-overview.offline-card>
 

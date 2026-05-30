@@ -49,7 +49,7 @@
 
     <div class="overview-stat-card">
         <p class="overview-stat-card__label">World</p>
-        <p class="overview-stat-card__value font-mono">{{ $worldName }}</p>
+        <p class="overview-stat-card__value">{{ $worldName }}</p>
     </div>
 
     <div class="overview-stat-card overview-stat-card--muted">
