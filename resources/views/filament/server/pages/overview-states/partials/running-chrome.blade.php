@@ -40,19 +40,3 @@
         </div>
     </div>
 </div>
-
-<x-filament-widgets::widgets
-    :columns="1"
-    :data="$this->getWidgetData()"
-    :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
-/>
-
-<x-filament-widgets::widgets
-    :columns="3"
-    :data="$this->getWidgetData()"
-    :widgets="[
-        \App\Filament\Server\Widgets\ServerCpuChart::class,
-        \App\Filament\Server\Widgets\ServerMemoryChart::class,
-        \App\Filament\Server\Widgets\ServerNetworkChart::class,
-    ]"
-/>

@@ -1,7 +1,9 @@
 <x-filament-panels::page class="fi-overview-page">
-    {{-- per-feature CSS: safe because this route is SPA-excluded (PanelProvider::spa()),
-         so @vite re-fires on every hard navigation to this page. --}}
-    @vite(['resources/css/components/overview/overview.css'])
+    {{-- @assets loads once and is preserved across wire:navigate, so the overview
+         styles survive SPA navigation onto this page. --}}
+    @assets
+        @vite(['resources/css/components/overview/overview.css'])
+    @endassets
     @php($server = \Filament\Facades\Filament::getTenant())
     @php($containerStatus = $this->status)
     @php($handler = $this->resolveStateHandler($server))
@@ -29,26 +31,30 @@
             class="overview-body-spacer"
         />
 
-        {{-- @switch(true) lets each case combine ServerState + ContainerStatus.
-             do not refactor to @switch($server->status), the predicates compose both. --}}
-        @switch(true)
-            @case ($server->status === \App\Enums\ServerState::Installing)
-            @case ($server->status === \App\Enums\ServerState::InstallFailed)
-            @case ($server->status === \App\Enums\ServerState::ReinstallFailed)
-                @include('filament.server.pages.overview-states.installing', compact('server'))
-                @break
-            @case ($server->status === \App\Enums\ServerState::RestoringBackup)
-                @include('filament.server.pages.overview-states.transient', compact('server', 'containerStatus'))
-                @break
-            @case ($server->status === null && $containerStatus === \App\Enums\ContainerStatus::Running)
-                @include('filament.server.pages.overview-states.running', compact('server'))
-                @break
-            @case ($server->status === null && in_array($containerStatus, [\App\Enums\ContainerStatus::Starting, \App\Enums\ContainerStatus::Stopping, \App\Enums\ContainerStatus::Restarting], true))
-                @include('filament.server.pages.overview-states.transient', compact('server', 'containerStatus'))
-                @break
-            @default
-                @include('filament.server.pages.overview-states.stopped', compact('server'))
-        @endswitch
+        @php($stateView = match (true) {
+            $server->status === \App\Enums\ServerState::Installing,
+            $server->status === \App\Enums\ServerState::InstallFailed,
+            $server->status === \App\Enums\ServerState::ReinstallFailed => 'installing',
+            $server->status === \App\Enums\ServerState::RestoringBackup => 'transient',
+            $server->status === null && $containerStatus === \App\Enums\ContainerStatus::Running => 'running',
+            $server->status === null && in_array($containerStatus, [\App\Enums\ContainerStatus::Starting, \App\Enums\ContainerStatus::Stopping, \App\Enums\ContainerStatus::Restarting], true) => 'transient',
+            default => 'stopped',
+        })
+        @php($consoleReadOnly = $stateView !== 'running')
+
+        @include('filament.server.pages.overview-states.partials.' . $stateView . '-chrome', compact('server', 'containerStatus'))
+
+        <div wire:key="overview-console-slot-{{ $server->uuid }}">
+            <x-filament-widgets::widgets
+                :columns="1"
+                :data="$this->getWidgetData() + ['readOnly' => $consoleReadOnly]"
+                :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
+            />
+        </div>
+
+        @if ($stateView !== 'installing')
+            @include('filament.server.pages.overview-states.partials.' . $stateView . '-charts', compact('server', 'containerStatus'))
+        @endif
     @else
         {{-- no-node fallback. reachable when a stash-family server has no
              registered state handler, i.e. the stash-manager plugin is

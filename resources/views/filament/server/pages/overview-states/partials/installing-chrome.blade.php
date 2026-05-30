@@ -60,12 +60,3 @@
         </p>
     </div>
 </div>
-
-{{-- console: read-only, install-log mode. wings already routes install
-     output through the same handler as console output (server-console.blade
-     line 144), so no separate websocket subscription is needed. --}}
-<x-filament-widgets::widgets
-    :columns="1"
-    :data="$this->getWidgetData() + ['readOnly' => true]"
-    :widgets="[\App\Filament\Server\Widgets\ServerConsole::class]"
-/>

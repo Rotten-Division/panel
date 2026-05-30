@@ -10,6 +10,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\View\ActionsIconAlias;
 use Filament\Actions\ViewAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
@@ -72,6 +73,20 @@ class FilamentServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,
             fn () => Blade::render("@vite(['resources/js/app.js'])"),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SCRIPTS_AFTER,
+            fn (): string => Filament::getCurrentPanel()?->getId() === 'server'
+                ? Blade::render("@vite(['resources/js/server-console.js'])")
+                : '',
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
+            fn (): string => Filament::getCurrentPanel()?->getId() === 'server'
+                ? Blade::render('@persist(\'osconsole-holder\')<div id="osconsole-holder" style="display:none"></div>@endpersist')
+                : '',
         );
 
         before('dehydrate', function (Component $component) {

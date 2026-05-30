@@ -47,8 +47,7 @@ abstract class PanelProvider extends BasePanelProvider
                 'info' => Color::hex('#5C6878'),
                 'gray' => Color::hex('#8B7355'),
             ])
-            // overview is SPA-excluded so its per-feature @vite re-fires on every load.
-            ->spa(fn () => !request()->routeIs('filament.server.pages.overview'))
+            ->spa()
             ->spaUrlExceptions([
                 '*/oauth/redirect/*',
             ])
