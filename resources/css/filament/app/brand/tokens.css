@@ -26,12 +26,10 @@
     --moss: rgb(var(--state-success));
     --honey: rgb(var(--state-warning));
 
-    /* foreground variants for use on dark surfaces */
-    --moss-fg: #5DCAA5;
-    --brick-fg: #E89090;
-    --honey-fg: #E2B05E;
+    /* status-pill foregrounds (--moss-fg/--brick-fg/--honey-fg/--idle-fg) are
+       per-mode and live in themes.css, so they read on the tinted bg in light
+       as well as dark. --azure-fg stays fixed, it sits over fixed-dark art. */
     --azure-fg: #9CC2EA;
-    --idle-fg: #8B95A8;
 
     /* network "out" accent, paired with --hearth for the "in" series */
     --azure: #6FA8E0;
