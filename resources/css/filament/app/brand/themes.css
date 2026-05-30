@@ -17,17 +17,6 @@
     --state-warning: 216 144 32;
     --state-success: 45 167 109;
     --state-info: 92 104 120;
-
-    /* intentional: pale light primary. solid primary buttons are painted ember in
-       the filament overrides. keeps !important, fights filament's inline :root,
-       not a stylesheet link. see DESIGN_SYSTEM. */
-    --primary-400: rgb(251 226 204) !important;
-    --primary-500: rgb(251 226 204) !important;
-    --primary-600: rgb(245 210 174) !important;
-
-    --danger-400: rgb(140 45 45) !important;
-    --danger-500: rgb(140 45 45) !important;
-    --danger-600: rgb(110 30 30) !important;
 }
 
 .dark {
@@ -41,16 +30,4 @@
     --ospite-text-tertiary: 92 104 120;
 
     --ospite-accent: 238 96 10;
-
-    --primary-400: rgb(238 96 10) !important;
-    --primary-500: rgb(238 96 10) !important;
-    --primary-600: rgb(198 73 22) !important;
-
-    --danger-500: rgb(180 60 60) !important;
-    --danger-600: rgb(140 45 45) !important;
-
-    /* off-state toggle rail consumes danger-300 which the auto ramp
-       seeds as pastel pink. 200 is left to the ramp because dark danger
-       badge text reads it. */
-    --danger-300: rgb(110 35 35) !important;
 }

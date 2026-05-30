@@ -2,17 +2,6 @@
     background-color: rgb(var(--ospite-surface-elevated));
 }
 
-/* demote row and header action icons, danger is preserved so trash
-   icons keep destructive meaning. */
-.fi-ta-actions .fi-icon-btn:not(.fi-color-danger),
-.fi-header-actions-ctn .fi-icon-btn:not(.fi-color-danger) {
-    color: rgb(var(--ospite-text-secondary));
-}
-.fi-ta-actions .fi-icon-btn:not(.fi-color-danger):hover,
-.fi-header-actions-ctn .fi-icon-btn:not(.fi-color-danger):hover {
-    color: rgb(var(--ospite-accent));
-}
-
 /* dashboard server list header layout, scoped to the user facing panel
    list records page. lays out the table header as filter on the left,
    search centered, header actions on the right, all on one row. the
