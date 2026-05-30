@@ -44,7 +44,7 @@
 
         @include('filament.server.pages.overview-states.partials.' . $stateView . '-chrome', compact('server', 'containerStatus'))
 
-        <div wire:key="overview-console-slot">
+        <div wire:key="overview-console-slot-{{ $server->uuid }}">
             <x-filament-widgets::widgets
                 :columns="1"
                 :data="$this->getWidgetData() + ['readOnly' => $consoleReadOnly]"

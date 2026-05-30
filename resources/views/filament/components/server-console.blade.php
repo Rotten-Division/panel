@@ -1,6 +1,6 @@
 <x-filament::widget>
     @assets
-        @vite(['resources/js/console.js', 'resources/css/console.css'])
+        @vite(['resources/css/console.css'])
     @endassets
 
     <div
@@ -22,6 +22,7 @@
                 id="send-command"
                 class="w-full focus:outline-none focus:ring-0 border-none dark:bg-gray-900 p-1"
                 type="text"
+                aria-label="{{ trans('server/console.command') }}"
                 :readonly="{{ $this->canSendCommand() ? 'false' : 'true' }}"
                 placeholder="{{ $this->canSendCommand() ? trans('server/console.command') : trans('server/console.command_blocked') }}"
                 wire:model="input"

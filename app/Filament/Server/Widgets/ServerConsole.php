@@ -3,16 +3,14 @@
 namespace App\Filament\Server\Widgets;
 
 use App\Enums\SubuserPermission;
-use App\Exceptions\Http\HttpForbiddenException;
 use App\Livewire\AlertBanner;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\Nodes\NodeJWTService;
-use App\Services\Servers\GetUserPermissionsService;
 use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Arr;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Reactive;
 use Livewire\Attributes\Session;
 
 /**
@@ -35,7 +33,8 @@ class ServerConsole extends Widget
 
     public ?User $user = null;
 
-    /** hides the command-input row. set by the stopped/transient/installing partials. */
+    /** hides the command-input row. reactive so it tracks the overview's live status. */
+    #[Reactive]
     public bool $readOnly = false;
 
     /** @var string[] */
@@ -45,42 +44,6 @@ class ServerConsole extends Widget
     public int $historyIndex = 0;
 
     public string $input = '';
-
-    private GetUserPermissionsService $getUserPermissionsService;
-
-    private NodeJWTService $nodeJWTService;
-
-    public function boot(GetUserPermissionsService $getUserPermissionsService, NodeJWTService $nodeJWTService): void
-    {
-        $this->getUserPermissionsService = $getUserPermissionsService;
-        $this->nodeJWTService = $nodeJWTService;
-    }
-
-    protected function getToken(): string
-    {
-        if (!$this->user || !$this->server || $this->user->cannot(SubuserPermission::WebsocketConnect, $this->server)) {
-            throw new HttpForbiddenException('You do not have permission to connect to this server\'s websocket.');
-        }
-
-        $permissions = $this->getUserPermissionsService->handle($this->server, $this->user);
-
-        return $this->nodeJWTService
-            ->setExpiresAt(now()->addMinutes(10)->toImmutable())
-            ->setUser($this->user)
-            ->setClaims([
-                'server_uuid' => $this->server->uuid,
-                'permissions' => $permissions,
-            ])
-            ->handle($this->server->node, $this->user->id . $this->server->uuid)->toString();
-    }
-
-    protected function getSocket(): string
-    {
-        $socket = str_replace(['https://', 'http://'], ['wss://', 'ws://'], $this->server->node->getConnectionAddress());
-        $socket .= sprintf('/api/servers/%s/ws', $this->server->uuid);
-
-        return $socket;
-    }
 
     protected function authorizeSendCommand(): bool
     {
@@ -109,19 +72,13 @@ class ServerConsole extends Widget
     public function enter(): void
     {
         if (!empty($this->input) && $this->canSendCommand()) {
-            $this->dispatch('sendServerCommand', command: $this->input);
+            $this->js('window.OspiteConsole.send('.json_encode($this->server->uuid).', '.json_encode($this->input).')');
 
             $this->history = Arr::prepend($this->history, $this->input);
             $this->historyIndex = -1;
 
             $this->input = '';
         }
-    }
-
-    #[On('token-request')]
-    public function tokenRequest(): void
-    {
-        $this->dispatch('sendAuthRequest', token: $this->getToken());
     }
 
     #[On('store-stats')]
