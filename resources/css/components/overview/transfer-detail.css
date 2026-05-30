@@ -1,6 +1,3 @@
-/* ============================================================ */
-/* overview-transfer-detail                                     */
-/* ============================================================ */
 .overview-transfer-detail {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
