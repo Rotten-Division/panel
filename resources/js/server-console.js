@@ -3,7 +3,6 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { SearchAddon } from '@xterm/addon-search';
 import { SearchBarAddon } from 'xterm-addon-search-bar';
-import { WebglAddon } from '@xterm/addon-webgl';
 
 // one long-lived terminal+socket per server, parked in the @persist holder and
 // borrowed into the overview slot while visible. the page never owns it, so
@@ -28,6 +27,7 @@ class Console {
         this.status = null;
         this.socket = null;
         this.token = null;
+        this.opened = false;
 
         const el = document.createElement('div');
         el.className = 'osconsole-terminal';
@@ -43,12 +43,6 @@ class Console {
         this.fitAddon = new FitAddon();
         this.searchAddon = new SearchAddon();
         this.searchBar = new SearchBarAddon({ searchAddon: this.searchAddon });
-        this.terminal.loadAddon(this.fitAddon);
-        this.terminal.loadAddon(new WebLinksAddon());
-        this.terminal.loadAddon(this.searchAddon);
-        this.terminal.loadAddon(this.searchBar);
-        this.terminal.loadAddon(new WebglAddon());
-        this.terminal.open(el);
 
         this.terminal.attachCustomKeyEventHandler((e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
@@ -128,6 +122,14 @@ class Console {
 
     attach(slot) {
         slot.appendChild(this.element);
+        if (!this.opened) {
+            this.terminal.loadAddon(this.fitAddon);
+            this.terminal.loadAddon(new WebLinksAddon());
+            this.terminal.loadAddon(this.searchAddon);
+            this.terminal.loadAddon(this.searchBar);
+            this.terminal.open(this.element);
+            this.opened = true;
+        }
         requestAnimationFrame(() => this.fitAddon.fit());
         if (this.status !== null) {
             window.Livewire?.dispatch('console-status', { state: this.status });
