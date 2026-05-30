@@ -177,8 +177,12 @@ const registry = {
         if (c) { c.dispose(); this.consoles.delete(uuid); }
         if (this.current === uuid) { this.current = null; }
     },
-    disposeAllExcept(uuid) {
-        for (const id of [...this.consoles.keys()]) { if (id !== uuid) { this.dispose(id); } }
+    disposeAllExcept(uuidPrefix) {
+        // the server url carries the short uuid while consoles are keyed by the
+        // full uuid, so keep any console whose id starts with the url segment.
+        for (const id of [...this.consoles.keys()]) {
+            if (!uuidPrefix || !id.startsWith(uuidPrefix)) { this.dispose(id); }
+        }
     },
     // attach to the console slot currently on the page, reading its config off
     // data attributes. the controller drives this rather than the blade so it
