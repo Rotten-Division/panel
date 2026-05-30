@@ -17,6 +17,14 @@
     --state-warning: 216 144 32;
     --state-success: 45 167 109;
     --state-info: 92 104 120;
+
+    /* status-pill foregrounds, light mode: darker than the dark-mode tints so
+       they read on the pale tinted pill over a cream surface. (DESIGN_SYSTEM
+       §2.4 light: forest / brick-deep / earth; warning derives a dark amber.) */
+    --moss-fg: #1F6B47;
+    --brick-fg: #8C2D2D;
+    --honey-fg: #8A5612;
+    --idle-fg: #5C5142;
 }
 
 .dark {
@@ -37,4 +45,10 @@
     --primary-400: rgb(238 96 10) !important;
     --primary-500: rgb(238 96 10) !important;
     --primary-600: rgb(198 73 22) !important;
+
+    /* status-pill foregrounds, dark mode: light tints over the dark tinted pill. */
+    --moss-fg: #5DCAA5;
+    --brick-fg: #E89090;
+    --honey-fg: #E2B05E;
+    --idle-fg: #8B95A8;
 }
