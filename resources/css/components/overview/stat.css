@@ -1,6 +1,3 @@
-/* ============================================================ */
-/* overview-stat-grid + overview-stat-card                      */
-/* ============================================================ */
 .overview-stat-grid { margin-bottom: 14px; }
 .overview-stat-card {
     display: flex;
@@ -41,11 +38,9 @@
     margin-left: 4px;
 }
 
-/* ============================================================ */
 /* overview-spark, small flat chart card for non-Running states  */
 /* matches design canvas .fs-chart (overview.css:337-360)        */
 /* colour via currentColor: parent sets `color`, svg paths inherit */
-/* ============================================================ */
 .overview-spark {
     background: var(--ink);
     border: 0.5px solid var(--graphite);
@@ -100,12 +95,10 @@
 .overview-stat-card--muted .overview-stat-card__value { color: var(--stone); }
 .overview-stat-grid--muted .overview-stat-card__label { opacity: 0.72; }
 
-/* ============================================================ */
 /* overview-offline-card: blur + centered overlay treatment for  */
 /* cards whose data only exists while the server is running.     */
 /* wraps a stat-card or spark; underlying markup stays mounted so */
 /* it animates back in cleanly when the server returns.          */
-/* ============================================================ */
 .overview-offline-card {
     position: relative;
     border-radius: 5px;
@@ -149,7 +142,10 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--sand);
-    background: rgba(15, 17, 22, 0.55);
+    /* mode-aware: a frosted elevated surface so the chip sits on the card in
+       both modes. dark keeps the deep frosted look below; the old fixed-dark
+       value read as a black blob on a cream card in light mode. */
+    background: color-mix(in srgb, var(--slate) 85%, transparent);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     padding: 12px 22px;
@@ -158,4 +154,7 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.04),
         0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.dark .overview-offline-card__chip {
+    background: rgba(15, 17, 22, 0.55);
 }
