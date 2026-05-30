@@ -34,7 +34,7 @@
     <div class="overview-stat-card overview-stat-card--with-bar">
         <p class="overview-stat-card__label">Disk</p>
         <p class="overview-stat-card__value">{{ number_format($diskUsed / 1024 / 1024 / 1024, 2) }} GiB</p>
-        <p class="overview-stat-card__sub">of {{ number_format($diskLimit / 1024 / 1024 / 1024, 0) }} GiB</p>
+        <p class="overview-stat-card__sub">of {{ $diskLimit > 0 ? number_format($diskLimit / 1024 / 1024 / 1024, 0).' GiB' : 'unlimited' }}</p>
         <div class="overview-bar overview-bar--{{ $this->diskBarTone() }}">
             <div class="overview-bar__fill" style="width: {{ number_format($diskPct, 1, '.', '') }}%"></div>
         </div>
