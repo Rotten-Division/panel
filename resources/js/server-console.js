@@ -31,7 +31,6 @@ class Console {
 
         const el = document.createElement('div');
         el.className = 'osconsole-terminal';
-        el.style.height = '100%';
         this.element = el;
 
         this.terminal = new Terminal({
@@ -122,18 +121,27 @@ class Console {
 
     attach(slot) {
         slot.appendChild(this.element);
-        if (!this.opened) {
-            this.terminal.loadAddon(this.fitAddon);
-            this.terminal.loadAddon(new WebLinksAddon());
-            this.terminal.loadAddon(this.searchAddon);
-            this.terminal.loadAddon(this.searchBar);
-            this.terminal.open(this.element);
-            this.opened = true;
-        }
-        requestAnimationFrame(() => this.fitAddon.fit());
-        if (this.status !== null) {
-            window.Livewire?.dispatch('console-status', { state: this.status });
-        }
+        // open() reads the element's dimensions, so defer it until layout has
+        // given the slot a height. on a fresh load attach can fire before the
+        // first layout pass, so retry on the next frame until there is a box.
+        const open = () => {
+            // wait for layout to give the slot a width; xterm derives its own
+            // height from the row count once opened.
+            if (this.element.clientWidth === 0) { requestAnimationFrame(open); return; }
+            if (!this.opened) {
+                this.terminal.loadAddon(this.fitAddon);
+                this.terminal.loadAddon(new WebLinksAddon());
+                this.terminal.loadAddon(this.searchAddon);
+                this.terminal.loadAddon(this.searchBar);
+                this.terminal.open(this.element);
+                this.opened = true;
+            }
+            this.fitAddon.fit();
+            if (this.status !== null) {
+                window.Livewire?.dispatch('console-status', { state: this.status });
+            }
+        };
+        requestAnimationFrame(open);
     }
 
     dispose() {
@@ -172,6 +180,20 @@ const registry = {
     disposeAllExcept(uuid) {
         for (const id of [...this.consoles.keys()]) { if (id !== uuid) { this.dispose(id); } }
     },
+    // attach to the console slot currently on the page, reading its config off
+    // data attributes. the controller drives this rather than the blade so it
+    // does not race alpine's x-init on a fresh load.
+    mountCurrentSlot() {
+        const slot = document.getElementById('osconsole-slot');
+        if (!slot || !slot.dataset.uuid) { return; }
+        this.ensure(slot.dataset.uuid, {
+            name: slot.dataset.name || '',
+            fontSize: parseInt(slot.dataset.fontSize || '14', 10),
+            fontFamily: slot.dataset.fontFamily || 'monospace',
+            rows: parseInt(slot.dataset.rows || '30', 10),
+        });
+        this.attach(slot.dataset.uuid, slot);
+    },
 };
 
 window.OspiteConsole = registry;
@@ -192,7 +214,8 @@ document.addEventListener('livewire:navigated', () => {
     const m = window.location.pathname.match(/\/server\/([0-9a-f-]+)/i);
     const uuid = m ? m[1] : null;
     registry.disposeAllExcept(uuid || '__none__');
+    registry.mountCurrentSlot();
 });
 
-// let slots that initialized before this module loaded know they can attach now.
-window.dispatchEvent(new CustomEvent('osconsole:ready'));
+// initial load: attach to the slot already in the parsed DOM.
+registry.mountCurrentSlot();

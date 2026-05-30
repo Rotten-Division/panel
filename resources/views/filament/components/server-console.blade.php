@@ -5,20 +5,12 @@
 
     <div
         wire:ignore
-        x-data
-        x-init="
-            const boot = () => {
-                window.OspiteConsole.ensure(@js($server->uuid), {
-                    name: @js($server->name),
-                    fontSize: @js((int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFontSize) ?: 14)),
-                    fontFamily: @js((string) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFont) ?: 'monospace')),
-                    rows: @js((int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleRows) ?: 30)),
-                });
-                window.OspiteConsole.attach(@js($server->uuid), $el);
-            };
-            window.OspiteConsole ? boot() : window.addEventListener('osconsole:ready', boot, { once: true });
-        "
         id="osconsole-slot"
+        data-uuid="{{ $server->uuid }}"
+        data-name="{{ $server->name }}"
+        data-font-size="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFontSize) ?: 14) }}"
+        data-font-family="{{ (string) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFont) ?: 'monospace') }}"
+        data-rows="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleRows) ?: 30) }}"
         style="min-height: 12rem;"
     ></div>
 
