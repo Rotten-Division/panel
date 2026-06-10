@@ -325,7 +325,7 @@ class Plugin extends Model implements HasPluginSettings
                 ]);
             }
 
-            return null;
+            return [];
         });
     }
 

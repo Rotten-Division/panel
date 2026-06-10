@@ -8,6 +8,7 @@
         id="osconsole-slot"
         data-uuid="{{ $server->uuid }}"
         data-name="{{ $server->name }}"
+        data-prelude="{{ str(config('app.name'))->slug()->lower() }}"
         data-font-size="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFontSize) ?: 14) }}"
         data-font-family="{{ (string) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleFont) ?: 'monospace') }}"
         data-rows="{{ (int) (user()?->getCustomization(\App\Enums\CustomizationKey::ConsoleRows) ?: 30) }}"

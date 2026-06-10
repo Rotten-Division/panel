@@ -25,7 +25,7 @@ class Console {
         this.fontSize = opts.fontSize || 14;
         this.fontFamily = opts.fontFamily || 'monospace';
         this.rows = opts.rows || 30;
-        this.prelude = '\u001b[1m\u001b[33mpelican@' + this.name + ' ~ \u001b[0m';
+        this.prelude = '\u001b[1m\u001b[33m' + (opts.prelude || 'pelican') + '@' + this.name + ' ~ \u001b[0m';
         this.status = null;
         this.socket = null;
         this.token = null;
@@ -94,6 +94,11 @@ class Console {
             case 'console output':
             case 'install output':
                 this.write(args[0]); break;
+            case 'install completed':
+                window.Livewire?.dispatch('refresh-sidebar');
+                window.Livewire?.dispatch('refresh-topbar');
+                window.Livewire?.dispatch('removeAlertBanner', { id: 'server_conflict' });
+                break;
             case 'daemon error':
                 this.terminal.writeln(this.prelude + '\u001b[1m\u001b[41m' + args[0].replace(/(?:\r\n|\r|\n)$/im, '') + '\u001b[0m'); break;
             case 'transfer status':
@@ -200,6 +205,7 @@ const registry = {
         if (!slot || !slot.dataset.uuid) { return; }
         this.ensure(slot.dataset.uuid, {
             name: slot.dataset.name || '',
+            prelude: slot.dataset.prelude || 'pelican',
             fontSize: parseInt(slot.dataset.fontSize || '14', 10),
             fontFamily: slot.dataset.fontFamily || 'monospace',
             rows: parseInt(slot.dataset.rows || '30', 10),
