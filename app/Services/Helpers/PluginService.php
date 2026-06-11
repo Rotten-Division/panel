@@ -395,7 +395,7 @@ class PluginService
             }
         }
 
-        $pluginName = str($file->getClientOriginalName())->before('.zip')->toString();
+        $pluginName = str($file->getClientOriginalName())->basename()->before('.zip')->toString();
         $pluginDir = plugin_path($pluginName);
 
         // refuse to clobber a working tree symlink on dev machines, the
