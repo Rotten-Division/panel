@@ -11,6 +11,7 @@ use App\Tests\Integration\IntegrationTestCase;
 use Composer\Autoload\ClassLoader;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use RottenDivision\OspiteAllocationRouter\Providers\OspiteAllocationRouterPluginProvider;
 
 class WgPeerRouteTest extends IntegrationTestCase
 {
@@ -35,15 +36,15 @@ class WgPeerRouteTest extends IntegrationTestCase
 
         config()->set('ospite-allocation-router.backend_cidr', '10.99.0.0/24');
 
-        if (! Schema::hasTable('osw_node_peers')) {
+        if (!Schema::hasTable('osw_node_peers')) {
             Schema::create('osw_node_peers', function (Blueprint $table) {
                 $table->unsignedInteger('node_id')->primary();
-                $table->ipAddress('wg_peer_ip');
+                $table->ipAddress('wg_peer_ip')->unique();
                 $table->timestamps();
             });
         }
 
-        $this->app->register(\RottenDivision\OspiteAllocationRouter\Providers\OspiteAllocationRouterPluginProvider::class);
+        $this->app->register(OspiteAllocationRouterPluginProvider::class);
 
         $this->user = User::factory()->create();
         $this->user->syncRoles(Role::getRootAdmin());
@@ -113,6 +114,19 @@ class WgPeerRouteTest extends IntegrationTestCase
             ->assertStatus(422);
 
         $this->assertDatabaseMissing('osw_node_peers', ['node_id' => $node->id]);
+    }
+
+    public function test_it_404s_for_a_non_existent_node(): void
+    {
+        $key = $this->applicationKey(AdminAcl::READ | AdminAcl::WRITE);
+
+        // {node:id} binds to a real Node, so an id with no row is a binding
+        // miss and 404s before the controller ever runs.
+        $this->withHeader('Authorization', 'Bearer ' . $key->identifier . $key->token)
+            ->putJson('/api/application/ospite-router/nodes/999999/wg-peer', ['wg_peer_ip' => '10.99.0.30'])
+            ->assertStatus(404);
+
+        $this->assertDatabaseMissing('osw_node_peers', ['wg_peer_ip' => '10.99.0.30']);
     }
 
     public function test_it_422s_on_a_malformed_peer(): void
