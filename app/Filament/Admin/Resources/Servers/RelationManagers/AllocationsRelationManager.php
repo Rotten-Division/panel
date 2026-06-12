@@ -2,11 +2,17 @@
 
 namespace App\Filament\Admin\Resources\Servers\RelationManagers;
 
+use App\Contracts\Servers\NodeRoutableGate;
+use App\Contracts\Servers\PortDisposition;
+use App\Enums\PortState;
 use App\Enums\TablerIcon;
+use App\Exceptions\DisplayException;
+use App\Exceptions\Servers\PortClaimConflictException;
 use App\Filament\Admin\Resources\Servers\Pages\CreateServer;
 use App\Models\Allocation;
 use App\Models\Server;
 use App\Services\Allocations\AssignmentService;
+use App\Services\Servers\PortClaim;
 use Filament\Actions\Action;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\CreateAction;
@@ -24,6 +30,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * @method Server getOwnerRecord()
@@ -170,6 +178,21 @@ class AllocationsRelationManager extends RelationManager
                     ->recordSelectOptionsQuery(fn ($query) => $query->whereBelongsTo($this->getOwnerRecord()->node)->whereNull('server_id'))
                     ->recordSelectSearchColumns(['ip', 'port'])
                     ->tooltip(trans('admin/server.add_allocation'))
+                    // associate the chosen allocation under the fleet-wide port claim, so
+                    // an admin cannot attach a port already owned on another node. the
+                    // bind happens inside the lock, not in an after hook.
+                    ->using(function (Allocation $record, Relation $relationship, BelongsTo $inverseRelationship, PortClaim $portClaim, PortDisposition $portDisposition, NodeRoutableGate $nodeRoutableGate): void {
+                        $portClaim->withClaims([(int) $record->port], function () use ($record, $relationship, $inverseRelationship, $portDisposition, $nodeRoutableGate): void {
+                            if (!$nodeRoutableGate->routable((int) $record->node_id)) {
+                                throw new DisplayException('The node has no routing peer and cannot host this server.');
+                            }
+                            if ($portDisposition->for((int) $record->port) !== PortState::Free) {
+                                throw new PortClaimConflictException();
+                            }
+                            $inverseRelationship->associate($relationship->getParent());
+                            $record->save();
+                        });
+                    })
                     ->after(function (array $data) {
                         Allocation::whereIn('id', array_values(array_unique($data['recordId'])))->update(['is_locked' => true]);
 
