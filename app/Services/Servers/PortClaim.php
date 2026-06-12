@@ -2,27 +2,20 @@
 
 namespace App\Services\Servers;
 
+use App\Models\Allocation;
 use Closure;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PortClaim
 {
-    // held at most this long per lock; longer than any bind transaction
-    // should reasonably take. tune in one place if a bind ever grows.
-    public const LOCK_TTL = 15;
-
-    // wait this long to acquire before failing the claim cleanly.
-    public const BLOCK_TIMEOUT = 10;
-
     /**
-     * The only sanctioned way to flip allocation.server_id null to set.
-     * Acquires the per-port locks sorted ascending and deduped (so any two
-     * operations over overlapping ports lock in the same order and cannot
-     * deadlock), runs $bind inside one DB transaction, releases after the
-     * transaction completes (commit or rollback).
-     * No wings or edge calls belong inside $bind, the route push is post-commit
-     * via the AllocationsAssigned event.
+     * Bind a set of ports under a fleet-wide database row lock. The allocation
+     * rows for $ports are locked FOR UPDATE in ascending port order (deadlock-free)
+     * inside the transaction, so the bind serialises against any concurrent claim
+     * across every node, the locks hold until the real outermost commit (savepoints
+     * do not release them, so this is safe when a caller is already in a transaction),
+     * and there is no lease to expire. $bind runs with the rows locked and does its
+     * own disposition re-check before the server_id flip.
      *
      * @template T
      *
@@ -35,19 +28,12 @@ class PortClaim
         $ports = array_values(array_unique(array_map('intval', $ports)));
         sort($ports);
 
-        $locks = [];
-        try {
-            foreach ($ports as $port) {
-                $lock = Cache::lock("ospite:port-reserve:{$port}", self::LOCK_TTL);
-                $lock->block(self::BLOCK_TIMEOUT);
-                $locks[] = $lock;
+        return DB::transaction(function () use ($ports, $bind) {
+            if ($ports !== []) {
+                Allocation::query()->whereIn('port', $ports)->orderBy('port')->lockForUpdate()->get();
             }
 
-            return DB::transaction($bind);
-        } finally {
-            foreach (array_reverse($locks) as $lock) {
-                $lock->release();
-            }
-        }
+            return $bind();
+        });
     }
 }

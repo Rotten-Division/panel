@@ -5,9 +5,11 @@ namespace App\Tests\Integration\Services\Servers;
 use App\Models\Allocation;
 use App\Services\Servers\PortClaim;
 use App\Tests\Integration\IntegrationTestCase;
-use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
+// real cross-process / concurrent-claim behaviour is covered separately against a
+// live mysql/postgres database, since sqlite does not honour FOR UPDATE row locks
+// (the helper still runs cleanly on sqlite, the lock is just a no-op there).
 class PortClaimTest extends IntegrationTestCase
 {
     public function test_it_runs_the_closure_and_returns_its_value(): void
@@ -31,14 +33,5 @@ class PortClaimTest extends IntegrationTestCase
         }
 
         $this->assertDatabaseMissing('allocations', ['port' => 25565]);
-    }
-
-    public function test_locks_release_after_the_call(): void
-    {
-        (new PortClaim())->withClaims([25565, 25565, 25564], fn () => null);
-
-        // a lock on the same port is immediately acquirable again
-        $this->assertTrue(Cache::lock('ospite:port-reserve:25565', 5)->get());
-        $this->assertTrue(Cache::lock('ospite:port-reserve:25564', 5)->get());
     }
 }
