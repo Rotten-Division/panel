@@ -2,7 +2,11 @@
 
 namespace App\Services\Allocations;
 
+use App\Contracts\Servers\NodeRoutableGate;
+use App\Contracts\Servers\PortDisposition;
+use App\Enums\PortState;
 use App\Exceptions\DisplayException;
+use App\Exceptions\Servers\PortClaimConflictException;
 use App\Exceptions\Service\Allocation\AutoAllocationNotEnabledException;
 use App\Exceptions\Service\Allocation\CidrOutOfRangeException;
 use App\Exceptions\Service\Allocation\InvalidPortMappingException;
@@ -11,6 +15,7 @@ use App\Exceptions\Service\Allocation\PortOutOfRangeException;
 use App\Exceptions\Service\Allocation\TooManyPortsInRangeException;
 use App\Models\Allocation;
 use App\Models\Server;
+use App\Services\Servers\PortClaim;
 use Webmozart\Assert\Assert;
 
 class FindAssignableAllocationService
@@ -18,7 +23,12 @@ class FindAssignableAllocationService
     /**
      * FindAssignableAllocationService constructor.
      */
-    public function __construct(private AssignmentService $service) {}
+    public function __construct(
+        private AssignmentService $service,
+        private PortClaim $portClaim,
+        private PortDisposition $portDisposition,
+        private NodeRoutableGate $nodeRoutableGate,
+    ) {}
 
     /**
      * Finds an existing unassigned allocation and attempts to assign it to the given server.
@@ -74,7 +84,22 @@ class FindAssignableAllocationService
         // If create_new is enabled, create a new allocation if none available
         $allocation ??= $this->createNewAllocation($server, $start, $end);
 
-        $allocation->update(['server_id' => $server->id]);
+        // The candidate is selected above; the bind itself goes through the fleet-wide
+        // claim. The service's own lock is node-scoped, so it does not serialise a
+        // same-port bind on another node, the claim widens the lock to every row for
+        // this port across the fleet and asserts the port is Free before the flip.
+        $port = (int) $allocation->port;
+        $this->portClaim->withClaims([$port], function () use ($allocation, $port, $server) {
+            if (!$this->nodeRoutableGate->routable($server->node_id)) {
+                throw new DisplayException('The node for this server has no routing peer and cannot be assigned allocations.');
+            }
+
+            if ($this->portDisposition->for($port) !== PortState::Free) {
+                throw new PortClaimConflictException();
+            }
+
+            $allocation->update(['server_id' => $server->id]);
+        });
 
         return $allocation->refresh();
     }
