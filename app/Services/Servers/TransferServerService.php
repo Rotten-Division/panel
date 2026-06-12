@@ -5,6 +5,7 @@ namespace App\Services\Servers;
 use App\Contracts\Servers\NodeRoutableGate;
 use App\Events\Server\AllocationsAssigned;
 use App\Exceptions\DisplayException;
+use App\Exceptions\Servers\PortClaimConflictException;
 use App\Models\Allocation;
 use App\Models\Backup;
 use App\Models\Node;
@@ -142,18 +143,20 @@ class TransferServerService
             return;
         }
 
-        // the destination rows being claimed. their ports already belong to this
-        // server on the source node (port-follows-server), so the destination cannot
-        // assert for(port)===Free (it is Bound on the source mid-move). the precondition
-        // is bound-by-self on the source plus a free destination row.
-        $destinations = Allocation::query()->whereIn('id', $updateIds)->get();
-        $ports = $destinations->pluck('port')->map(intval(...))->all();
+        // the destination ports already belong to this server on the source node
+        // (port-follows-server), so the destination cannot assert for(port)===Free (it
+        // is Bound on the source mid-move). the precondition is bound-by-self on the
+        // source plus a free destination row.
+        $ports = Allocation::query()->whereIn('id', $updateIds)->pluck('port')->map(intval(...))->all();
 
-        $this->portClaim->withClaims($ports, function () use ($server, $node_id, $destinations, $updateIds) {
+        $this->portClaim->withClaims($ports, function () use ($server, $node_id, $updateIds) {
             if (!$this->nodeRoutableGate->routable($node_id)) {
                 throw new DisplayException('The destination node has no routing peer and cannot host this server.');
             }
 
+            // re-read under the FOR UPDATE lock: a pre-lock snapshot can be stale if
+            // another claimant bound a destination row while this transfer waited.
+            $destinations = Allocation::query()->whereIn('id', $updateIds)->get();
             foreach ($destinations as $destination) {
                 if ($destination->server_id !== null) {
                     throw new DisplayException("Destination allocation {$destination->id} is no longer free.");
@@ -170,7 +173,12 @@ class TransferServerService
                 }
             }
 
-            Allocation::query()->whereIn('id', $updateIds)->update(['server_id' => $server->id]);
+            // conditional flip is the atomic backstop: only rows still free are bound,
+            // and every destination must bind or the whole transfer aborts.
+            $bound = Allocation::query()->whereIn('id', $updateIds)->whereNull('server_id')->update(['server_id' => $server->id]);
+            if ($bound !== count($updateIds)) {
+                throw new PortClaimConflictException();
+            }
             event(new AllocationsAssigned($server, $updateIds));
         });
     }

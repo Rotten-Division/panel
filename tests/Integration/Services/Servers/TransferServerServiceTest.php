@@ -7,8 +7,10 @@ use App\Exceptions\DisplayException;
 use App\Models\Allocation;
 use App\Models\Node;
 use App\Services\Nodes\NodeJWTService;
+use App\Services\Servers\PortClaim;
 use App\Services\Servers\TransferServerService;
 use App\Tests\Integration\IntegrationTestCase;
+use Closure;
 use Illuminate\Support\Facades\Http;
 use Lcobucci\JWT\UnencryptedToken;
 
@@ -67,6 +69,49 @@ class TransferServerServiceTest extends IntegrationTestCase
             $this->getService()->handle($server, $destination->id, $destAllocation->id);
         } finally {
             $this->assertDatabaseHas('allocations', ['id' => $destAllocation->id, 'server_id' => null]);
+        }
+    }
+
+    public function test_transfer_aborts_when_a_destination_is_claimed_during_the_lock(): void
+    {
+        $server = $this->createServerModel(['memory' => 128, 'disk' => 128, 'cpu' => 0]);
+        $sourcePort = (int) $server->allocation->port;
+
+        $destination = Node::factory()->create(['memory' => 1024, 'disk' => 1024, 'cpu' => 0]);
+        $other = $this->createServerModel();
+        $destAllocation = Allocation::factory()->create([
+            'node_id' => $destination->id,
+            'port' => $sourcePort,
+            'server_id' => null,
+        ]);
+
+        // simulate the race the fresh-read-under-lock closes: the destination is free at
+        // the pre-filter, but another claimant binds it before this transfer's closure
+        // runs. a stale pre-lock snapshot would overwrite the winner; the re-read inside
+        // the claim must catch it and abort, binding nothing.
+        $this->swap(PortClaim::class, new class($destAllocation->id, $other->id) extends PortClaim
+        {
+            public function __construct(private int $stolenId, private int $winnerId) {}
+
+            public function withClaims(array $ports, Closure $bind): mixed
+            {
+                Allocation::query()->where('id', $this->stolenId)->update(['server_id' => $this->winnerId]);
+
+                return $bind();
+            }
+        });
+
+        $this->mockJwt();
+        $this->expectException(DisplayException::class);
+
+        try {
+            $this->getService()->handle($server, $destination->id, $destAllocation->id);
+        } finally {
+            // the guard fired (DisplayException), so the transferring server bound nothing.
+            // single-process, the simulated winner's write rolls back with the aborted
+            // outer transaction (a real winner is a separate committed transaction), so the
+            // observable correctness here is that the transfer did not steal the row.
+            $this->assertDatabaseMissing('allocations', ['id' => $destAllocation->id, 'server_id' => $server->id]);
         }
     }
 
