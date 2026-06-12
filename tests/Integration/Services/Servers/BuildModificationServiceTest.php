@@ -254,6 +254,51 @@ class BuildModificationServiceTest extends IntegrationTestCase
         $this->assertDatabaseHas('allocations', ['id' => $allocation->id, 'server_id' => null]);
     }
 
+    /**
+     * Adding an allocation whose port is already bound to another server on another
+     * node must be refused fleet-wide, and the free row must stay unbound.
+     *
+     * the fence is tested single-process: sqlite (see phpunit.xml) has no real FOR
+     * UPDATE and isolates each connection, so a true two-process concurrency test is
+     * not faithful. real cross-process FOR UPDATE exclusion is proven on canary mysql
+     * (phase 7), not sqlite. here we prove the disposition LOGIC: a non-Free port is
+     * refused and bound nothing.
+     */
+    public function test_add_allocation_refuses_a_port_bound_on_another_node(): void
+    {
+        $server = $this->createServerModel();
+        $other = $this->createServerModel();
+
+        // a free row on $server's node for a port already bound to $other on its node.
+        Allocation::factory()->create(['node_id' => $other->node_id, 'port' => 25800, 'server_id' => $other->id]);
+        $free = Allocation::factory()->create(['node_id' => $server->node_id, 'port' => 25800, 'server_id' => null]);
+
+        $this->daemonServerRepository->shouldReceive('setServer->sync')->never();
+
+        $this->expectException(DisplayException::class);
+
+        try {
+            $this->getService()->handle($server, ['add_allocations' => [$free->id]]);
+        } finally {
+            $this->assertDatabaseHas('allocations', ['id' => $free->id, 'server_id' => null]);
+        }
+    }
+
+    /**
+     * A free in-pool port on the server's own node is added through the claim.
+     */
+    public function test_add_allocation_binds_a_free_port_through_the_claim(): void
+    {
+        $server = $this->createServerModel();
+        $free = Allocation::factory()->create(['node_id' => $server->node_id, 'port' => 25801, 'server_id' => null]);
+
+        $this->daemonServerRepository->expects('setServer->sync')->andReturnUndefined();
+
+        $this->getService()->handle($server, ['add_allocations' => [$free->id]]);
+
+        $this->assertDatabaseHas('allocations', ['id' => $free->id, 'server_id' => $server->id]);
+    }
+
     private function getService(): BuildModificationService
     {
         return $this->app->make(BuildModificationService::class);

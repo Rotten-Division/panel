@@ -2,6 +2,9 @@
 
 namespace App\Services\Servers;
 
+use App\Contracts\Servers\NodeRoutableGate;
+use App\Contracts\Servers\PortDisposition;
+use App\Enums\PortState;
 use App\Events\Server\AllocationsAssigned;
 use App\Events\Server\AllocationsReleased;
 use App\Exceptions\DisplayException;
@@ -21,6 +24,9 @@ class BuildModificationService
     public function __construct(
         private ConnectionInterface $connection,
         private DaemonServerRepository $daemonServerRepository,
+        private NodeRoutableGate $nodeRoutableGate,
+        private PortClaim $portClaim,
+        private PortDisposition $portDisposition,
         private ServerConfigurationStructureService $structureService
     ) {}
 
@@ -105,8 +111,27 @@ class BuildModificationService
                 ->whereIn('id', $data['add_allocations'])
                 ->whereNull('server_id');
 
-            $addedIds = (clone $query)->pluck('id')->all();
-            $query->update(['server_id' => $server->id]);
+            $candidates = (clone $query)->pluck('port', 'id');
+            $addedIds = $candidates->keys()->map(intval(...))->all();
+            $ports = $candidates->values()->map(intval(...))->all();
+
+            $this->portClaim->withClaims($ports, function () use ($query, $server, $ports) {
+                // the node already hosts this server so it has a peer, but assert it
+                // defensively: a peerless node can never carry an active binding.
+                if (!$this->nodeRoutableGate->routable($server->node_id)) {
+                    throw new DisplayException('The node for this server has no routing peer and cannot be assigned allocations.');
+                }
+
+                // the port rows are FOR UPDATE locked. every port being added must be
+                // Free fleet-wide (not Bound on any node, not Held, not Reserved).
+                foreach ($ports as $port) {
+                    if ($this->portDisposition->for($port) !== PortState::Free) {
+                        throw new DisplayException("Port $port is already in use elsewhere in the fleet and cannot be added.");
+                    }
+                }
+
+                $query->update(['server_id' => $server->id]);
+            });
         }
 
         $removedIds = [];
