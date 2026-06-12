@@ -13,6 +13,7 @@ use App\Checks\UsedDiskSpaceCheck;
 use App\Contracts\Auth\SelfServiceRegistrationPolicy;
 use App\Contracts\Servers\NodeSelector;
 use App\Contracts\Servers\PlayerCountProvider;
+use App\Contracts\Servers\PortDisposition;
 use App\Contracts\Servers\PortHoldGate;
 use App\Contracts\Servers\ServerStartGate;
 use App\Contracts\Servers\StashedArchiveLocator;
@@ -33,6 +34,7 @@ use App\Models\UserSSHKey;
 use App\Services\Auth\AlwaysAllowRegistrationPolicy;
 use App\Services\Helpers\PluginService;
 use App\Services\Helpers\SoftwareVersionService;
+use App\Services\Servers\CorePortDisposition;
 use App\Services\Servers\FirstAvailableNodeSelector;
 use App\Services\Servers\NoPortHoldsGate;
 use App\Services\Servers\NoStashMembershipGate;
@@ -170,6 +172,11 @@ class AppServiceProvider extends ServiceProvider
         // this to a reader against osm_port_holds so the wizard's allocation
         // resolver skips ports reserved for stash retrievals.
         $this->app->singleton(PortHoldGate::class, NoPortHoldsGate::class);
+
+        // default port disposition classifies fleet-wide from allocation rows
+        // and the hold gate only. the allocation-router rebinds this to a
+        // pool-aware classifier that can also return Reserved and OutOfPool.
+        $this->app->singleton(PortDisposition::class, CorePortDisposition::class);
 
         // default node selector returns the first viable node by id. stash
         // manager rebinds this to a least loaded scorer that ranks every
