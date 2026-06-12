@@ -2,7 +2,9 @@
 
 namespace App\Services\Servers;
 
+use App\Contracts\Servers\NodeRoutableGate;
 use App\Events\Server\AllocationsAssigned;
+use App\Exceptions\DisplayException;
 use App\Models\Allocation;
 use App\Models\Backup;
 use App\Models\Node;
@@ -23,6 +25,8 @@ class TransferServerService
     public function __construct(
         private ConnectionInterface $connection,
         private NodeJWTService $nodeJWTService,
+        private NodeRoutableGate $nodeRoutableGate,
+        private PortClaim $portClaim,
     ) {}
 
     /**
@@ -134,9 +138,40 @@ class TransferServerService
             $updateIds[] = $allocation;
         }
 
-        if (!empty($updateIds)) {
-            Allocation::whereIn('id', $updateIds)->update(['server_id' => $server->id]);
-            event(new AllocationsAssigned($server, $updateIds));
+        if (empty($updateIds)) {
+            return;
         }
+
+        // the destination rows being claimed. their ports already belong to this
+        // server on the source node (port-follows-server), so the destination cannot
+        // assert for(port)===Free (it is Bound on the source mid-move). the precondition
+        // is bound-by-self on the source plus a free destination row.
+        $destinations = Allocation::query()->whereIn('id', $updateIds)->get();
+        $ports = $destinations->pluck('port')->map(intval(...))->all();
+
+        $this->portClaim->withClaims($ports, function () use ($server, $node_id, $destinations, $updateIds) {
+            if (!$this->nodeRoutableGate->routable($node_id)) {
+                throw new DisplayException('The destination node has no routing peer and cannot host this server.');
+            }
+
+            foreach ($destinations as $destination) {
+                if ($destination->server_id !== null) {
+                    throw new DisplayException("Destination allocation {$destination->id} is no longer free.");
+                }
+
+                // a source allocation on this port must currently be bound to the
+                // transferring server: this is the transfer's bound-by-self proof.
+                $sourceBound = Allocation::query()
+                    ->where('port', $destination->port)
+                    ->where('server_id', $server->id)
+                    ->exists();
+                if (!$sourceBound) {
+                    throw new DisplayException("Port {$destination->port} is not bound to this server on the source node.");
+                }
+            }
+
+            Allocation::query()->whereIn('id', $updateIds)->update(['server_id' => $server->id]);
+            event(new AllocationsAssigned($server, $updateIds));
+        });
     }
 }
