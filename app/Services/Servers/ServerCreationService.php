@@ -5,6 +5,7 @@ namespace App\Services\Servers;
 use App\Enums\ServerState;
 use App\Exceptions\DisplayException;
 use App\Exceptions\Model\DataValidationException;
+use App\Exceptions\Servers\PortClaimConflictException;
 use App\Exceptions\Service\Deployment\NoViableAllocationException;
 use App\Exceptions\Service\Deployment\NoViableNodeException;
 use App\Models\Allocation;
@@ -34,6 +35,7 @@ class ServerCreationService
         private ConnectionInterface $connection,
         private DaemonServerRepository $daemonServerRepository,
         private FindViableNodesService $findViableNodesService,
+        private PortClaim $portClaim,
         private ServerDeletionService $serverDeletionService,
         private VariableValidatorService $validatorService
     ) {}
@@ -183,17 +185,29 @@ class ServerCreationService
         if (isset($data['allocation_additional'])) {
             $records = array_merge($records, $data['allocation_additional']);
         }
+        $records = array_values(array_unique($records));
 
-        Allocation::query()
-            ->whereIn('id', array_values(array_unique($records)))
-            ->whereNull('server_id')
-            ->lockForUpdate()
-            ->get()
-            ->each(function (Allocation $allocation) use ($server) {
-                $allocation->server_id = $server->id;
-                $allocation->is_locked = true;
-                $allocation->save();
-            });
+        // id => port for every allocation being assigned (primary + additional).
+        $ports = Allocation::query()->whereIn('id', $records)->pluck('port')->all();
+
+        $this->portClaim->withClaims($ports, function () use ($records, $ports, $server) {
+            // the port rows are FOR UPDATE locked. fence fleet-wide: if any allocation
+            // for any of these ports is already bound (on this or any other node), the
+            // port is owned elsewhere, so refuse rather than collide on the single
+            // port-keyed edge map.
+            $taken = Allocation::query()
+                ->whereIn('port', $ports)
+                ->whereNotNull('server_id')
+                ->exists();
+            if ($taken) {
+                throw new PortClaimConflictException();
+            }
+
+            Allocation::query()
+                ->whereIn('id', $records)
+                ->whereNull('server_id')
+                ->update(['server_id' => $server->id, 'is_locked' => true]);
+        });
     }
 
     /**
