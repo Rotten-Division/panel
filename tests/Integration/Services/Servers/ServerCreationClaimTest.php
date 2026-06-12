@@ -2,6 +2,8 @@
 
 namespace App\Tests\Integration\Services\Servers;
 
+use App\Contracts\Servers\NodeRoutableGate;
+use App\Exceptions\DisplayException;
 use App\Exceptions\Servers\PortClaimConflictException;
 use App\Models\Allocation;
 use App\Models\Egg;
@@ -111,6 +113,34 @@ class ServerCreationClaimTest extends IntegrationTestCase
         $this->assertDatabaseHas('allocations', ['id' => $primary->id, 'server_id' => $server->id]);
         $this->assertDatabaseHas('allocations', ['id' => $a1->id, 'server_id' => $server->id]);
         $this->assertDatabaseHas('allocations', ['id' => $a2->id, 'server_id' => $server->id]);
+    }
+
+    public function test_create_is_refused_on_a_node_without_a_routing_peer(): void
+    {
+        $user = User::factory()->create();
+        $node = Node::factory()->create();
+        $free = Allocation::factory()->create(['node_id' => $node->id, 'port' => 28000, 'server_id' => null]);
+
+        // a node with no routing peer is not a placement target, even for a free port.
+        $this->swap(NodeRoutableGate::class, new class implements NodeRoutableGate
+        {
+            public function routable(int $nodeId): bool
+            {
+                return false;
+            }
+        });
+
+        $this->daemonServerRepository->shouldReceive('setServer->create')->never();
+
+        try {
+            $this->getService()->handle($this->baseData($user, $node, $free->id));
+            $this->fail('expected a DisplayException for the peerless node');
+        } catch (PortClaimConflictException) {
+            $this->fail('peerless refusal must not be a retryable claim conflict');
+        } catch (DisplayException) {
+        }
+
+        $this->assertDatabaseHas('allocations', ['id' => $free->id, 'server_id' => null]);
     }
 
     /**

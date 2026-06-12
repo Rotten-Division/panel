@@ -2,6 +2,9 @@
 
 namespace App\Services\Servers;
 
+use App\Contracts\Servers\NodeRoutableGate;
+use App\Contracts\Servers\PortDisposition;
+use App\Enums\PortState;
 use App\Enums\ServerState;
 use App\Exceptions\DisplayException;
 use App\Exceptions\Model\DataValidationException;
@@ -35,7 +38,9 @@ class ServerCreationService
         private ConnectionInterface $connection,
         private DaemonServerRepository $daemonServerRepository,
         private FindViableNodesService $findViableNodesService,
+        private NodeRoutableGate $nodeRoutableGate,
         private PortClaim $portClaim,
+        private PortDisposition $portDisposition,
         private ServerDeletionService $serverDeletionService,
         private VariableValidatorService $validatorService
     ) {}
@@ -191,16 +196,17 @@ class ServerCreationService
         $ports = Allocation::query()->whereIn('id', $records)->pluck('port')->all();
 
         $this->portClaim->withClaims($ports, function () use ($records, $ports, $server) {
-            // the port rows are FOR UPDATE locked. fence fleet-wide: if any allocation
-            // for any of these ports is already bound (on this or any other node), the
-            // port is owned elsewhere, so refuse rather than collide on the single
-            // port-keyed edge map.
-            $taken = Allocation::query()
-                ->whereIn('port', $ports)
-                ->whereNotNull('server_id')
-                ->exists();
-            if ($taken) {
-                throw new PortClaimConflictException();
+            // the port rows are FOR UPDATE locked. a create owns each port fleet-wide
+            // only if it is Free: refuse a port bound on any node (the single port-keyed
+            // edge map can point one place), held (a stashed server owns it), or reserved
+            // (the control band). a peerless node is not a placement target.
+            if (!$this->nodeRoutableGate->routable($server->node_id)) {
+                throw new DisplayException('The target node has no routing peer and cannot host this server.');
+            }
+            foreach ($ports as $port) {
+                if ($this->portDisposition->for((int) $port) !== PortState::Free) {
+                    throw new PortClaimConflictException();
+                }
             }
 
             Allocation::query()
