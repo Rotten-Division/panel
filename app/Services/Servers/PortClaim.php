@@ -19,7 +19,8 @@ class PortClaim
      * The only sanctioned way to flip allocation.server_id null to set.
      * Acquires the per-port locks sorted ascending and deduped (so any two
      * operations over overlapping ports lock in the same order and cannot
-     * deadlock), runs $bind inside one DB transaction, releases after commit.
+     * deadlock), runs $bind inside one DB transaction, releases after the
+     * transaction completes (commit or rollback).
      * No wings or edge calls belong inside $bind, the route push is post-commit
      * via the AllocationsAssigned event.
      *

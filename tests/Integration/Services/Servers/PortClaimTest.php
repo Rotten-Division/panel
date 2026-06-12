@@ -39,5 +39,6 @@ class PortClaimTest extends IntegrationTestCase
 
         // a lock on the same port is immediately acquirable again
         $this->assertTrue(Cache::lock('ospite:port-reserve:25565', 5)->get());
+        $this->assertTrue(Cache::lock('ospite:port-reserve:25564', 5)->get());
     }
 }
