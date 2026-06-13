@@ -196,10 +196,7 @@ class ServerCreationService
         $ports = Allocation::query()->whereIn('id', $records)->pluck('port')->all();
 
         $this->portClaim->withClaims($ports, function () use ($records, $ports, $server) {
-            // the port rows are FOR UPDATE locked. a create owns each port fleet-wide
-            // only if it is Free: refuse a port bound on any node (the single port-keyed
-            // edge map can point one place), held (a stashed server owns it), or reserved
-            // (the control band). a peerless node is not a placement target.
+            // a peerless node is not a placement target.
             if (!$this->nodeRoutableGate->routable($server->node_id)) {
                 throw new DisplayException('The target node has no routing peer and cannot host this server.');
             }

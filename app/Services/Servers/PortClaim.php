@@ -10,12 +10,10 @@ class PortClaim
 {
     /**
      * Bind a set of ports under a fleet-wide database row lock. The allocation
-     * rows for $ports are locked FOR UPDATE in ascending port order (deadlock-free)
-     * inside the transaction, so the bind serialises against any concurrent claim
-     * across every node, the locks hold until the real outermost commit (savepoints
-     * do not release them, so this is safe when a caller is already in a transaction),
-     * and there is no lease to expire. $bind runs with the rows locked and does its
-     * own disposition re-check before the server_id flip.
+     * rows for $ports are locked FOR UPDATE in ascending port order (deadlock-free).
+     * Savepoints do not release a FOR UPDATE lock, so this is safe to nest inside an
+     * outer transaction. $bind runs with the rows locked and does its own disposition
+     * re-check before the server_id flip.
      *
      * @template T
      *
