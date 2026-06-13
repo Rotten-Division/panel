@@ -86,7 +86,7 @@ class WgPeerRouteTest extends IntegrationTestCase
 
         $this->withHeader('Authorization', 'Bearer ' . $key->identifier . $key->token)
             ->putJson($this->url($node), ['wg_peer_ip' => '10.99.0.30'])
-            ->assertStatus(403);
+            ->assertForbidden();
     }
 
     public function test_it_204s_and_writes_the_row_with_a_node_write_key_and_an_in_cidr_peer(): void
@@ -96,7 +96,7 @@ class WgPeerRouteTest extends IntegrationTestCase
 
         $this->withHeader('Authorization', 'Bearer ' . $key->identifier . $key->token)
             ->putJson($this->url($node), ['wg_peer_ip' => '10.99.0.30'])
-            ->assertStatus(204);
+            ->assertNoContent();
 
         $this->assertDatabaseHas('osw_node_peers', [
             'node_id' => $node->id,
@@ -124,7 +124,7 @@ class WgPeerRouteTest extends IntegrationTestCase
         // miss and 404s before the controller ever runs.
         $this->withHeader('Authorization', 'Bearer ' . $key->identifier . $key->token)
             ->putJson('/api/application/ospite-router/nodes/999999/wg-peer', ['wg_peer_ip' => '10.99.0.30'])
-            ->assertStatus(404);
+            ->assertNotFound();
 
         $this->assertDatabaseMissing('osw_node_peers', ['wg_peer_ip' => '10.99.0.30']);
     }
