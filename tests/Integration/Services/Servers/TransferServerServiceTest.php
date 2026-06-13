@@ -19,10 +19,8 @@ use Lcobucci\JWT\UnencryptedToken;
 // destination because the port is Bound on the source mid-move, so the precondition
 // is "bound by this server" on the source.
 //
-// the fence is tested single-process: sqlite (see phpunit.xml) has no real FOR
-// UPDATE and isolates each connection, so a true two-process concurrency test is not
-// faithful. real cross-process FOR UPDATE exclusion is proven on canary mysql (phase
-// 7), not sqlite.
+// sqlite has no real FOR UPDATE, so cross-process exclusion is proven on canary mysql
+// against a real database, not sqlite.
 class TransferServerServiceTest extends IntegrationTestCase
 {
     public function test_transfer_rebinds_the_same_port_on_the_destination_node(): void
@@ -103,6 +101,9 @@ class TransferServerServiceTest extends IntegrationTestCase
 
         $this->mockJwt();
         $this->expectException(DisplayException::class);
+        // assert the guard's own message, not just any DisplayException: this
+        // distinguishes the "no longer free" re-read guard firing from a generic rollback.
+        $this->expectExceptionMessage("Destination allocation {$destAllocation->id} is no longer free.");
 
         try {
             $this->getService()->handle($server, $destination->id, $destAllocation->id);
