@@ -12,11 +12,10 @@ use App\Services\Allocations\AssignmentService;
 use App\Tests\Integration\IntegrationTestCase;
 
 // the admin "create allocation on a server" path inserts rows already bound to the
-// server, so it is a fleet-wide bind site and must take the claim. tested single
-// process here: sqlite (see phpunit.xml) has no real FOR UPDATE, so cross-process
-// exclusion is only provable on canary mysql against a real database. what we prove
-// here is the fence logic: a port owned on any node is refused, a free port binds,
-// and a node with no routing peer is refused.
+// server, so it is a fleet-wide bind site and must take the claim. sqlite has no real
+// FOR UPDATE, so cross-process exclusion is proven on canary mysql against a real
+// database. what we prove here is the fence logic: a port owned on any node is refused,
+// a free port binds, and a node with no routing peer is refused.
 class AssignmentServiceClaimTest extends IntegrationTestCase
 {
     public function test_binding_a_new_allocation_to_a_server_refuses_a_port_owned_on_another_node(): void

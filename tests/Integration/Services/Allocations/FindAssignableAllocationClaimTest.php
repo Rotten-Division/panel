@@ -10,11 +10,9 @@ use App\Tests\Integration\IntegrationTestCase;
 // the client API and the Filament Network tab both auto-assign through this one
 // service, so this single service test covers both entry points.
 //
-// the fence is tested single-process: sqlite (see phpunit.xml) has no real FOR
-// UPDATE and isolates each connection, so a true two-process concurrency test is not
-// faithful. real cross-process FOR UPDATE exclusion is proven on canary mysql (phase
-// 7), not sqlite. here we prove the disposition LOGIC: a port bound elsewhere is
-// refused and bound nothing.
+// sqlite has no real FOR UPDATE, so cross-process exclusion is proven on canary mysql
+// against a real database; here we prove the disposition logic: a port bound elsewhere
+// is refused and bound nothing.
 class FindAssignableAllocationClaimTest extends IntegrationTestCase
 {
     protected function setUp(): void

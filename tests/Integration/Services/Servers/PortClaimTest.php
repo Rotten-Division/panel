@@ -7,9 +7,8 @@ use App\Services\Servers\PortClaim;
 use App\Tests\Integration\IntegrationTestCase;
 use RuntimeException;
 
-// real cross-process / concurrent-claim behaviour is covered separately against a
-// live mysql/postgres database, since sqlite does not honour FOR UPDATE row locks
-// (the helper still runs cleanly on sqlite, the lock is just a no-op there).
+// sqlite has no real FOR UPDATE, so cross-process exclusion is proven on canary mysql
+// against a real database; here the helper runs cleanly with the lock a no-op.
 class PortClaimTest extends IntegrationTestCase
 {
     public function test_it_runs_the_closure_and_returns_its_value(): void

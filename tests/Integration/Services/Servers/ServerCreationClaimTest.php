@@ -16,12 +16,10 @@ use App\Tests\Integration\IntegrationTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Mockery\MockInterface;
 
-// the fleet-wide fence is tested single-process here: sqlite (the test database, see
-// phpunit.xml) has no real FOR UPDATE and isolates each connection, so a true
-// two-process concurrency test is not faithful. real cross-process FOR UPDATE
-// exclusion is proven on canary mysql (phase 7), not sqlite. what we prove here is
-// the fence LOGIC: a port already bound elsewhere makes the create throw and bind
-// nothing, and a multi-port create binds every port under one claim.
+// sqlite has no real FOR UPDATE, so cross-process exclusion is proven on canary mysql
+// against a real database. what we prove here is the fence logic: a port already bound
+// elsewhere makes the create throw and bind nothing, and a multi-port create binds
+// every port under one claim.
 class ServerCreationClaimTest extends IntegrationTestCase
 {
     use WithFaker;
